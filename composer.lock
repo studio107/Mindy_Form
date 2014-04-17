@@ -1,0 +1,327 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
+    ],
+    "hash": "97924806e3c1e762fde4b238d15c1041",
+    "packages": [
+        {
+            "name": "mindy/cache",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/studio107/Mindy_Cache.git",
+                "reference": "d2e8e03fd39c162e56532138ea8a85b8e85f319d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/studio107/Mindy_Cache/zipball/d2e8e03fd39c162e56532138ea8a85b8e85f319d",
+                "reference": "d2e8e03fd39c162e56532138ea8a85b8e85f319d",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.4"
+            },
+            "require-dev": {
+                "satooshi/php-coveralls": "dev-master"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Alex Gordeev",
+                    "email": "alex@studio107.ru",
+                    "homepage": "http://studio107.ru",
+                    "role": "Developer"
+                }
+            ],
+            "homepage": "https://github.com/studio107/Mindy_Cache",
+            "time": "2014-01-07 12:58:09"
+        },
+        {
+            "name": "mindy/core",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/studio107/Mindy_Core.git",
+                "reference": "c7b0ba09869c7868689c2a857c53bead6255a0a9"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/studio107/Mindy_Core/zipball/c7b0ba09869c7868689c2a857c53bead6255a0a9",
+                "reference": "c7b0ba09869c7868689c2a857c53bead6255a0a9",
+                "shasum": ""
+            },
+            "require": {
+                "mindy/exception": "dev-master",
+                "mindy/helper": "dev-master",
+                "php": ">=5.4"
+            },
+            "require-dev": {
+                "satooshi/php-coveralls": "dev-master"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Maxim Falaleev",
+                    "email": "max@studio107.ru",
+                    "homepage": "http://studio107.ru",
+                    "role": "Developer"
+                }
+            ],
+            "homepage": "https://github.com/studio107/Mindy_Core",
+            "time": "2014-01-07 11:30:17"
+        },
+        {
+            "name": "mindy/exception",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/studio107/Mindy_Exception.git",
+                "reference": "ac3542edf3660aa684ae57a0f943eb7d14a76cb6"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/studio107/Mindy_Exception/zipball/ac3542edf3660aa684ae57a0f943eb7d14a76cb6",
+                "reference": "ac3542edf3660aa684ae57a0f943eb7d14a76cb6",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.4"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Maxim Falaleev",
+                    "email": "max@studio107.ru",
+                    "homepage": "http://studio107.ru",
+                    "role": "Developer"
+                }
+            ],
+            "homepage": "https://github.com/studio107/Mindy_Exception",
+            "time": "2014-01-07 10:40:54"
+        },
+        {
+            "name": "mindy/helper",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/studio107/Mindy_Helper.git",
+                "reference": "0eddaa250c6b914540e08b6c3aad686d742251b6"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/studio107/Mindy_Helper/zipball/0eddaa250c6b914540e08b6c3aad686d742251b6",
+                "reference": "0eddaa250c6b914540e08b6c3aad686d742251b6",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.4"
+            },
+            "require-dev": {
+                "satooshi/php-coveralls": "dev-master"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Maxim Falaleev",
+                    "email": "max@studio107.ru",
+                    "homepage": "http://studio107.ru",
+                    "role": "Developer"
+                }
+            ],
+            "homepage": "https://github.com/studio107/Mindy_Helper",
+            "time": "2014-04-11 12:11:59"
+        },
+        {
+            "name": "mindy/logger",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/studio107/Mindy_Logger.git",
+                "reference": "0251a94f23c34be80fbdeae71537cc9d1d2926c5"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/studio107/Mindy_Logger/zipball/0251a94f23c34be80fbdeae71537cc9d1d2926c5",
+                "reference": "0251a94f23c34be80fbdeae71537cc9d1d2926c5",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.4"
+            },
+            "require-dev": {
+                "satooshi/php-coveralls": "dev-master"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Maxim Falaleev",
+                    "email": "max@studio107.ru",
+                    "homepage": "http://studio107.ru",
+                    "role": "Developer"
+                }
+            ],
+            "homepage": "https://github.com/studio107/Mindy_Logger",
+            "time": "2014-01-06 17:46:42"
+        },
+        {
+            "name": "mindy/orm",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/studio107/Mindy_Orm.git",
+                "reference": "7b99c9f372c8956d36d179127f683a3913e0be31"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/studio107/Mindy_Orm/zipball/7b99c9f372c8956d36d179127f683a3913e0be31",
+                "reference": "7b99c9f372c8956d36d179127f683a3913e0be31",
+                "shasum": ""
+            },
+            "require": {
+                "mindy/cache": "dev-master",
+                "mindy/core": "dev-master",
+                "mindy/exception": "dev-master",
+                "mindy/helper": "dev-master",
+                "mindy/logger": "dev-master",
+                "mindy/query": "dev-master",
+                "php": ">=5.4"
+            },
+            "require-dev": {
+                "satooshi/php-coveralls": "dev-master"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Maxim Falaleev",
+                    "email": "max@studio107.ru",
+                    "homepage": "http://studio107.ru",
+                    "role": "Developer"
+                }
+            ],
+            "homepage": "https://github.com/studio107/Mindy_Orm",
+            "time": "2014-04-04 05:29:35"
+        },
+        {
+            "name": "mindy/query",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/studio107/Mindy_Query.git",
+                "reference": "7adc9e181c491d3a46af07e10f998cdd6a76e9dd"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/studio107/Mindy_Query/zipball/7adc9e181c491d3a46af07e10f998cdd6a76e9dd",
+                "reference": "7adc9e181c491d3a46af07e10f998cdd6a76e9dd",
+                "shasum": ""
+            },
+            "require": {
+                "mindy/cache": "dev-master",
+                "mindy/core": "dev-master",
+                "mindy/exception": "dev-master",
+                "mindy/helper": "dev-master",
+                "mindy/logger": "dev-master",
+                "php": ">=5.4"
+            },
+            "require-dev": {
+                "satooshi/php-coveralls": "dev-master"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Maxim Falaleev",
+                    "email": "max@studio107.ru",
+                    "homepage": "http://studio107.ru",
+                    "role": "Developer"
+                }
+            ],
+            "homepage": "https://github.com/studio107/Mindy_Query",
+            "time": "2014-04-01 08:50:11"
+        }
+    ],
+    "packages-dev": null,
+    "aliases": [
+
+    ],
+    "minimum-stability": "stable",
+    "stability-flags": {
+        "mindy/core": 20,
+        "mindy/exception": 20,
+        "mindy/query": 20,
+        "mindy/logger": 20,
+        "mindy/cache": 20,
+        "mindy/orm": 20,
+        "mindy/helper": 20,
+        "satooshi/php-coveralls": 20
+    },
+    "platform": {
+        "php": ">=5.4"
+    },
+    "platform-dev": [
+
+    ]
+}

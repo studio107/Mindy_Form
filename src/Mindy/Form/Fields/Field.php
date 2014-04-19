@@ -20,6 +20,8 @@ abstract class Field
 {
     public $widget;
 
+    public $inputType;
+
     /**
      * @var Form
      */

@@ -27,8 +27,8 @@ class FormTest extends TestCase
 
     public function testInit()
     {
-        $form = new ModelForm;
-        $this->assertInstanceOf('Mindy\Form\ModelForm', $form);
+        $form = new EmptyForm;
+        $this->assertInstanceOf('EmptyForm', $form);
         $this->assertEquals([], $form->getFields());
     }
 

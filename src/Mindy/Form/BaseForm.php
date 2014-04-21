@@ -261,35 +261,35 @@ abstract class BaseForm extends Object implements IteratorAggregate, Countable, 
      */
     public function getIterator()
     {
-        return new ArrayIterator($this->fields);
+        return new ArrayIterator($this->_fields);
     }
 
     public function count()
     {
-        return count($this->fields);
+        return count($this->_fields);
     }
 
     public function offsetSet($offset, $value)
     {
         if (is_null($offset)) {
-            $this->fields[] = $value;
+            $this->_fields[] = $value;
         } else {
-            $this->fields[$offset] = $value;
+            $this->_fields[$offset] = $value;
         }
     }
 
     public function offsetExists($offset)
     {
-        return isset($this->fields[$offset]);
+        return isset($this->_fields[$offset]);
     }
 
     public function offsetUnset($offset)
     {
-        unset($this->fields[$offset]);
+        unset($this->_fields[$offset]);
     }
 
     public function offsetGet($offset)
     {
-        return isset($this->fields[$offset]) ? $this->fields[$offset] : null;
+        return isset($this->_fields[$offset]) ? $this->_fields[$offset] : null;
     }
 }

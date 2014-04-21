@@ -22,7 +22,7 @@ class TemplateForm extends BaseForm
         'custom' => 'custom.twig'
     ];
 
-    public function render($template)
+    public function render($template, array $fields = [])
     {
         return $template;
     }

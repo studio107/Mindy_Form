@@ -125,4 +125,14 @@ class FormTest extends TestCase
         ]);
         $this->assertTrue($form->isValid());
     }
+
+    public function testRenderSelectedFields()
+    {
+        $form = new SimpleForm();
+        $form->render("qwe", ["name"]);
+        $this->assertEquals(1, count($form->getRenderFields()));
+
+        $form->render("qwe");
+        $this->assertEquals(2, count($form->getRenderFields()));
+    }
 }

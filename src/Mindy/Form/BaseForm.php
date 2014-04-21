@@ -49,9 +49,12 @@ abstract class BaseForm extends Object implements IteratorAggregate, Countable, 
 
     private $_fields = [];
 
+    private $_renderFields = [];
+
     public function init()
     {
         $this->initFields();
+        $this->setRenderFields(array_keys($this->getFieldsInit()));
     }
 
     public function getId()
@@ -133,9 +136,31 @@ abstract class BaseForm extends Object implements IteratorAggregate, Countable, 
      * @param $template
      * @return string
      */
-    protected function render($template)
+    public function render($template, array $fields = [])
     {
+        if(!empty($fields)) {
+            $this->setRenderFields($fields);
+        } else {
+            $this->setRenderFields(array_keys($this->getFieldsInit()));
+        }
         return self::$_renderer->render($template, ['form' => $this]);
+    }
+
+    public function setRenderFields(array $fields)
+    {
+        $this->_renderFields = [];
+
+        $initFields = $this->getFieldsInit();
+        foreach($fields as $name) {
+            if(array_key_exists($name, $initFields)) {
+                $this->_renderFields[$name] = $initFields[$name];
+            }
+        }
+    }
+
+    public function getRenderFields()
+    {
+        return $this->_renderFields;
     }
 
     /**
@@ -256,35 +281,35 @@ abstract class BaseForm extends Object implements IteratorAggregate, Countable, 
      */
     public function getIterator()
     {
-        return new ArrayIterator($this->_fields);
+        return new ArrayIterator($this->_renderFields);
     }
 
     public function count()
     {
-        return count($this->_fields);
+        return count($this->_renderFields);
     }
 
     public function offsetSet($offset, $value)
     {
         if (is_null($offset)) {
-            $this->_fields[] = $value;
+            $this->_renderFields[] = $value;
         } else {
-            $this->_fields[$offset] = $value;
+            $this->_renderFields[$offset] = $value;
         }
     }
 
     public function offsetExists($offset)
     {
-        return isset($this->_fields[$offset]);
+        return isset($this->_renderFields[$offset]);
     }
 
     public function offsetUnset($offset)
     {
-        unset($this->_fields[$offset]);
+        unset($this->_renderFields[$offset]);
     }
 
     public function offsetGet($offset)
     {
-        return isset($this->_fields[$offset]) ? $this->_fields[$offset] : null;
+        return isset($this->_renderFields[$offset]) ? $this->_renderFields[$offset] : null;
     }
 }

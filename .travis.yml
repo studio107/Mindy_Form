@@ -12,8 +12,4 @@ matrix:
   allow_failures:
     - php: hhvm
 
-services:
-  - redis-server
-  - memcached
-
 script: phpunit --colors --no-globals-backup

@@ -2,6 +2,8 @@
 use Mindy\Form\Fields\CharField;
 use Mindy\Form\Fields\EmailField;
 use Mindy\Form\BaseForm;
+use Mindy\Form\Validator\EmailValidator;
+use Mindy\Form\Validator\RequiredValidator;
 
 /**
  * 
@@ -23,9 +25,16 @@ class ValidationForm extends BaseForm
         return [
             'name' => [
                 'class' => CharField::className(),
+                'validators' => [
+                    new RequiredValidator()
+                ]
             ],
             'email' => [
                 'class' => EmailField::className(),
+                'validators' => [
+                    new RequiredValidator(),
+                    new EmailValidator()
+                ]
             ],
         ];
     }

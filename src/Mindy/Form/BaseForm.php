@@ -49,7 +49,7 @@ abstract class BaseForm extends Object implements IteratorAggregate, Countable, 
 
     private $_fields = [];
 
-    public function __construct()
+    public function init()
     {
         $this->initFields();
     }
@@ -83,7 +83,7 @@ abstract class BaseForm extends Object implements IteratorAggregate, Countable, 
                 'name' => $name,
                 'form' => $this,
             ], $config));
-            $this->fields[$name] = $field;
+            $this->_fields[$name] = $field;
         }
     }
 
@@ -225,7 +225,8 @@ abstract class BaseForm extends Object implements IteratorAggregate, Countable, 
         $this->clearErrors();
 
         /* @var $field \Mindy\Orm\Fields\Field */
-        foreach ($this->getFieldsInit() as $name => $field) {
+        $fields = $this->getFieldsInit();
+        foreach ($fields as $name => $field) {
             if ($field->isValid() === false) {
                 foreach ($field->getErrors() as $error) {
                     $this->addError($name, $error);

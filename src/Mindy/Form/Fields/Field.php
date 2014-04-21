@@ -24,9 +24,13 @@ abstract class Field extends Object
 
     public $inputType;
 
-    public $template = "<input type='{type}' {html}/>";
+    public $template = "<input type='{type}' id='{id}' name='{name}'{html}/>";
 
     public $hint;
+
+    public $type = 'text';
+
+    public $html;
 
     /**
      * @var string html class for render hint
@@ -65,8 +69,10 @@ abstract class Field extends Object
     {
         $label = $this->renderLabel();
         $input = strtr($this->template, [
-            'type' => $this->type,
-            'html' => $this->htmlAttributes
+            '{type}' => $this->type,
+            '{id}' => $this->getId(),
+            '{name}' => $this->name,
+            '{html}' => $this->getHtmlAttributes()
         ]);
 
         $hint = $this->hint ? $this->renderHint() : '';
@@ -76,8 +82,15 @@ abstract class Field extends Object
 
     public function getHtmlAttributes()
     {
-        // TODO
-        return implode(' ', []);
+        if(is_array($this->html)) {
+            $html = '';
+            foreach($this->html as $name => $value) {
+                $html .= " $name='$value'";
+            }
+            return implode(' ', $this->html);
+        } else {
+            return $this->html;
+        }
     }
 
     public function setValue($value)

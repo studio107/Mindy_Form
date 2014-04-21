@@ -14,10 +14,17 @@
 
 namespace Mindy\Form\Renderer;
 
-class DebugRenderer implements IFormRenderer
+class PhpRenderer implements IFormRenderer
 {
     public function render($template, array $data = [])
     {
-        return $template;
+        if(!is_file($template)) {
+            return null;
+        }
+
+        ob_start();
+        extract($data);
+        include($template);
+        return ob_get_clean();
     }
 }

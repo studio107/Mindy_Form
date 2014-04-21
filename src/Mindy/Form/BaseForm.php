@@ -93,9 +93,9 @@ abstract class BaseForm extends Object implements IteratorAggregate, Countable, 
         if (isset($this->templates[$type])) {
             $template = $this->getTemplateFromType($type);
             return $this->render($template);
+        } else {
+            return parent::__call($name, $arguments);
         }
-
-        throw new Exception("Unknown method $name");
     }
 
     public static function setRenderer(IFormRenderer $renderer)
@@ -133,14 +133,9 @@ abstract class BaseForm extends Object implements IteratorAggregate, Countable, 
      * @param $template
      * @return string
      */
-    public function render($template)
+    protected function render($template)
     {
-        $out = '';
-        $r = self::$_renderer;
-        foreach ($this->fields as $name => $field) {
-            $out .= $r->renderField($name, $field);
-        }
-        return $r->renderContainer($template);
+        return self::$_renderer->render($template, ['form' => $this]);
     }
 
     /**

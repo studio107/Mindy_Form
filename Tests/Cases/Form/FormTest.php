@@ -2,14 +2,14 @@
 use Mindy\Form;
 use Mindy\Form\BaseForm;
 use Mindy\Form\Fields\CharField;
-use Mindy\Form\ModelForm;
+use Mindy\Form\Renderer\DebugRenderer;
 use Tests\TestCase;
 
 /**
- * 
+ *
  *
  * All rights reserved.
- * 
+ *
  * @author Falaleev Maxim
  * @email max@studio107.ru
  * @version 1.0
@@ -17,11 +17,11 @@ use Tests\TestCase;
  * @site http://studio107.ru
  * @date 17/04/14.04.2014 18:15
  */
-
 class FormTest extends TestCase
 {
     public function setUp()
     {
+        BaseForm::setRenderer(new DebugRenderer());
         BaseForm::$ids = [];
     }
 
@@ -65,7 +65,7 @@ class FormTest extends TestCase
     public function testIterateFields()
     {
         $form = new SimpleForm();
-        foreach($form as $field) {
+        foreach ($form as $field) {
             $this->assertInstanceOf('\Mindy\Form\Fields\Field', $field);
         }
     }

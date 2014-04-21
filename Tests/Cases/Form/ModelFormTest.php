@@ -1,5 +1,6 @@
 <?php
 use Mindy\Form\BaseForm;
+use Mindy\Form\Renderer\DebugRenderer;
 use Tests\TestCase;
 
 /**
@@ -19,6 +20,7 @@ class ModelFormTest extends TestCase
 {
     public function setUp()
     {
+        BaseForm::setRenderer(new DebugRenderer());
         BaseForm::$ids = [];
     }
 

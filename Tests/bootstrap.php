@@ -14,8 +14,6 @@ foreach($models as $model) {
     include $model;
 }
 
-Mindy\Form\BaseForm::setRenderer(new Mindy\Form\Renderer\DebugRenderer());
-
 function d() {
     $debug = debug_backtrace();
     $args = func_get_args();

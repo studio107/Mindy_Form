@@ -7,7 +7,7 @@ if(is_dir(__DIR__ . '/../vendor')) {
 }
 
 require __DIR__ . '/TestCase.php';
-require __DIR__ . '/../vendor/mindy/Orm/Tests/DatabaseTestCase.php';
+require __DIR__ . '/../vendor/mindy/orm/Tests/DatabaseTestCase.php';
 
 $models = glob(realpath(__DIR__) . '/Forms/*.php');
 foreach($models as $model) {

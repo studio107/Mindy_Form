@@ -17,7 +17,7 @@ namespace Mindy\Form\Renderer;
 
 interface IFormRenderer
 {
-    public function renderField($template, array $data = []);
+    public function renderField($name, array $data = []);
 
     public function renderContainer($template, array $data = []);
 }

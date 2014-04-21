@@ -1,5 +1,5 @@
 <?php
-use Mindy\Form\Form;
+use Mindy\Form\BaseForm;
 
 /**
  * 
@@ -14,7 +14,7 @@ use Mindy\Form\Form;
  * @date 17/04/14.04.2014 18:30
  */
 
-class TemplateForm extends Form
+class TemplateForm extends BaseForm
 {
     public $templates = [
         'block' => 'block.twig',

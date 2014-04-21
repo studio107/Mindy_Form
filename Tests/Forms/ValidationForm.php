@@ -16,16 +16,16 @@ use Mindy\Form\BaseForm;
  * @date 17/04/14.04.2014 18:25
  */
 
-class SimpleForm extends BaseForm
+class ValidationForm extends BaseForm
 {
     public function getFields()
     {
         return [
             'name' => [
-                'class' => CharField::className()
+                'class' => CharField::className(),
             ],
             'email' => [
-                'class' => EmailField::className()
+                'class' => EmailField::className(),
             ],
         ];
     }

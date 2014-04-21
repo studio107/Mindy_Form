@@ -1,5 +1,5 @@
 <?php
-use Mindy\Form\Form;
+use Mindy\Form\BaseForm;
 
 /**
  * 
@@ -14,7 +14,7 @@ use Mindy\Form\Form;
  * @date 17/04/14.04.2014 18:49
  */
 
-class RenderTemplateForm extends Form
+class RenderTemplateForm extends BaseForm
 {
     public function setTemplates(array $templates)
     {
@@ -22,7 +22,7 @@ class RenderTemplateForm extends Form
         return $this;
     }
 
-    public function addTemplate($name, array $template)
+    public function addTemplate($name, $template)
     {
         $this->templates[$name] = $template;
         return $this;

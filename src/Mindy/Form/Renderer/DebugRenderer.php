@@ -16,9 +16,9 @@ namespace Mindy\Form\Renderer;
 
 class DebugRenderer implements IFormRenderer
 {
-    public function renderField($template, array $data = [])
+    public function renderField($name, array $data = [])
     {
-        return strtr($template, $data);
+        return $name;
     }
 
     public function renderContainer($template, array $data = [])
@@ -26,4 +26,3 @@ class DebugRenderer implements IFormRenderer
         return strtr($template, $data);
     }
 }
-

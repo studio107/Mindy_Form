@@ -177,9 +177,26 @@ abstract class BaseForm extends Object implements IteratorAggregate, Countable, 
      * @param string $attribute attribute name
      * @param string $error new error message
      */
-    public function addError($attribute, $error = '')
+    public function addError($attribute, $error)
     {
-        $this->_errors[$attribute][] = $error;
+        if($this->hasField($attribute)) {
+            $this->getField($attribute)->addError($error);
+            $this->_errors[$attribute][] = $error;
+        }
+    }
+
+    public function hasField($attribute)
+    {
+        return array_key_exists($attribute, $this->_fields);
+    }
+
+    /**
+     * @param $attribute
+     * @return \Mindy\Form\Fields\Field
+     */
+    public function getField($attribute)
+    {
+        return $this->_fields[$attribute];
     }
 
     /**
@@ -189,8 +206,14 @@ abstract class BaseForm extends Object implements IteratorAggregate, Countable, 
     public function clearErrors($attribute = null)
     {
         if ($attribute === null) {
+            foreach($this->getFieldsInit() as $field) {
+                $field->clearErrors();
+            }
             $this->_errors = [];
         } else {
+            if($this->hasField($attribute)) {
+                $this->getField($attribute)->clearErrors();
+            }
             unset($this->_errors[$attribute]);
         }
     }
@@ -253,7 +276,6 @@ abstract class BaseForm extends Object implements IteratorAggregate, Countable, 
                 }
             }
         }
-
         return $this->hasErrors() === false;
     }
 

@@ -191,6 +191,11 @@ abstract class Field extends Object
         $this->_errors = array_merge($this->_errors, $errors);
     }
 
+    public function addError($error)
+    {
+        $this->_errors[] = $error;
+    }
+
     /**
      * Format:
      * [

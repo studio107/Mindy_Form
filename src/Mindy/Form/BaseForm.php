@@ -82,6 +82,9 @@ abstract class BaseForm extends Object implements IteratorAggregate, Countable, 
     {
         $fields = $this->getFields();
         foreach ($fields as $name => $config) {
+            if(!is_array($config)) {
+                $config = ['class' => $config];
+            }
             $field = Creator::createObject(array_merge([
                 'name' => $name,
                 'form' => $this,

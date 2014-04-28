@@ -135,4 +135,18 @@ class FormTest extends TestCase
         $form->render("qwe");
         $this->assertEquals(2, count($form->getRenderFields()));
     }
+
+    public function testValidationCustom()
+    {
+        $form = new ValidationForm();
+        $this->assertFalse($form->isValid());
+        $this->assertEquals(
+            "<label for=\"ValidationForm_0_name\">Name</label><input type='text' id='ValidationForm_0_name' name='name'/><ul class='error'><li>Cannot be empty</li></ul>",
+            $form->getField("name")->render()
+        );
+        $this->assertEquals(
+            "<label for=\"ValidationForm_0_email\">Email</label><input type='text' id='ValidationForm_0_email' name='email'/><ul class='error'><li>Cannot be empty</li></ul>",
+            $form->getField("email")->render()
+        );
+    }
 }

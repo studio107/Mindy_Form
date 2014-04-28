@@ -48,6 +48,8 @@ abstract class Field extends Object
      */
     public $form;
 
+    public $errorClass = 'error';
+
     private $_errors = [];
 
     private $_value;

@@ -74,7 +74,7 @@ abstract class BaseForm extends Object implements IteratorAggregate, Countable, 
     public function __set($name, $value)
     {
         if(array_key_exists($name, $this->_fields)) {
-            return $this->_fields[$name]->setValue($value);
+            $this->_fields[$name]->setValue($value);
         } else {
             parent::__set($name, $value);
         }

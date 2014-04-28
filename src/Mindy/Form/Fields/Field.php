@@ -20,6 +20,8 @@ use Mindy\Form\BaseForm;
 
 abstract class Field extends Object
 {
+    public $value;
+
     public $widget;
 
     public $inputType;
@@ -52,8 +54,6 @@ abstract class Field extends Object
 
     private $_errors = [];
 
-    private $_value;
-
     private $_validatorClass = '\Mindy\Form\Validator\Validator';
 
     public function __toString()
@@ -74,6 +74,7 @@ abstract class Field extends Object
             '{type}' => $this->type,
             '{id}' => $this->getId(),
             '{name}' => $this->name,
+            '{value}' => $this->getValue(),
             '{html}' => $this->getHtmlAttributes()
         ]);
 
@@ -97,13 +98,13 @@ abstract class Field extends Object
 
     public function setValue($value)
     {
-        $this->_value = $value;
+        $this->value = $value;
         return $this;
     }
 
     public function getValue()
     {
-        return $this->_value;
+        return $this->value;
     }
 
     public function getId()

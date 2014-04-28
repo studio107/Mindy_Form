@@ -35,14 +35,24 @@ abstract class ModelForm extends BaseForm
 
     public function setData(array $data)
     {
+        parent::setData($data);
         $this->getInstance()->setData($data);
-        return parent::setData($data);
+        return $this;
     }
 
     public function setInstance($model)
     {
         if(is_subclass_of($model, $this->ormClass) || $model instanceof IFormModel) {
             $this->_instance = $model;
+            foreach($model->getFieldsInit() as $name => $field) {
+                if (is_a($field, $model->autoField)) {
+                    continue;
+                }
+
+                if($this->hasField($name)) {
+                    $this->getField($name)->setValue($field->getValue());
+                }
+            }
             return $this;
         }
 
@@ -55,6 +65,11 @@ abstract class ModelForm extends BaseForm
             $this->_instance = $this->getModel();
         }
         return $this->_instance;
+    }
+
+    public function save()
+    {
+        return $this->getInstance()->save(array_keys($this->getFields()));
     }
 
     abstract public function getModel();

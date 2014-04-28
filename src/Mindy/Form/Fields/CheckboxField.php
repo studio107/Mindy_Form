@@ -22,6 +22,9 @@ class CheckboxField extends CharField
     public function render()
     {
         $label = $this->renderLabel();
+        if($this->getValue()) {
+            $this->html['checked'] = 'checked';
+        }
         $input = strtr($this->template, [
             '{type}' => $this->type,
             '{id}' => $this->getId(),

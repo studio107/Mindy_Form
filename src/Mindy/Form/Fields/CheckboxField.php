@@ -9,14 +9,15 @@
  * @version 1.0
  * @company Studio107
  * @site http://studio107.ru
- * @date 17/04/14.04.2014 18:21
+ * @date 23/04/14.04.2014 18:25
  */
 
 namespace Mindy\Form\Fields;
 
-class CharField extends Field
+
+class CheckboxField extends CharField
 {
-    public $template = "<input type='{type}' value='{value}' id='{id}' name='{name}'{html}/>";
+    public $type = "checkbox";
 
     public function render()
     {
@@ -31,6 +32,6 @@ class CharField extends Field
 
         $hint = $this->hint ? $this->renderHint() : '';
         $errors = $this->getErrors() ? $this->renderErrors() : '';
-        return $label . $input . $hint . $errors;
+        return $input . $label . $hint . $errors;
     }
 }

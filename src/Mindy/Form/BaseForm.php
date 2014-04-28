@@ -206,6 +206,7 @@ abstract class BaseForm extends Object implements IteratorAggregate, Countable, 
     public function addError($attribute, $error)
     {
         if($this->hasField($attribute)) {
+            $this->getField($attribute)->addError($error);
             $this->_errors[$attribute][] = $error;
         }
     }

@@ -57,6 +57,29 @@ abstract class BaseForm extends Object implements IteratorAggregate, Countable, 
         $this->setRenderFields(array_keys($this->getFieldsInit()));
     }
 
+    public function getFieldsets()
+    {
+        return [];
+    }
+
+    public function __get($name)
+    {
+        if(array_key_exists($name, $this->_fields)) {
+            return $this->_fields[$name]->getValue();
+        } else {
+            return parent::__get($name);
+        }
+    }
+
+    public function __set($name, $value)
+    {
+        if(array_key_exists($name, $this->_fields)) {
+            return $this->_fields[$name]->setValue($value);
+        } else {
+            parent::__set($name, $value);
+        }
+    }
+
     public function getId()
     {
         if ($this->_id) {

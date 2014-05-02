@@ -17,12 +17,14 @@ namespace Mindy\Form\Fields;
 
 class CheckboxField extends CharField
 {
+    public $template = "<input type='{type}' id='{id}' name='{name}'{html}/>";
+
     public $type = "checkbox";
 
     public function render()
     {
         $label = $this->renderLabel();
-        if($this->getValue()) {
+        if($this->value) {
             $this->html['checked'] = 'checked';
         }
         $input = strtr($this->template, [
@@ -35,6 +37,8 @@ class CheckboxField extends CharField
 
         $hint = $this->hint ? $this->renderHint() : '';
         $errors = $this->getErrors() ? $this->renderErrors() : '';
-        return $input . $label . $hint . $errors;
+        $checkbox = $input . $label . $hint . $errors;
+
+        return "<input type='hidden' value='' name='{$this->name}' />" . $checkbox;
     }
 }

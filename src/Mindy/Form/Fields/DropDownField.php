@@ -38,23 +38,29 @@ class DropDownField extends Field
             $model = $this->form->getInstance();
             $field = $model->getField($this->name);
 
-            $selectedTmp = $field->getManager()->all();
-            foreach($selectedTmp as $model) {
-                $selected[] = $model->pk;
-            }
-
-            $modelClass = $field->modelClass;
-            $models = $modelClass::objects()->all();
-
             if(is_a($field, $model->manyToManyField)) {
+                $modelClass = $field->modelClass;
+                $models = $modelClass::objects()->all();
+
+                $selectedTmp = $field->getManager()->all();
+                foreach($selectedTmp as $model) {
+                    $selected[] = $model->pk;
+                }
+
                 $this->html['multiple'] = 'multiple';
                 if(count($models) > 1) {
                     $data[''] = '';
                 }
-            }
 
-            foreach ($models as $model) {
-                $data[$model->pk] = (string) $model;
+                foreach ($models as $model) {
+                    $data[$model->pk] = (string) $model;
+                }
+            } elseif (is_a($field, $model->hasManyField)) {
+                d(1);
+            } elseif (is_a($field, $model->foreignField)) {
+                d(2);
+            } else {
+                $data = parent::getValue();
             }
         } else {
             $data = parent::getValue();

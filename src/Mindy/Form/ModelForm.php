@@ -50,7 +50,10 @@ abstract class ModelForm extends BaseForm
                 }
 
                 if($this->hasField($name)) {
-                    $this->getField($name)->setValue($field->getValue());
+                    $fieldValue = $this->getField($name)->getValue();
+                    if(empty($fieldValue)) {
+                        $this->getField($name)->setValue($field->getValue());
+                    }
                 }
             }
             return $this;
@@ -69,7 +72,7 @@ abstract class ModelForm extends BaseForm
 
     public function save()
     {
-        return $this->getInstance()->save(array_keys($this->getFields()));
+        return $this->getInstance()->save();
     }
 
     abstract public function getModel();

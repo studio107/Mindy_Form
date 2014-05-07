@@ -110,6 +110,7 @@ class ManagedTest extends \Tests\DatabaseTestCase
             ]
         ]);
         $this->assertEquals(0, count($save));
+        $this->assertEquals(1, count($delete));
         $this->assertEquals(1, count($managed->inlinesDelete));
         $this->assertTrue($managed->isValid());
         $managed->save();

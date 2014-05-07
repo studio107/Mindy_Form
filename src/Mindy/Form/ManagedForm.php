@@ -234,6 +234,9 @@ abstract class ManagedForm extends Object
         }
     }
 
+    /**
+     * @void
+     */
     public function save()
     {
         $this->getForm()->save();

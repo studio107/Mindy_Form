@@ -20,6 +20,8 @@ use Mindy\Form\BaseForm;
 
 abstract class Field extends Object
 {
+    public $isHidden = false;
+
     public $value;
 
     public $widget;

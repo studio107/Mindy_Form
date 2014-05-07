@@ -18,4 +18,6 @@ namespace Mindy\Form\Fields;
 class HiddenField extends CharField
 {
     public $type = 'hidden';
+
+    public $isHidden = true;
 }

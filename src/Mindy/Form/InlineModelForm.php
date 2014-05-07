@@ -48,11 +48,12 @@ abstract class InlineModelForm extends ModelForm
     {
         $fields = parent::getFieldsInit();
         if(!$this->getInstance()->getIsNewRecord()) {
-            $fields[$this->getInstance()->primaryKey()] = Creator::createObject([
+            $pkName = $this->getInstance()->primaryKey();
+            $fields[$pkName] = Creator::createObject([
                 'class' => HiddenField::className(),
                 'form' => $this,
                 'label' => 'Primary Key',
-                'name' => 'pk',
+                'name' => $pkName,
                 'value' => $this->getInstance()->pk
             ]);
             $fields[self::DELETE_KEY] = Creator::createObject([

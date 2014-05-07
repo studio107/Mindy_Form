@@ -20,7 +20,15 @@ use Mindy\Form\BaseForm;
 
 abstract class Field extends Object
 {
-    public $isHidden = false;
+    /**
+     * @var bool Технические аттрибуты для inline моделей
+     */
+    public $hidden = false;
+
+    /**
+     * @var bool Технические аттрибуты для inline моделей
+     */
+    public $delete = false;
 
     public $value;
 

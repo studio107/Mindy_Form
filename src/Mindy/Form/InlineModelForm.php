@@ -16,6 +16,7 @@ namespace Mindy\Form;
 
 
 use Mindy\Form\Fields\CheckboxField;
+use Mindy\Form\Fields\DeleteInlineField;
 use Mindy\Form\Fields\HiddenField;
 use Mindy\Helper\Creator;
 
@@ -47,7 +48,8 @@ abstract class InlineModelForm extends ModelForm
     public function getFieldsInit()
     {
         $fields = parent::getFieldsInit();
-        if(!$this->getInstance()->getIsNewRecord()) {
+        $isNew = $this->getInstance()->getIsNewRecord();
+        if(!$isNew) {
             $pkName = $this->getInstance()->primaryKey();
             $fields[$pkName] = Creator::createObject([
                 'class' => HiddenField::className(),
@@ -56,13 +58,14 @@ abstract class InlineModelForm extends ModelForm
                 'name' => $pkName,
                 'value' => $this->getInstance()->pk
             ]);
-            $fields[self::DELETE_KEY] = Creator::createObject([
-                'class' => CheckboxField::className(),
-                'form' => $this,
-                'label' => 'Delete',
-                'name' => self::DELETE_KEY
-            ]);
         }
+        $fields[self::DELETE_KEY] = Creator::createObject([
+            'class' => DeleteInlineField::className(),
+            'form' => $this,
+            'label' => 'Delete',
+            'name' => self::DELETE_KEY,
+            'html' => $isNew ? ['disabled' => 'disabled'] : [],
+        ]);
         return $fields;
     }
 

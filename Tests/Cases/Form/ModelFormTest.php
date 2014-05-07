@@ -28,7 +28,7 @@ class ModelFormTest extends TestCase
     {
         $form = new DummyForm();
 
-        $this->assertEquals(1, DummyModel::$count);
+        $this->assertEquals(0, DummyModel::$count);
         $this->assertInstanceOf('DummyModel', $form->getInstance());
 
         $this->assertEquals(1, DummyModel::$count);

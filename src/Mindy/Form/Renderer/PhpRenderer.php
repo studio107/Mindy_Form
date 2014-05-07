@@ -14,12 +14,14 @@
 
 namespace Mindy\Form\Renderer;
 
+use Exception;
+
 class PhpRenderer implements IFormRenderer
 {
     public function render($template, array $data = [])
     {
         if(!is_file($template)) {
-            return null;
+            throw new Exception("Template {$template} not found");
         }
 
         ob_start();

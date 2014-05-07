@@ -112,7 +112,7 @@ class FormTest extends TestCase
         ]);
 
         $this->assertEquals('<p class="form-hint-text">hint</p>', $field->renderHint());
-        $this->assertEquals('<label for="SimpleForm_0_bar">foo</label>', $field->renderLabel());
+        $this->assertEquals("<label for='SimpleForm_0_bar'>foo</label>", $field->renderLabel());
     }
 
     public function testValidation()
@@ -140,12 +140,25 @@ class FormTest extends TestCase
     {
         $form = new ValidationForm();
         $this->assertFalse($form->isValid());
+
+        $this->assertTrue($form["name"]->hasErrors());
+        $this->assertEquals(1, count($form->getErrors("name")));
+
+        $this->assertEquals(1, count($form->getField("name")->getErrors()));
+
+        $this->assertFalse($form->getField("name")->isValid());
+        $this->assertEquals(1, count($form->getField("name")->getErrors()));
+
         $this->assertEquals(
-            "<label for=\"ValidationForm_0_name\">Name</label><input type='text' id='ValidationForm_0_name' name='name'/><ul class='error'><li>Cannot be empty</li></ul>",
+            "<label for='ValidationForm_0_name'>Name</label><input type='text' value='' id='ValidationForm_0_name' name='name'/><ul class='error'><li>Cannot be empty</li></ul>",
             $form->getField("name")->render()
         );
         $this->assertEquals(
-            "<label for=\"ValidationForm_0_email\">Email</label><input type='text' id='ValidationForm_0_email' name='email'/><ul class='error'><li>Cannot be empty</li></ul>",
+            "<label for='ValidationForm_0_name'>Name</label><input type='text' value='' id='ValidationForm_0_name' name='name'/><ul class='error'><li>Cannot be empty</li></ul>",
+            $form["name"]->render()
+        );
+        $this->assertEquals(
+            "<label for='ValidationForm_0_email'>Email</label><input type='text' id='ValidationForm_0_email' name='email'/><ul class='error'><li>Cannot be empty</li></ul>",
             $form->getField("email")->render()
         );
     }

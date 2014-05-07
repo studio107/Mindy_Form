@@ -21,7 +21,7 @@ class DummyModel implements IFormModel
 
     public function __construct()
     {
-        self::$count += 1;
+        self::$count++;
     }
 
     /**

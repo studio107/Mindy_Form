@@ -24,6 +24,13 @@ use Mindy\Form\Renderer\IFormRenderer;
 use Mindy\Helper\Creator;
 use ReflectionClass;
 
+/**
+ * Class BaseForm
+ * @package Mindy\Form
+ * @method string asBlock(array $renderFields = [])
+ * @method string asUl(array $renderFields = [])
+ * @method string asTable(array $renderFields = [])
+ */
 abstract class BaseForm extends Object implements IteratorAggregate, Countable, ArrayAccess
 {
     public $fields = [];
@@ -127,7 +134,7 @@ abstract class BaseForm extends Object implements IteratorAggregate, Countable, 
         $type = strtolower(ltrim($name, 'as'));
         if (isset($this->templates[$type])) {
             $template = $this->getTemplateFromType($type);
-            return $this->render($template);
+            return call_user_func_array([$this, 'render'], array_merge([$template], $arguments));
         } else {
             return parent::__call($name, $arguments);
         }
@@ -223,7 +230,6 @@ abstract class BaseForm extends Object implements IteratorAggregate, Countable, 
     public function addError($attribute, $error)
     {
         if($this->hasField($attribute)) {
-            $this->getField($attribute)->addError($error);
             $this->_errors[$attribute][] = $error;
         }
     }

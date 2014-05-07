@@ -52,7 +52,7 @@ abstract class Field extends Object
 
     public $errorClass = 'error';
 
-    private $_errors = [];
+    public $_errors = [];
 
     private $_validatorClass = '\Mindy\Form\Validator\Validator';
 
@@ -125,7 +125,7 @@ abstract class Field extends Object
     public function renderLabel()
     {
         $label = $this->label ? $this->label : ucfirst($this->name);
-        return strtr('<label for="{for}">{label}</label>', [
+        return strtr("<label for='{for}'>{label}</label>", [
             '{for}' => $this->id,
             '{label}' => $label
         ]);
@@ -133,18 +133,12 @@ abstract class Field extends Object
 
     public function renderErrors()
     {
-        $template = "<ul class='{class}'>{errors}</ul>";
-        $errorTemplate = "<li>{error}</li>";
-
         $errors = "";
         foreach ($this->getErrors() as $error) {
-            $errors .= strtr($errorTemplate, ['{error}' => $error]);
+            $errors .= "<li>{$error}</li>";
         }
 
-        return strtr($template, [
-            '{class}' => $this->errorClass,
-            '{errors}' => $errors
-        ]);
+        return "<ul class='{$this->errorClass}'>{$errors}</ul>";
     }
 
     public function renderHint()
@@ -179,8 +173,7 @@ abstract class Field extends Object
                 /* @var $validator \Mindy\Form\Validator\Validator */
                 $validator->clearErrors();
 
-                $valid = $validator->validate($this->value);
-                if ($valid === false) {
+                if ($validator->validate($this->value) === false) {
                     $this->addErrors($validator->getErrors());
                 }
             }

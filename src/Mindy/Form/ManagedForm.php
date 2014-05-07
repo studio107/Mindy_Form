@@ -44,12 +44,12 @@ abstract class ManagedForm extends Object
     /**
      * @var \Mindy\Form\InlineForm[]|\Mindy\Form\InlineModelForm[]
      */
-    private $_inlinesData = [];
+    public $inlinesData = [];
 
     /**
      * @var \Mindy\Form\InlineForm[]|\Mindy\Form\InlineModelForm[]
      */
-    private $_inlinesDelete = [];
+    public $inlinesDelete = [];
 
     public function init()
     {
@@ -59,7 +59,10 @@ abstract class ManagedForm extends Object
         ]);
 
         foreach($this->getInlines() as $link => $config) {
-            $this->_inlines[$link] = Creator::createObject($config);
+            $this->_inlines[$link] = Creator::createObject([
+                'class' => $config,
+                'link' => $link
+            ]);
         }
     }
 
@@ -115,14 +118,18 @@ abstract class ManagedForm extends Object
             foreach($models as $model) {
                 $inlines[$name][] = Creator::createObject([
                     'class' => $inline->className(),
-                    'instance' => $model
+                    'instance' => $model,
+                    'link' => $link
                 ]);
             }
 
-            foreach (range(1, $inline->extra) as $number) {
-                $inlines[$name][] = Creator::createObject([
-                    'class' => $inline->className(),
-                ]);
+            if($inline->extra > 0) {
+                foreach (range(1, $inline->extra) as $number) {
+                    $inlines[$name][] = Creator::createObject([
+                        'class' => $inline->className(),
+                        'link' => $link
+                    ]);
+                }
             }
         }
         return $inlines;
@@ -154,22 +161,33 @@ abstract class ManagedForm extends Object
 
         $instance = $form->getInstance();
 
+        $save = [];
+        $delete = [];
         foreach($this->_inlines as $link => $sourceInline) {
             $shortClassName = $sourceInline->shortClassName();
+
             if(array_key_exists($shortClassName, $data)) {
+                $count = 0;
                 foreach($data[$shortClassName] as $item) {
+                    if($sourceInline->max == $count) {
+                        break;
+                    }
+
                     $inline = clone $sourceInline;
+                    $inline->setData(array_merge([$link => $instance], $item));
 
                     if(array_key_exists(InlineModelForm::DELETE_KEY, $item)) {
-                        $this->_inlinesDelete[] = $item;
+                        $delete[] = $inline;
                     } else {
-                        $inline->setData(array_merge([$link => $instance], $item));
-                        $this->_inlinesData[] = $inline;
+                        $save[] = $inline;
                     }
+                    $count++;
                 }
             }
         }
-        return $this;
+        $this->inlinesData = $save;
+        $this->inlinesDelete = $delete;
+        return [$save, $delete];
     }
 
     /**
@@ -201,12 +219,16 @@ abstract class ManagedForm extends Object
     {
         $form = $this->getForm();
         if($form->isValid()) {
-            $valid = false;
-            foreach($this->_inlinesData as $inline) {
-                $valid = $inline->isValid();
-            }
+            if(empty($this->inlinesData)) {
+                return true;
+            } else {
+                $valid = false;
+                foreach($this->inlinesData as $inline) {
+                    $valid = $inline->isValid();
+                }
 
-            return $valid;
+                return $valid;
+            }
         } else {
             return false;
         }
@@ -216,8 +238,12 @@ abstract class ManagedForm extends Object
     {
         $this->getForm()->save();
 
-        foreach($this->_inlinesData as $inline) {
+        foreach($this->inlinesData as $inline) {
             $inline->save();
+        }
+
+        foreach($this->inlinesDelete as $inline) {
+            $inline->delete();
         }
     }
 }

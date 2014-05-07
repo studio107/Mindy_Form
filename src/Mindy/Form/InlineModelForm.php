@@ -69,7 +69,7 @@ abstract class InlineModelForm extends ModelForm
     public function setRenderOptions()
     {
         $field = $this->getInstance()->getField($this->link);
-        if(is_a($field, $this->getModel()->foreignField)) {
+        if(is_a($field, $this->getModel()->oneToOneField)) {
             $this->extra = 1;
             $this->max = 1;
             $this->showAddButton = false;

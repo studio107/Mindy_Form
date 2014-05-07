@@ -36,6 +36,8 @@ abstract class BaseForm extends Object implements IteratorAggregate, Countable, 
 
     public $defaultTemplateType = 'block';
 
+    public $prefix = [];
+
     private static $_templatePath = '';
 
     /* @var IFormRenderer */
@@ -55,6 +57,11 @@ abstract class BaseForm extends Object implements IteratorAggregate, Countable, 
     {
         $this->initFields();
         $this->setRenderFields(array_keys($this->getFieldsInit()));
+    }
+
+    public function getName()
+    {
+        return $this->shortClassName();
     }
 
     public function getFieldsets()
@@ -82,19 +89,18 @@ abstract class BaseForm extends Object implements IteratorAggregate, Countable, 
 
     public function getId()
     {
-        if ($this->_id) {
-            return $this->_id;
-        } else {
-            $reflect = new ReflectionClass($this);
-            $shortName = $reflect->getShortName();
-            if (array_key_exists($shortName, self::$ids)) {
-                self::$ids[$shortName]++;
+        if (!$this->_id) {
+            $className = self::className();
+            if (array_key_exists($className, self::$ids)) {
+                self::$ids[$className]++;
             } else {
-                self::$ids[$shortName] = 0;
+                self::$ids[$className] = 0;
             }
 
-            return $this->_id = $shortName . '_' . self::$ids[$shortName];
+            $this->_id = self::shortClassName() . '_' . self::$ids[$className];
         }
+
+        return $this->_id;
     }
 
     /**
@@ -158,8 +164,19 @@ abstract class BaseForm extends Object implements IteratorAggregate, Countable, 
         return $template;
     }
 
+    public static function getTemplatePath()
+    {
+        return self::$_templatePath;
+    }
+
+    public static function getRenderer()
+    {
+        return self::$_renderer;
+    }
+
     /**
      * @param $template
+     * @param array $fields
      * @return string
      */
     public function render($template, array $fields = [])

@@ -30,7 +30,7 @@ class CheckboxField extends CharField
         $input = strtr($this->template, [
             '{type}' => $this->type,
             '{id}' => $this->getId(),
-            '{name}' => $this->name,
+            '{name}' => $this->getName(),
             '{value}' => $this->getValue(),
             '{html}' => $this->getHtmlAttributes()
         ]);

@@ -20,19 +20,28 @@ abstract class ModelForm extends BaseForm
 {
     public $ormClass = '\Mindy\Orm\Model';
 
-    private $_instance;
+    public $instance;
 
     public function init()
     {
         parent::init();
-        $this->setInstance($this->getModel());
+        if($this->instance) {
+            $this->setInstance($this->instance);
+        }
     }
 
+    /**
+     * @return bool
+     */
     public function isValid()
     {
         return parent::isValid() && $this->getInstance()->isValid();
     }
 
+    /**
+     * @param array $data
+     * @return $this
+     */
     public function setData(array $data)
     {
         parent::setData($data);
@@ -40,10 +49,16 @@ abstract class ModelForm extends BaseForm
         return $this;
     }
 
+    /**
+     * @param $model \Mindy\Orm\Model
+     * @return $this
+     * @throws \Exception
+     */
     public function setInstance($model)
     {
         if(is_subclass_of($model, $this->ormClass) || $model instanceof IFormModel) {
-            $this->_instance = $model;
+            $this->instance = $model;
+            /* @var $model \Mindy\Orm\Model */
             foreach($model->getFieldsInit() as $name => $field) {
                 if (is_a($field, $model->autoField)) {
                     continue;
@@ -62,12 +77,15 @@ abstract class ModelForm extends BaseForm
         throw new Exception("Please use Mindy\\Orm\\Model or IFormModel");
     }
 
+    /**
+     * @return \Mindy\Orm\Model
+     */
     public function getInstance()
     {
-        if(!$this->_instance) {
-            $this->_instance = $this->getModel();
+        if(!$this->instance) {
+            $this->instance = $this->getModel();
         }
-        return $this->_instance;
+        return $this->instance;
     }
 
     public function save()

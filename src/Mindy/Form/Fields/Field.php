@@ -73,7 +73,7 @@ abstract class Field extends Object
         $input = strtr($this->template, [
             '{type}' => $this->type,
             '{id}' => $this->getId(),
-            '{name}' => $this->name,
+            '{name}' => $this->getName(),
             '{value}' => $this->getValue(),
             '{html}' => $this->getHtmlAttributes()
         ]);
@@ -83,11 +83,21 @@ abstract class Field extends Object
         return $label . $input . $hint . $errors;
     }
 
+    public function getName()
+    {
+        $prefixes = $this->form->prefix;
+        $name = $this->name;
+        foreach ($prefixes as $prefix) {
+            $name = $prefix . '[' . $this->form->getId() . '][' . $name . ']';
+        }
+        return $name;
+    }
+
     public function getHtmlAttributes()
     {
-        if(is_array($this->html)) {
+        if (is_array($this->html)) {
             $html = '';
-            foreach($this->html as $name => $value) {
+            foreach ($this->html as $name => $value) {
                 $html .= " $name='$value'";
             }
             return implode(' ', $this->html);

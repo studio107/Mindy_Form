@@ -58,7 +58,12 @@ class DropDownField extends Field
             } elseif (is_a($field, $model->hasManyField)) {
                 d(1);
             } elseif (is_a($field, $model->foreignField)) {
-                d(2);
+                $modelClass = $field->modelClass;
+                /* @var $modelClass \Mindy\Orm\Model */
+                $models = $modelClass::objects()->all();
+                foreach($models as $model) {
+                    $data[$model->pk] = (string) $model;
+                }
             } else {
                 $data = parent::getValue();
             }

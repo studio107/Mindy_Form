@@ -16,6 +16,10 @@ use Mindy\Form\InlineModelForm;
  */
 class CustomerInlineForm extends InlineModelForm
 {
+    public $extra = 1;
+
+    public $max = 1;
+
     public function init()
     {
         parent::init();

@@ -99,11 +99,24 @@ class ManagedTest extends \Tests\DatabaseTestCase
         $this->assertEquals(1, Customer::objects()->count());
 
         $mainForm = "<label for='UserForm_0_name'>Name</label><input type='text' value='oleg' id='UserForm_0_name' name='name'/>";
-        $inlineForms = "<h1>CustomerInlineForm</h1><label for='CustomerInlineForm_1_address'>Address</label><input type='text' value='test1' id='CustomerInlineForm_1_address' name='CustomerInlineForm[CustomerInlineForm_1][address]'/><input type='hidden' value='1' id='CustomerInlineForm_1_pk' name='CustomerInlineForm[CustomerInlineForm_1][pk]'/><input type='hidden' value='' name='to_be_deleted' /><input type='checkbox' id='CustomerInlineForm_1_to_be_deleted' name='CustomerInlineForm[CustomerInlineForm_1][to_be_deleted]'/><label for='CustomerInlineForm_1_to_be_deleted'>Delete</label>";
+        $inlineForms = "<h1>CustomerInlineForm</h1><label for='CustomerInlineForm_1_address'>Address</label><input type='text' value='test1' id='CustomerInlineForm_1_address' name='CustomerInlineForm[CustomerInlineForm_1][address]'/><input type='hidden' value='1' id='CustomerInlineForm_1_id' name='CustomerInlineForm[CustomerInlineForm_1][id]'/><input type='hidden' value='' name='to_be_deleted' /><input type='checkbox' id='CustomerInlineForm_1_to_be_deleted' name='CustomerInlineForm[CustomerInlineForm_1][to_be_deleted]'/><label for='CustomerInlineForm_1_to_be_deleted'>Delete</label>";
         $this->assertEquals($mainForm . $inlineForms, $managed->asUl());
 
         $customer = Customer::objects()->filter(['pk' => 1])->get();
         $this->assertEquals('test1', $customer->address);
+
+        // Update inline
+        list($save, $delete) = $managed->setData([
+            'CustomerInlineForm' => [
+                ['address' => "123123"],
+            ]
+        ]);
+        $this->assertEquals(1, count($save));
+        $this->assertEquals(0, count($delete));
+        $this->assertEquals(1, count($managed->inlinesData));
+        $this->assertTrue($managed->isValid());
+        $managed->save();
+        $this->assertEquals("123123", Customer::objects()->filter(['pk' => 1])->get()->address);
 
         // Delete inline
         list($save, $delete) = $managed->setData([

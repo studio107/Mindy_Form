@@ -48,7 +48,7 @@ abstract class InlineModelForm extends ModelForm
     {
         $fields = parent::getFieldsInit();
         if(!$this->getInstance()->getIsNewRecord()) {
-            $fields['pk'] = Creator::createObject([
+            $fields[$this->getInstance()->primaryKey()] = Creator::createObject([
                 'class' => HiddenField::className(),
                 'form' => $this,
                 'label' => 'Primary Key',

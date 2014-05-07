@@ -123,7 +123,7 @@ abstract class ManagedForm extends Object
                 ]);
             }
 
-            if($inline->extra > 0) {
+            if($inline->extra > 0 && count($inlines[$name]) != $inline->extra) {
                 foreach (range(1, $inline->extra) as $number) {
                     $inlines[$name][] = Creator::createObject([
                         'class' => $inline->className(),

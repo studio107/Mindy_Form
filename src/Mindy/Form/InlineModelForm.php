@@ -52,7 +52,8 @@ abstract class InlineModelForm extends ModelForm
                 'class' => HiddenField::className(),
                 'form' => $this,
                 'label' => 'Primary Key',
-                'name' => 'pk'
+                'name' => 'pk',
+                'value' => $this->getInstance()->pk
             ]);
             $fields[self::DELETE_KEY] = Creator::createObject([
                 'class' => CheckboxField::className(),

@@ -20,4 +20,9 @@ class HiddenField extends CharField
     public $type = 'hidden';
 
     public $isHidden = true;
+
+    public function renderLabel()
+    {
+        return '';
+    }
 }

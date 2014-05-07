@@ -98,6 +98,10 @@ class ManagedTest extends \Tests\DatabaseTestCase
         $managed->save();
         $this->assertEquals(1, Customer::objects()->count());
 
+        $mainForm = "<label for='UserForm_0_name'>Name</label><input type='text' value='oleg' id='UserForm_0_name' name='name'/>";
+        $inlineForms = "<h1>CustomerInlineForm</h1><label for='CustomerInlineForm_1_address'>Address</label><input type='text' value='test1' id='CustomerInlineForm_1_address' name='CustomerInlineForm[CustomerInlineForm_1][address]'/><input type='hidden' value='1' id='CustomerInlineForm_1_pk' name='CustomerInlineForm[CustomerInlineForm_1][pk]'/><input type='hidden' value='' name='to_be_deleted' /><input type='checkbox' id='CustomerInlineForm_1_to_be_deleted' name='CustomerInlineForm[CustomerInlineForm_1][to_be_deleted]'/><label for='CustomerInlineForm_1_to_be_deleted'>Delete</label>";
+        $this->assertEquals($mainForm . $inlineForms, $managed->asUl());
+
         $customer = Customer::objects()->filter(['pk' => 1])->get();
         $this->assertEquals('test1', $customer->address);
 

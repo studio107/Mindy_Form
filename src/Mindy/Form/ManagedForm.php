@@ -168,7 +168,8 @@ abstract class ManagedForm extends Object
 
             if(array_key_exists($shortClassName, $data)) {
                 $count = 0;
-                foreach($data[$shortClassName] as $item) {
+                $cleanData = $this->cleanArrays($data[$shortClassName]);
+                foreach($cleanData as $item) {
                     if($sourceInline->max == $count) {
                         break;
                     }
@@ -188,6 +189,19 @@ abstract class ManagedForm extends Object
         $this->inlinesData = $save;
         $this->inlinesDelete = $delete;
         return [$save, $delete];
+    }
+
+    public function cleanArrays(array $data)
+    {
+        $new = [];
+        foreach($data as $item) {
+            $tmp = array_filter($item);
+            if(empty($tmp)) {
+                continue;
+            }
+            $new[] = $tmp;
+        }
+        return $new;
     }
 
     /**

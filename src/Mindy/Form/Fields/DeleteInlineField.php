@@ -9,20 +9,13 @@
  * @version 1.0
  * @company Studio107
  * @site http://studio107.ru
- * @date 07/05/14.05.2014 17:17
+ * @date 07/05/14.05.2014 17:49
  */
 
 namespace Mindy\Form\Fields;
 
 
-class HiddenField extends CharField
+class DeleteInlineField extends CheckboxField
 {
-    public $type = 'hidden';
-
-    public $hidden = true;
-
-    public function renderLabel()
-    {
-        return '';
-    }
+    public $isDelete = true;
 }

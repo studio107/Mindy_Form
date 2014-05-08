@@ -83,4 +83,9 @@ abstract class InlineModelForm extends ModelForm
     {
         return $this->getInstance()->delete();
     }
+
+    public function getLinkModels(array $attributes)
+    {
+        return $this->getModel()->objects()->filter($attributes)->all();
+    }
 }

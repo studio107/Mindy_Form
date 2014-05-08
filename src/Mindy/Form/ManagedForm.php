@@ -51,6 +51,11 @@ abstract class ManagedForm extends Object
      */
     public $inlinesDelete = [];
 
+    /**
+     * @var array
+     */
+    private $_inlineClasses = [];
+
     public function init()
     {
         $this->_form = Creator::createObject([
@@ -63,6 +68,10 @@ abstract class ManagedForm extends Object
                 'class' => $config,
                 'link' => $link
             ]);
+        }
+
+        foreach($this->getInlines() as $link => $class) {
+            $this->_inlineClasses[$class::shortClassName()] = $class;
         }
     }
 
@@ -114,7 +123,7 @@ abstract class ManagedForm extends Object
             $name = $inline->getName();
             $inlines[$name] = [];
 
-            $models = $inline->getModel()->objects()->filter([$link => $model])->all();
+            $models = $inline->getLinkModels([$link => $model]);
             foreach($models as $model) {
                 $inlines[$name][] = Creator::createObject([
                     'class' => $inline->className(),
@@ -163,18 +172,18 @@ abstract class ManagedForm extends Object
 
         $save = [];
         $delete = [];
-        foreach($this->_inlines as $link => $sourceInline) {
-            $shortClassName = $sourceInline->shortClassName();
 
+        $inlines = array_flip($this->getInlines());
+        foreach($this->_inlineClasses as $shortClassName => $class) {
             if(array_key_exists($shortClassName, $data)) {
                 $count = 0;
                 $cleanData = $this->cleanArrays($data[$shortClassName]);
                 foreach($cleanData as $item) {
-                    if($sourceInline->max == $count) {
-                        break;
-                    }
-
-                    $inline = clone $sourceInline;
+                    $link = $inlines[$class];
+                    $inline = Creator::createObject([
+                        'class' => $class,
+                        'link' => $link
+                    ]);
                     $inline->setData(array_merge([$link => $instance], $item));
 
                     if(array_key_exists(InlineModelForm::DELETE_KEY, $item)) {
@@ -182,10 +191,15 @@ abstract class ManagedForm extends Object
                     } else {
                         $save[] = $inline;
                     }
+
                     $count++;
+                    if($inline->max == $count) {
+                        break;
+                    }
                 }
             }
         }
+
         $this->inlinesData = $save;
         $this->inlinesDelete = $delete;
         return [$save, $delete];
@@ -210,7 +224,7 @@ abstract class ManagedForm extends Object
     abstract public function getFormClass();
 
     /**
-     * @return array
+     * @return \Mindy\Form\InlineModelForm[]
      */
     public function getInlines()
     {

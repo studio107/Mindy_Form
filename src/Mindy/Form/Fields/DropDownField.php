@@ -15,11 +15,14 @@
 namespace Mindy\Form\Fields;
 
 
+use Closure;
 use Exception;
 use Mindy\Form\ModelForm;
 
 class DropDownField extends Field
 {
+    public $choices = [];
+
     public $template = "<select id='{id}' name='{name}' {html}>{value}</select>";
 
     public function render()
@@ -33,6 +36,15 @@ class DropDownField extends Field
         $out = '';
         $data = [];
         $selected = [];
+
+        if(!empty($this->choices)) {
+            if($this->choices instanceof Closure) {
+                $data = $this->choices->__invoke();
+            } else {
+                $data = $this->choices;
+            }
+            return $this->valueToHtml($data);
+        }
 
         if($this->form instanceof ModelForm && $this->form->getModel()->hasField($this->name)) {
             $model = $this->form->getInstance();

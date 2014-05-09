@@ -21,4 +21,9 @@ use Yii;
 class MindyRenderer implements IFormRenderer
 {
     use RenderTrait;
+
+    public function render($view, array $data = [])
+    {
+        return $this->renderTemplate($view, $data);
+    }
 }

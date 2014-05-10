@@ -205,6 +205,11 @@ abstract class ManagedForm extends Object
         return [$save, $delete];
     }
 
+    public function getErrors()
+    {
+        return $this->getForm()->getErrors();
+    }
+
     public function cleanArrays(array $data)
     {
         $new = [];
@@ -238,6 +243,11 @@ abstract class ManagedForm extends Object
     public function getInitInlines()
     {
         return $this->_inlines;
+    }
+
+    public function getField($attribute)
+    {
+        return $this->getForm()->getField($attribute);
     }
 
     /**

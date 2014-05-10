@@ -35,7 +35,40 @@ abstract class ModelForm extends BaseForm
      */
     public function isValid()
     {
-        return parent::isValid() && $this->getInstance()->isValid();
+        $instance = $this->getInstance();
+
+        $this->clearErrors();
+        $instance->clearErrors();
+
+        /* @var $field \Mindy\Orm\Fields\Field */
+        $fields = $this->getFieldsInit();
+
+        if(!$instance->isValid()) {
+            foreach($instance->getErrors() as $key => $errors) {
+                foreach($errors as $error) {
+                    if(array_key_exists($key, $fields)) {
+                        $fields[$key]->addError($error);
+                    }
+                }
+            }
+        }
+
+        foreach ($fields as $name => $field) {
+            $errors = $field->getErrors();
+            if(empty($error)) {
+                if ($field->isValid() === false) {
+                    foreach ($field->getErrors() as $error) {
+                        $this->addError($name, $error);
+                    }
+                }
+            } else {
+                foreach($errors as $error) {
+                    $this->addError($name, $error);
+                }
+            }
+        }
+
+        return $this->hasErrors() === false;
     }
 
     /**

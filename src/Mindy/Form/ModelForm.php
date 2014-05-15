@@ -98,10 +98,14 @@ abstract class ModelForm extends BaseForm
                 }
 
                 if($this->hasField($name)) {
-                    $fieldValue = $this->getField($name)->getValue();
-                    if(empty($fieldValue)) {
-                        $this->getField($name)->setValue($field->getValue());
-                    }
+//                    $fieldValue = $this->getField($name)->getValue();
+//                    if(empty($fieldValue)) {
+//                        $this->getField($name)->setValue($field->getValue());
+//                    }
+//                    if($name == 'view') {
+//                        d($model->{$name});
+//                    }
+                    $this->getField($name)->setValue($model->{$name});
                 }
             }
             return $this;

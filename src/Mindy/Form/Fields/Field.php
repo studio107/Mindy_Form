@@ -110,7 +110,7 @@ abstract class Field extends Object
             foreach ($this->html as $name => $value) {
                 $html .= " $name='$value'";
             }
-            return implode(' ', $this->html);
+            return $html;
         } else {
             return $this->html;
         }

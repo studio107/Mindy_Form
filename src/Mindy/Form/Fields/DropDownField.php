@@ -43,7 +43,7 @@ class DropDownField extends Field
             } else {
                 $data = $this->choices;
             }
-            return $this->valueToHtml($data);
+            return $this->valueToHtml($data, [$this->value]);
         }
 
         if($this->form instanceof ModelForm && $this->form->getModel()->hasField($this->name)) {
@@ -73,6 +73,9 @@ class DropDownField extends Field
                 $modelClass = $field->modelClass;
                 /* @var $modelClass \Mindy\Orm\Model */
                 $models = $modelClass::objects()->all();
+                if($field->null) {
+                    $data[''] = '';
+                }
                 foreach($models as $model) {
                     $data[$model->pk] = (string) $model;
                 }
@@ -97,7 +100,7 @@ class DropDownField extends Field
             $out .= strtr("<option value='{value}'{selected}>{name}</option>", [
                 '{value}' => $value,
                 '{name}' => $name,
-                '{selected}' => in_array($value, $selected) ? " selected='selected'" : ""
+                '{selected}' => in_array($value, $selected) || array_key_exists($value, $selected) ? " selected='selected'" : ""
             ]);
         };
         return $out;

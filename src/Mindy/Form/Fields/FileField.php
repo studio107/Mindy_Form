@@ -1,9 +1,9 @@
 <?php
 /**
- * 
+ *
  *
  * All rights reserved.
- * 
+ *
  * @author Falaleev Maxim
  * @email max@studio107.ru
  * @version 1.0
@@ -39,20 +39,24 @@ class FileField extends Field
         /**
          * @TODO: refactor
          */
-        if ($value){
+        if ($value) {
             $currentLink = strtr($this->currentTemplate, [
                 '{current}' => $value,
                 // @TODO: translate
                 '{label}' => "Current file"
             ]);
-            $clean = strtr($this->cleanTemplate, [
-                '{id}' => $this->getId(),
-                '{name}' => $this->getName(),
-                '{value}' => $this->cleanValue,
-                // @TODO: translate
-                '{label}' => "Clean"
-            ]);
-            $input = $currentLink.$clean .'<br/>'. $input;
+            if(!$this->required) {
+                $clean = '';
+            } else {
+                $clean = strtr($this->cleanTemplate, [
+                    '{id}' => $this->getId(),
+                    '{name}' => $this->getName(),
+                    '{value}' => $this->cleanValue,
+                    // @TODO: translate
+                    '{label}' => "Clean"
+                ]);
+            }
+            $input = $currentLink . $clean . '<br/>' . $input;
         }
 
         $hint = $this->hint ? $this->renderHint() : '';
@@ -62,7 +66,7 @@ class FileField extends Field
 
     public function setValue($value)
     {
-        if (is_string($value) && $value && $value != $this->cleanValue){
+        if (is_string($value) && $value && $value != $this->cleanValue) {
             $this->value = $value;
         }
         return $this;

@@ -15,7 +15,14 @@
 namespace Mindy\Form\Fields;
 
 
+use Mindy\Form\Validator\EmailValidator;
+
 class EmailField extends Field
 {
-
+    public function init()
+    {
+        $this->validators = array_merge([
+            new EmailValidator()
+        ], $this->validators);
+    }
 }

@@ -83,6 +83,17 @@ abstract class ModelForm extends BaseForm
     }
 
     /**
+     * @param array $data
+     * @return $this
+     */
+    public function setFiles(array $data)
+    {
+        parent::setFiles($data);
+        $this->getInstance()->setData($data);
+        return $this;
+    }
+
+    /**
      * @param $model \Mindy\Orm\Model
      * @return $this
      * @throws \Exception

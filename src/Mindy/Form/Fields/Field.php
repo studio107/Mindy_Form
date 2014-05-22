@@ -32,6 +32,8 @@ abstract class Field extends Object
 
     public $value;
 
+    public $required = false;
+
     public $widget;
 
     public $inputType;

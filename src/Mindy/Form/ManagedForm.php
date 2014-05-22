@@ -205,6 +205,11 @@ abstract class ManagedForm extends Object
         return [$save, $delete];
     }
 
+    public function setFiles($data)
+    {
+        return $this->getForm()->setFiles($data);
+    }
+
     public function getErrors()
     {
         return $this->getForm()->getErrors();

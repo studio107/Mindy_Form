@@ -343,6 +343,11 @@ abstract class BaseForm extends Object implements IteratorAggregate, Countable, 
         return $this;
     }
 
+    public function setFiles(array $data)
+    {
+        return $this->setData($data);
+    }
+
     /**
      * (PHP 5 &gt;= 5.0.0)<br/>
      * Retrieve an external iterator

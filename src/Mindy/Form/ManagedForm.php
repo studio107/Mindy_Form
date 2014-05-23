@@ -282,7 +282,7 @@ abstract class ManagedForm extends Object
      */
     public function save()
     {
-        $this->getForm()->save();
+        $r = $this->getForm()->save();
 
         foreach($this->inlinesData as $inline) {
             $inline->save();
@@ -291,5 +291,7 @@ abstract class ManagedForm extends Object
         foreach($this->inlinesDelete as $inline) {
             $inline->delete();
         }
+
+        return $r;
     }
 }

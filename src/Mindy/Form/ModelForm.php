@@ -78,7 +78,7 @@ abstract class ModelForm extends BaseForm
     public function setData(array $data)
     {
         parent::setData($data);
-        $this->getInstance()->setData($data);
+        $this->getInstance()->setAttributes($data);
         return $this;
     }
 
@@ -89,7 +89,7 @@ abstract class ModelForm extends BaseForm
     public function setFiles(array $data)
     {
         parent::setFiles($data);
-        $this->getInstance()->setData($data);
+        $this->getInstance()->setAttributes($data);
         return $this;
     }
 

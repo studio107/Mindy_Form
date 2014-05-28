@@ -18,6 +18,7 @@ namespace Mindy\Form\Fields;
 use Closure;
 use Exception;
 use Mindy\Form\ModelForm;
+use Mindy\Orm\Model;
 
 class DropDownField extends Field
 {
@@ -43,7 +44,7 @@ class DropDownField extends Field
             } else {
                 $data = $this->choices;
             }
-            return $this->valueToHtml($data, [$this->value]);
+            return $this->valueToHtml($data, [$this->value instanceof Model ? $this->value->pk : $this->value]);
         }
 
         if($this->form instanceof ModelForm && $this->form->getModel()->hasField($this->name)) {

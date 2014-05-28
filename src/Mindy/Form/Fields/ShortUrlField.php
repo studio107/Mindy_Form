@@ -17,5 +17,9 @@ namespace Mindy\Form\Fields;
 
 class ShortUrlField extends CharField
 {
-
+    public function getValue()
+    {
+        $slugs = explode('/', parent::getValue());
+        return end($slugs);
+    }
 }

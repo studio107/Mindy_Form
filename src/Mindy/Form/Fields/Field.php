@@ -15,6 +15,7 @@
 namespace Mindy\Form\Fields;
 
 use Closure;
+use Exception;
 use Mindy\Core\Object;
 use Mindy\Form\BaseForm;
 
@@ -70,7 +71,12 @@ abstract class Field extends Object
 
     public function __toString()
     {
-        return (string)$this->render();
+        try {
+            return (string)$this->render();
+        } catch (Exception $e) {
+            echo "Exception: " . $e->getFile() . ' ' . $e->getLine() . ' ' . $e->getMessage();
+            die();
+        }
     }
 
     public function setForm(BaseForm $form)

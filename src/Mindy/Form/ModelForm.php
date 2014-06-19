@@ -131,7 +131,14 @@ abstract class ModelForm extends BaseForm
     public function getInstance()
     {
         if(!$this->instance) {
-            $this->instance = $this->getModel();
+            $modelClass = $this->getModel();
+            if(is_string($modelClass)) {
+                $model = new $modelClass;
+            } else {
+                $model = $modelClass;
+            }
+            $this->instance = $model;
+
         }
         return $this->instance;
     }

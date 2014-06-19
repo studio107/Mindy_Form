@@ -14,6 +14,8 @@
 
 namespace Mindy\Form\Fields;
 
+use Mindy\Base\Mindy;
+use Mindy\Helper\JavaScript;
 use Yii;
 use CJavaScript;
 
@@ -41,15 +43,15 @@ class WysiwygField extends TextAreaField
     public function render()
     {
         if(!isset($this->options['flowOptions'])) {
-            $http = Yii::app()->request;
+            $http = Mindy::app()->request;
             $this->options['flowOptions'] = [
-                'target' => Yii::app()->urlManager->createUrl('files.upload'),
+                'target' => Mindy::app()->urlManager->createUrl('files.upload'),
                 'chunkSize' => 1024 * 1024,
                 'testChunks' => false,
                 'query' => [$http->csrfTokenName => $http->getCsrfToken()]
             ];
         }
-        $options = CJavaScript::encode($this->options);
+        $options = JavaScript::encode($this->options);
 
         if(isset($this->options['airMode']) && $this->options['airMode']) {
             $this->template = "<section id='{id}' name='{name}'{html}>{value}</section>";

@@ -39,10 +39,16 @@ class DropDownField extends Field
         $selected = [];
 
         if(!empty($this->choices)) {
-            if($this->choices instanceof Closure) {
-                $data = $this->choices->__invoke();
+            $choices = $this->choices;
+        } else {
+            $choices = $this->form->getInstance()->getField($this->name)->choices;
+        }
+
+        if(!empty($choices)) {
+            if($choices instanceof Closure) {
+                $data = $choices->__invoke();
             } else {
-                $data = $this->choices;
+                $data = $choices;
             }
             return $this->valueToHtml($data, [$this->value instanceof Model ? $this->value->pk : $this->value]);
         }

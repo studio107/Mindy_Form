@@ -23,7 +23,7 @@ class WysiwygField extends TextAreaField
 {
     public $options = [
         'airMode' => false,
-        'minHeight' => 200
+        'minHeight' => 200,
     ];
 
     public function init()
@@ -32,6 +32,7 @@ class WysiwygField extends TextAreaField
         if($this->html === null) {
             $this->html = [];
         }
+
         if(is_array($this->html)) {
             if(!array_key_exists('class', $this->html)) {
                 $this->html['class'] = '';
@@ -50,6 +51,9 @@ class WysiwygField extends TextAreaField
                 'testChunks' => false,
                 'query' => [$http->csrfTokenName => $http->getCsrfToken()]
             ];
+        }
+        if(!isset($this->options['filemanUrl'])) {
+            $this->options['filemanUrl'] = Mindy::app()->urlManager->createUrl('files.index');
         }
         $options = JavaScript::encode($this->options);
 

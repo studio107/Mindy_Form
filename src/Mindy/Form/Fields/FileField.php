@@ -23,6 +23,8 @@ class FileField extends Field
     public $cleanTemplate = '<label for="{id}-clean" class="clean-label">{label}</label><input type="checkbox" id="{id}-clean" name="{name}" value="{value}">';
     public $template = "<input type='{type}' id='{id}' name='{name}'{html}/>";
 
+    public $oldValue = null;
+
     public function render()
     {
         $label = $this->renderLabel();
@@ -35,7 +37,9 @@ class FileField extends Field
         ]);
 
         $value = $this->getValue();
-
+        if (is_array($value)) {
+            $value = $this->getOldValue();
+        }
         /**
          * @TODO: refactor
          */
@@ -68,12 +72,27 @@ class FileField extends Field
     public function setValue($value)
     {
         if (is_object($value)) {
+            $this->setOldValue();
             $this->value = $value->getUrl();
         }elseif($value == $this->cleanValue || is_null($value)){
+            $this->setOldValue();
             $this->value = null;
         }elseif(is_string($value) || is_array($value)) {
+            $this->setOldValue();
             $this->value = $value;
         }
         return $this;
+    }
+
+    public function getOldValue()
+    {
+        return $this->oldValue;
+    }
+
+    public function setOldValue()
+    {
+        if (is_string($this->value) || !$this->oldValue){
+            $this->oldValue = $this->value;
+        }
     }
 }

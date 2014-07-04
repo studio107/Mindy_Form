@@ -39,13 +39,14 @@ class FileField extends Field
         /**
          * @TODO: refactor
          */
+
         if ($value) {
             $currentLink = strtr($this->currentTemplate, [
                 '{current}' => $value,
                 // @TODO: translate
                 '{label}' => "Current file"
             ]);
-            if(!$this->required) {
+            if($this->required) {
                 $clean = '';
             } else {
                 $clean = strtr($this->cleanTemplate, [
@@ -66,7 +67,11 @@ class FileField extends Field
 
     public function setValue($value)
     {
-        if (is_string($value) && $value && $value != $this->cleanValue) {
+        if (is_object($value)) {
+            $this->value = $value->getUrl();
+        }elseif($value == $this->cleanValue || is_null($value)){
+            $this->value = null;
+        }elseif(is_string($value) || is_array($value)) {
             $this->value = $value;
         }
         return $this;

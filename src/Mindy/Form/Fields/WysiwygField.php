@@ -1,9 +1,9 @@
 <?php
 /**
- * 
+ *
  *
  * All rights reserved.
- * 
+ *
  * @author Falaleev Maxim
  * @email max@studio107.ru
  * @version 1.0
@@ -16,34 +16,16 @@ namespace Mindy\Form\Fields;
 
 use Mindy\Base\Mindy;
 use Mindy\Helper\JavaScript;
-use Yii;
-use CJavaScript;
 
 class WysiwygField extends TextAreaField
 {
     public $options = [
-        'airMode' => false,
         'minHeight' => 200,
     ];
 
-    public function init()
-    {
-        parent::init();
-        if($this->html === null) {
-            $this->html = [];
-        }
-
-        if(is_array($this->html)) {
-            if(!array_key_exists('class', $this->html)) {
-                $this->html['class'] = '';
-            }
-            $this->html['class'] .= ' wysiwyg';
-        }
-    }
-
     public function render()
     {
-        if(!isset($this->options['flowOptions'])) {
+        if (!isset($this->options['flowOptions'])) {
             $http = Mindy::app()->request;
             $this->options['flowOptions'] = [
                 'target' => Mindy::app()->urlManager->createUrl('files.upload'),
@@ -52,16 +34,16 @@ class WysiwygField extends TextAreaField
                 'query' => [$http->csrfTokenName => $http->getCsrfToken()]
             ];
         }
-        if(!isset($this->options['filemanUrl'])) {
+        if (!isset($this->options['filemanUrl'])) {
             $this->options['filemanUrl'] = Mindy::app()->urlManager->createUrl('files.index');
         }
         $options = JavaScript::encode($this->options);
 
-        if(isset($this->options['airMode']) && $this->options['airMode']) {
+        if (isset($this->options['airMode']) && $this->options['airMode']) {
             $this->template = "<section id='{id}' name='{name}'{html}>{value}</section>";
         }
 
-        $js = "<script type='text/javascript'>$('.wysiwyg').summernote({$options});</script>";
+        $js = "<script type='text/javascript'>$('#" . $this->getId() . "').summernote({$options});</script>";
         return parent::render() . $js;
     }
 }

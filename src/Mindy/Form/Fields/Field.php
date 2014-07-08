@@ -18,6 +18,7 @@ use Closure;
 use Exception;
 use Mindy\Core\Object;
 use Mindy\Form\BaseForm;
+use Mindy\Form\Validator\RequiredValidator;
 
 abstract class Field extends Object
 {
@@ -68,6 +69,17 @@ abstract class Field extends Object
     public $_errors = [];
 
     private $_validatorClass = '\Mindy\Form\Validator\Validator';
+
+    public function init()
+    {
+        parent::init();
+        if($this->required) {
+            $this->validators[] = new RequiredValidator();
+        }
+        foreach($this->validators as $validator) {
+            $validator->setName($this->label ? $this->label : $this->name);
+        }
+    }
 
     public function __toString()
     {

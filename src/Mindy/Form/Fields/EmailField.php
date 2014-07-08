@@ -21,8 +21,7 @@ class EmailField extends Field
 {
     public function init()
     {
-        $this->validators = array_merge([
-            new EmailValidator()
-        ], $this->validators);
+        parent::init();
+        $this->validators[] = new EmailValidator();
     }
 }

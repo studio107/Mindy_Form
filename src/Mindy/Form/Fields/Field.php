@@ -87,6 +87,7 @@ abstract class Field extends Object
             return (string)$this->render();
         } catch (Exception $e) {
             echo "Exception: " . $e->getFile() . ' ' . $e->getLine() . ' ' . $e->getMessage();
+            d($e);
             die();
         }
     }

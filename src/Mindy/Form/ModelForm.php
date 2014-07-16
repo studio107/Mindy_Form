@@ -72,10 +72,20 @@ abstract class ModelForm extends BaseForm
     }
 
     /**
+     * @deprecated since 0.9
      * @param array $data
      * @return $this
      */
     public function setData(array $data)
+    {
+        return $this->setAttributes($data);
+    }
+
+    /**
+     * @param array $data
+     * @return $this
+     */
+    public function setAttributes(array $data)
     {
         parent::setData($data);
         $this->getInstance()->setAttributes($data);
@@ -104,7 +114,7 @@ abstract class ModelForm extends BaseForm
             $this->instance = $model;
             /* @var $model \Mindy\Orm\Model */
             foreach($model->getFieldsInit() as $name => $field) {
-                if (is_a($field, $model->autoField)) {
+                if (is_a($field, $model::$autoField)) {
                     continue;
                 }
 

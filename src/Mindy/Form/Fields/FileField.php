@@ -14,13 +14,15 @@
 
 namespace Mindy\Form\Fields;
 
+use Modules\Core\CoreModule;
+
 class FileField extends Field
 {
     public $type = 'file';
     public $cleanValue = 'NULL';
 
-    public $currentTemplate = '{label}: <a class="current-file" href="{current}" target="_blank">{current}</a>';
-    public $cleanTemplate = '<label for="{id}-clean" class="clean-label">{label}</label><input type="checkbox" id="{id}-clean" name="{name}" value="{value}">';
+    public $currentTemplate = '<p>{label}:<br/><a class="current-file" href="{current}" target="_blank">{current}</a></p>';
+    public $cleanTemplate = '<label for="{id}-clean" class="clean-label"><input type="checkbox" id="{id}-clean" name="{name}" value="{value}"> {label}</label>';
     public $template = "<input type='{type}' id='{id}' name='{name}'{html}/>";
 
     public $oldValue = null;
@@ -48,7 +50,7 @@ class FileField extends Field
             $currentLink = strtr($this->currentTemplate, [
                 '{current}' => $value,
                 // @TODO: translate
-                '{label}' => "Current file"
+                '{label}' => CoreModule::t("Current file")
             ]);
             if($this->required) {
                 $clean = '';
@@ -58,7 +60,7 @@ class FileField extends Field
                     '{name}' => $this->getName(),
                     '{value}' => $this->cleanValue,
                     // @TODO: translate
-                    '{label}' => "Clean"
+                    '{label}' => CoreModule::t("Clean")
                 ]);
             }
             $input = $currentLink . $clean . '<br/>' . $input;

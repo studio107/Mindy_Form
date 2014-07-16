@@ -26,9 +26,22 @@ class DropDownField extends Field
 
     public $template = "<select id='{id}' name='{name}' {html}>{value}</select>";
 
+    public $multiple = false;
+
     public function render()
     {
-        $out = parent::render();
+        $label = $this->renderLabel();
+        $input = strtr($this->template, [
+            '{type}' => $this->type,
+            '{id}' => $this->getId(),
+            '{value}' => $this->getValue(),
+            '{name}' => $this->multiple ? $this->getName() . '[]' : $this->getName(),
+            '{html}' => $this->getHtmlAttributes()
+        ]);
+
+        $hint = $this->hint ? $this->renderHint() : '';
+        $errors = $this->getErrors() ? $this->renderErrors() : '';
+        $out =  $label . $input . $hint . $errors;
         return "<input type='hidden' value='' name='{$this->name}' />" . $out;
     }
 
@@ -57,7 +70,9 @@ class DropDownField extends Field
             $model = $this->form->getInstance();
             $field = $model->getField($this->name);
 
-            if(is_a($field, $model->manyToManyField)) {
+            if(is_a($field, $model::$manyToManyField)) {
+                $this->multiple = true;
+
                 $modelClass = $field->modelClass;
                 $models = $modelClass::objects()->all();
 
@@ -74,9 +89,21 @@ class DropDownField extends Field
                 foreach ($models as $model) {
                     $data[$model->pk] = (string) $model;
                 }
-            } elseif (is_a($field, $model->hasManyField)) {
-                d(1);
-            } elseif (is_a($field, $model->foreignField)) {
+            } elseif (is_a($field, $model::$hasManyField)) {
+                $this->multiple = true;
+
+                $modelClass = $field->modelClass;
+                $models = $modelClass::objects()->all();
+
+                $this->html['multiple'] = 'multiple';
+                if(count($models) > 1) {
+                    $data[''] = '';
+                }
+
+                foreach ($models as $model) {
+                    $data[$model->pk] = (string) $model;
+                }
+            } elseif (is_a($field, $model::$foreignField)) {
                 $modelClass = $field->modelClass;
                 /* @var $modelClass \Mindy\Orm\Model */
                 $models = $modelClass::objects()->all();

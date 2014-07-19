@@ -34,6 +34,7 @@ abstract class InlineModelForm extends ModelForm
 
     public $templates = [
         'inline' => 'core/form/inline.twig',
+        'tabular' => 'core/form/tabular.twig',
     ];
 
     public $defaultTemplateType = 'inline';

@@ -1,9 +1,9 @@
 <?php
 /**
- * 
+ *
  *
  * All rights reserved.
- * 
+ *
  * @author Falaleev Maxim
  * @email max@studio107.ru
  * @version 1.0
@@ -16,11 +16,14 @@ namespace Mindy\Form;
 
 
 use Exception;
-use Mindy\Core\Object;
 use Mindy\Helper\Creator;
+use Mindy\Helper\Traits\Accessors;
+use Mindy\Helper\Traits\Configurator;
 
-abstract class ManagedForm extends Object
+abstract class ManagedForm
 {
+    use Accessors, Configurator;
+
     public $templates = [
         'block' => 'core/form/management/block.twig',
         'table' => 'core/form/management/table.twig',
@@ -63,15 +66,15 @@ abstract class ManagedForm extends Object
             'instance' => $this->instance
         ]);
 
-        foreach($this->getInlines() as $link => $config) {
+        foreach ($this->getInlines() as $link => $config) {
             $this->_inlines[$link] = Creator::createObject([
                 'class' => $config,
                 'link' => $link
             ]);
         }
 
-        foreach($this->getInlines() as $link => $class) {
-            $this->_inlineClasses[$class::shortClassName()] = $class;
+        foreach ($this->getInlines() as $link => $class) {
+            $this->_inlineClasses[$class::classNameShort()] = $class;
         }
     }
 
@@ -119,12 +122,12 @@ abstract class ManagedForm extends Object
     {
         $inlines = [];
         $model = $this->getForm()->getInstance();
-        foreach($this->_inlines as $link => $inline) {
+        foreach ($this->_inlines as $link => $inline) {
             $name = $inline->getName();
             $inlines[$name] = [];
 
             $models = $inline->getLinkModels([$link => $model]);
-            foreach($models as $model) {
+            foreach ($models as $model) {
                 $inlines[$name][] = Creator::createObject([
                     'class' => $inline->className(),
                     'instance' => $model,
@@ -132,7 +135,7 @@ abstract class ManagedForm extends Object
                 ]);
             }
 
-            if($inline->extra > 0 && count($inlines[$name]) != $inline->extra) {
+            if ($inline->extra > 0 && count($inlines[$name]) != $inline->extra) {
                 foreach (range(1, $inline->extra) as $number) {
                     $inlines[$name][] = Creator::createObject([
                         'class' => $inline->className(),
@@ -174,11 +177,11 @@ abstract class ManagedForm extends Object
         $delete = [];
 
         $inlines = array_flip($this->getInlines());
-        foreach($this->_inlineClasses as $shortClassName => $class) {
-            if(array_key_exists($shortClassName, $data)) {
+        foreach ($this->_inlineClasses as $classNameShort => $class) {
+            if (array_key_exists($classNameShort, $data)) {
                 $count = 0;
-                $cleanData = $this->cleanArrays($data[$shortClassName]);
-                foreach($cleanData as $item) {
+                $cleanData = $this->cleanArrays($data[$classNameShort]);
+                foreach ($cleanData as $item) {
                     $link = $inlines[$class];
                     $inline = Creator::createObject([
                         'class' => $class,
@@ -186,14 +189,14 @@ abstract class ManagedForm extends Object
                     ]);
                     $inline->setData(array_merge([$link => $instance], $item));
 
-                    if(array_key_exists(InlineModelForm::DELETE_KEY, $item)) {
+                    if (array_key_exists(InlineModelForm::DELETE_KEY, $item)) {
                         $delete[] = $inline;
                     } else {
                         $save[] = $inline;
                     }
 
                     $count++;
-                    if($inline->max == $count) {
+                    if ($inline->max == $count) {
                         break;
                     }
                 }
@@ -218,9 +221,9 @@ abstract class ManagedForm extends Object
     public function cleanArrays(array $data)
     {
         $new = [];
-        foreach($data as $item) {
+        foreach ($data as $item) {
             $tmp = array_filter($item);
-            if(empty($tmp)) {
+            if (empty($tmp)) {
                 continue;
             }
             $new[] = $tmp;
@@ -261,12 +264,12 @@ abstract class ManagedForm extends Object
     public function isValid()
     {
         $form = $this->getForm();
-        if($form->isValid()) {
-            if(empty($this->inlinesData)) {
+        if ($form->isValid()) {
+            if (empty($this->inlinesData)) {
                 return true;
             } else {
                 $valid = false;
-                foreach($this->inlinesData as $inline) {
+                foreach ($this->inlinesData as $inline) {
                     $valid = $inline->isValid();
                 }
 
@@ -284,11 +287,11 @@ abstract class ManagedForm extends Object
     {
         $r = $this->getForm()->save();
 
-        foreach($this->inlinesData as $inline) {
+        foreach ($this->inlinesData as $inline) {
             $inline->save();
         }
 
-        foreach($this->inlinesDelete as $inline) {
+        foreach ($this->inlinesDelete as $inline) {
             $inline->delete();
         }
 

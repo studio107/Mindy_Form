@@ -16,12 +16,14 @@ namespace Mindy\Form\Fields;
 
 use Closure;
 use Exception;
-use Mindy\Core\Object;
 use Mindy\Form\BaseForm;
 use Mindy\Form\Validator\RequiredValidator;
+use Mindy\Helper\Traits\Accessors;
+use Mindy\Helper\Traits\Configurator;
 
-abstract class Field extends Object
+abstract class Field
 {
+    use Accessors, Configurator;
     /**
      * @var bool Технические аттрибуты для inline моделей
      */
@@ -72,7 +74,6 @@ abstract class Field extends Object
 
     public function init()
     {
-        parent::init();
         if($this->required) {
             $this->validators[] = new RequiredValidator();
         }

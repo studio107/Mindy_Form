@@ -19,10 +19,10 @@ use ArrayIterator;
 use Countable;
 use Exception;
 use IteratorAggregate;
-use Mindy\Core\Object;
 use Mindy\Form\Renderer\IFormRenderer;
 use Mindy\Helper\Creator;
-use ReflectionClass;
+use Mindy\Helper\Traits\Accessors;
+use Mindy\Helper\Traits\Configurator;
 
 /**
  * Class BaseForm
@@ -31,8 +31,10 @@ use ReflectionClass;
  * @method string asUl(array $renderFields = [])
  * @method string asTable(array $renderFields = [])
  */
-abstract class BaseForm extends Object implements IteratorAggregate, Countable, ArrayAccess
+abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess
 {
+    use Accessors, Configurator;
+
     public $fields = [];
 
     public $templates = [
@@ -68,7 +70,7 @@ abstract class BaseForm extends Object implements IteratorAggregate, Countable, 
 
     public function getName()
     {
-        return $this->shortClassName();
+        return $this->classNameShort();
     }
 
     public function getFieldsets()
@@ -78,19 +80,19 @@ abstract class BaseForm extends Object implements IteratorAggregate, Countable, 
 
     public function __get($name)
     {
-        if(array_key_exists($name, $this->_fields)) {
+        if (array_key_exists($name, $this->_fields)) {
             return $this->_fields[$name]->getValue();
         } else {
-            return parent::__get($name);
+            return $this->__getInternal($name);
         }
     }
 
     public function __set($name, $value)
     {
-        if(array_key_exists($name, $this->_fields)) {
+        if (array_key_exists($name, $this->_fields)) {
             $this->_fields[$name]->setValue($value);
         } else {
-            parent::__set($name, $value);
+            $this->__setInternal($name, $value);
         }
     }
 
@@ -104,7 +106,7 @@ abstract class BaseForm extends Object implements IteratorAggregate, Countable, 
                 self::$ids[$className] = 0;
             }
 
-            $this->_id = self::shortClassName() . '_' . self::$ids[$className];
+            $this->_id = self::classNameShort() . '_' . self::$ids[$className];
         }
 
         return $this->_id;
@@ -118,7 +120,7 @@ abstract class BaseForm extends Object implements IteratorAggregate, Countable, 
     {
         $fields = $this->getFields();
         foreach ($fields as $name => $config) {
-            if(!is_array($config)) {
+            if (!is_array($config)) {
                 $config = ['class' => $config];
             }
             $field = Creator::createObject(array_merge([
@@ -136,7 +138,7 @@ abstract class BaseForm extends Object implements IteratorAggregate, Countable, 
             $template = $this->getTemplateFromType($type);
             return call_user_func_array([$this, 'render'], array_merge([$template], $arguments));
         } else {
-            return parent::__call($name, $arguments);
+            return $this->__callInternal($name, $arguments);
         }
     }
 
@@ -188,7 +190,7 @@ abstract class BaseForm extends Object implements IteratorAggregate, Countable, 
      */
     public function render($template, array $fields = [])
     {
-        if(!empty($fields)) {
+        if (!empty($fields)) {
             $this->setRenderFields($fields);
         } else {
             $this->setRenderFields(array_keys($this->getFieldsInit()));
@@ -201,8 +203,8 @@ abstract class BaseForm extends Object implements IteratorAggregate, Countable, 
         $this->_renderFields = [];
 
         $initFields = $this->getFieldsInit();
-        foreach($fields as $name) {
-            if(array_key_exists($name, $initFields)) {
+        foreach ($fields as $name) {
+            if (array_key_exists($name, $initFields)) {
                 $this->_renderFields[$name] = $initFields[$name];
             }
         }
@@ -229,7 +231,7 @@ abstract class BaseForm extends Object implements IteratorAggregate, Countable, 
      */
     public function addError($attribute, $error)
     {
-        if($this->hasField($attribute)) {
+        if ($this->hasField($attribute)) {
             $this->_errors[$attribute][] = $error;
         }
     }
@@ -255,12 +257,12 @@ abstract class BaseForm extends Object implements IteratorAggregate, Countable, 
     public function clearErrors($attribute = null)
     {
         if ($attribute === null) {
-            foreach($this->getFieldsInit() as $field) {
+            foreach ($this->getFieldsInit() as $field) {
                 $field->clearErrors();
             }
             $this->_errors = [];
         } else {
-            if($this->hasField($attribute)) {
+            if ($this->hasField($attribute)) {
                 $this->getField($attribute)->clearErrors();
             }
             unset($this->_errors[$attribute]);
@@ -336,7 +338,7 @@ abstract class BaseForm extends Object implements IteratorAggregate, Countable, 
     {
         $fields = $this->getFieldsInit();
         foreach ($data as $key => $value) {
-            if(array_key_exists($key, $fields)) {
+            if (array_key_exists($key, $fields)) {
                 $fields[$key]->setValue($value);
             }
         }

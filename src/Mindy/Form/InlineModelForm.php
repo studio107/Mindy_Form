@@ -42,7 +42,7 @@ abstract class InlineModelForm extends ModelForm
     public function init()
     {
         parent::init();
-        $this->prefix[] = self::shortClassName();
+        $this->prefix[] = self::classNameShort();
         $this->setRenderOptions();
     }
 

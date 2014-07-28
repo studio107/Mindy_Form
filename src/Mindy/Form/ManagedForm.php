@@ -20,6 +20,7 @@ use Mindy\Helper\Creator;
 use Mindy\Helper\Traits\Accessors;
 use Mindy\Helper\Traits\Configurator;
 
+
 abstract class ManagedForm
 {
     use Accessors, Configurator;
@@ -85,7 +86,7 @@ abstract class ManagedForm
             $template = $this->getTemplateFromType($type);
             return $this->render($template);
         } else {
-            return parent::__call($name, $arguments);
+            return $this->__callInternal($name, $arguments);
         }
     }
 

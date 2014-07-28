@@ -16,7 +16,7 @@ namespace Mindy\Form;
 
 use Exception;
 
-abstract class ModelForm extends BaseForm
+class ModelForm extends BaseForm
 {
     public $ormClass = '\Mindy\Orm\Model';
 
@@ -27,6 +27,21 @@ abstract class ModelForm extends BaseForm
         parent::init();
         if($this->instance) {
             $this->setInstance($this->instance);
+        }
+    }
+
+    /**
+     * Initialize fields
+     * @void
+     */
+    public function initFields()
+    {
+        parent::initFields();
+        foreach($this->getInstance()->getFieldsInit() as $name => $field) {
+            $modelField = $field->getFormField($this);
+            if($modelField && !isset($this->_fields[$name])) {
+                $this->_fields[$name] = $modelField;
+            }
         }
     }
 
@@ -158,5 +173,7 @@ abstract class ModelForm extends BaseForm
         return $this->getInstance()->save();
     }
 
-    abstract public function getModel();
+    public function getModel()
+    {
+    }
 }

@@ -50,6 +50,7 @@ abstract class Field
 
     public $html;
 
+    public $choices = [];
     /**
      * @var string html class for render hint
      */
@@ -88,7 +89,6 @@ abstract class Field
             return (string)$this->render();
         } catch (Exception $e) {
             echo "Exception: " . $e->getFile() . ' ' . $e->getLine() . ' ' . $e->getMessage();
-            d($e);
             die();
         }
     }

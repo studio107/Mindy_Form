@@ -66,7 +66,7 @@ class DropDownField extends Field
             return $this->valueToHtml($data, [$this->value instanceof Model ? $this->value->pk : $this->value]);
         }
 
-        if($this->form instanceof ModelForm && $this->form->getModel()->hasField($this->name)) {
+        if($this->form instanceof ModelForm && $this->form->getInstance()->hasField($this->name)) {
             $model = $this->form->getInstance();
             $field = $model->getField($this->name);
 

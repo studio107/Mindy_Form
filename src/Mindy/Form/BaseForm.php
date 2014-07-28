@@ -58,7 +58,7 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess
 
     private $_errors = [];
 
-    private $_fields = [];
+    protected $_fields = [];
 
     private $_renderFields = [];
 

@@ -14,6 +14,9 @@
 
 namespace Mindy\Form\Fields;
 
+use Mindy\Exception\Exception;
+use Mindy\Orm\Manager;
+
 class CharField extends Field
 {
     public $template = "<input type='{type}' value='{value}' id='{id}' name='{name}'{html}/>";
@@ -32,5 +35,13 @@ class CharField extends Field
         $hint = $this->hint ? $this->renderHint() : '';
         $errors = $this->getErrors() ? $this->renderErrors() : '';
         return $label . $input . $hint . $errors;
+    }
+
+    public function getValue()
+    {
+        if($this->value instanceof Manager) {
+            throw new Exception("Value must be a string, not a manager");
+        }
+        return $this->value;
     }
 }

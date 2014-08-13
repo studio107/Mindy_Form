@@ -167,6 +167,11 @@ abstract class ManagedForm
         return $this->_form;
     }
 
+    public function setAttributes($data)
+    {
+        return $this->setData($data);
+    }
+
     public function setData($data)
     {
         $form = $this->getForm();

@@ -20,6 +20,7 @@ use Countable;
 use Exception;
 use IteratorAggregate;
 use Mindy\Form\Renderer\IFormRenderer;
+use Mindy\Form\Renderer\MindyRenderer;
 use Mindy\Helper\Creator;
 use Mindy\Helper\Traits\Accessors;
 use Mindy\Helper\Traits\Configurator;
@@ -64,6 +65,7 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess
 
     public function init()
     {
+        self::setRenderer(new MindyRenderer);
         $this->initFields();
         $this->setRenderFields(array_keys($this->getFieldsInit()));
     }

@@ -105,12 +105,19 @@ class DropDownField extends Field
                 }
             } elseif (is_a($field, $model::$foreignField)) {
                 $modelClass = $field->modelClass;
+                $qs = $modelClass::objects();
+                if(get_class($model) == $modelClass && $model->getIsNewRecord() === false) {
+                    $qs = $qs->exclude(['pk' => $model->pk]);
+                }
                 /* @var $modelClass \Mindy\Orm\Model */
-                $models = $modelClass::objects()->all();
                 if($field->null) {
                     $data[''] = '';
                 }
-                foreach($models as $model) {
+                $related = $model->{$this->name};
+                if($related) {
+                    $selected[] = $related->pk;
+                }
+                foreach($qs->all() as $model) {
                     $data[$model->pk] = (string) $model;
                 }
             } else {

@@ -19,6 +19,7 @@ use Mindy\Form\Fields\CheckboxField;
 use Mindy\Form\Fields\DeleteInlineField;
 use Mindy\Form\Fields\HiddenField;
 use Mindy\Helper\Creator;
+use Modules\Core\CoreModule;
 
 abstract class InlineModelForm extends ModelForm
 {
@@ -63,7 +64,7 @@ abstract class InlineModelForm extends ModelForm
         $fields[self::DELETE_KEY] = Creator::createObject([
             'class' => DeleteInlineField::className(),
             'form' => $this,
-            'label' => 'Delete',
+            'label' => CoreModule::t('Delete'),
             'name' => self::DELETE_KEY,
             'html' => $isNew ? ['disabled' => 'disabled'] : [],
         ]);

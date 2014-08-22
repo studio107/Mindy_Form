@@ -22,7 +22,6 @@ use IteratorAggregate;
 use Mindy\Helper\Creator;
 use Mindy\Helper\Traits\Accessors;
 use Mindy\Helper\Traits\Configurator;
-use Mindy\Utils\RenderTrait;
 
 /**
  * Class BaseForm
@@ -33,7 +32,7 @@ use Mindy\Utils\RenderTrait;
  */
 abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess
 {
-    use Accessors, Configurator, RenderTrait;
+    use Accessors, Configurator;
 
     public $fields = [];
 
@@ -59,7 +58,7 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess
 
     private $_renderFields = [];
 
-    private $_cleanedData = [];
+    public $cleanedData = [];
 
     public function init()
     {
@@ -187,6 +186,10 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess
 
         $initFields = $this->getFieldsInit();
         foreach ($fields as $name) {
+            if(in_array($name, $this->exclude)) {
+                continue;
+            }
+
             if (array_key_exists($name, $initFields)) {
                 $this->_renderFields[$name] = $initFields[$name];
             }
@@ -304,22 +307,23 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess
         /* @var $field \Mindy\Orm\Fields\Field */
         $fields = $this->getFieldsInit();
         foreach ($fields as $name => $field) {
+            if(method_exists($this, 'clean' . ucfirst($name))) {
+                $value = call_user_func([$this, 'clean' . ucfirst($name)], $field->getValue());
+                if($value) {
+                    $this->cleanedData[$name] = $value;
+                    $field->setValue($value);
+                }
+            }
+
             if ($field->isValid() === false) {
                 foreach ($field->getErrors() as $error) {
                     $this->addError($name, $error);
                 }
+            } else {
+                $this->cleanedData[$name] = $field->getValue();
             }
         }
         return $this->hasErrors() === false;
-    }
-
-    public function getCleanedData($key = null)
-    {
-        if($key && array_key_exists($key, $this->_cleanedData)) {
-            return $this->_cleanedData[$key];
-        } else {
-            return $this->_cleanedData;
-        }
     }
 
     /**
@@ -329,13 +333,16 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess
     public function setAttributes(array $data)
     {
         $fields = $this->getFieldsInit();
-        foreach ($data as $key => $value) {
-            if(method_exists($this, 'clean' . ucfirst($key))) {
-                $value = call_user_func([$this, 'clean' . ucfirst($key)], $value);
+        if(empty($data)) {
+            $this->cleanedData = $data;
+            foreach($fields as $name => $field) {
+                $field->setValue(null);
             }
-            $this->_cleanedData[$key] = $value;
-            if (array_key_exists($key, $fields)) {
-                $fields[$key]->setValue($value);
+        } else {
+            foreach ($data as $key => $value) {
+                if (array_key_exists($key, $fields)) {
+                    $fields[$key]->setValue($value);
+                }
             }
         }
         return $this;

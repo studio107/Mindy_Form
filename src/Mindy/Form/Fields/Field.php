@@ -99,16 +99,21 @@ abstract class Field
         return $this;
     }
 
-    public function render()
+    public function renderInput()
     {
-        $label = $this->renderLabel();
-        $input = strtr($this->template, [
+        return strtr($this->template, [
             '{type}' => $this->type,
             '{id}' => $this->getId(),
             '{name}' => $this->getName(),
             '{value}' => $this->getValue(),
             '{html}' => $this->getHtmlAttributes()
         ]);
+    }
+
+    public function render()
+    {
+        $label = $this->renderLabel();
+        $input = $this->renderInput();
 
         $hint = $this->hint ? $this->renderHint() : '';
         $errors = $this->getErrors() ? $this->renderErrors() : '';

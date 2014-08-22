@@ -18,7 +18,7 @@ use Mindy\Orm\Model;
 
 class Customer extends Model
 {
-    public function getFields()
+    public static function getFields()
     {
         return [
             'user' => [

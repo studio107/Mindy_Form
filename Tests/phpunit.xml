@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <phpunit backupGlobals="false"
          backupStaticAttributes="false"
          colors="true"
@@ -9,8 +8,7 @@
          processIsolation="false"
          stopOnFailure="false"
          syntaxCheck="true"
-         bootstrap="Tests/bootstrap.php"
-        >
+         bootstrap="bootstrap.php">
     <php>
         <ini name="memory_limit" value="-1"/>
         <ini name="display_errors" value="1"/>
@@ -18,8 +16,8 @@
     </php>
 
     <testsuites>
-        <testsuite name="Form">
-            <directory>Tests/Cases/Form/</directory>
+        <testsuite>
+            <directory>Cases/</directory>
         </testsuite>
     </testsuites>
 

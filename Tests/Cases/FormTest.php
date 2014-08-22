@@ -21,7 +21,6 @@ class FormTest extends TestCase
 {
     public function setUp()
     {
-        BaseForm::setRenderer(new DebugRenderer());
         BaseForm::$ids = [];
     }
 

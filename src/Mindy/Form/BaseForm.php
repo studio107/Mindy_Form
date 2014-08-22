@@ -19,11 +19,10 @@ use ArrayIterator;
 use Countable;
 use Exception;
 use IteratorAggregate;
-use Mindy\Form\Renderer\IFormRenderer;
-use Mindy\Form\Renderer\MindyRenderer;
 use Mindy\Helper\Creator;
 use Mindy\Helper\Traits\Accessors;
 use Mindy\Helper\Traits\Configurator;
+use Mindy\Utils\RenderTrait;
 
 /**
  * Class BaseForm
@@ -34,7 +33,7 @@ use Mindy\Helper\Traits\Configurator;
  */
 abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess
 {
-    use Accessors, Configurator;
+    use Accessors, Configurator, RenderTrait;
 
     public $fields = [];
 
@@ -46,12 +45,9 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess
 
     public $defaultTemplateType = 'block';
 
+    public $exclude = [];
+
     public $prefix = [];
-
-    private static $_templatePath = '';
-
-    /* @var IFormRenderer */
-    private static $_renderer;
 
     private $_id;
 
@@ -63,9 +59,10 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess
 
     private $_renderFields = [];
 
+    private $_cleanedData = [];
+
     public function init()
     {
-        self::setRenderer(new MindyRenderer);
         $this->initFields();
         $this->setRenderFields(array_keys($this->getFieldsInit()));
     }
@@ -122,6 +119,10 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess
     {
         $fields = $this->getFields();
         foreach ($fields as $name => $config) {
+            if(in_array($name, $this->exclude)) {
+                continue;
+            }
+
             if (!is_array($config)) {
                 $config = ['class' => $config];
             }
@@ -144,16 +145,6 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess
         }
     }
 
-    public static function setRenderer(IFormRenderer $renderer)
-    {
-        self::$_renderer = $renderer;
-    }
-
-    public static function setTemplatePath($path)
-    {
-        self::$_templatePath = $path;
-    }
-
     public function getFields()
     {
         return [];
@@ -168,21 +159,11 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess
     public function getTemplateFromType($type)
     {
         if (array_key_exists($type, $this->templates)) {
-            $template = self::$_templatePath ? self::$_templatePath . $this->templates[$type] : $this->templates[$type];
+            $template = $this->templates[$type];
         } else {
             throw new Exception("Template type {$type} not found");
         }
         return $template;
-    }
-
-    public static function getTemplatePath()
-    {
-        return self::$_templatePath;
-    }
-
-    public static function getRenderer()
-    {
-        return self::$_renderer;
     }
 
     /**
@@ -197,7 +178,7 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess
         } else {
             $this->setRenderFields(array_keys($this->getFieldsInit()));
         }
-        return self::$_renderer->render($template, ['form' => $this]);
+        return $this->renderTemplate($template, ['form' => $this]);
     }
 
     public function setRenderFields(array $fields)
@@ -332,24 +313,32 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess
         return $this->hasErrors() === false;
     }
 
+    public function getCleanedData($key = null)
+    {
+        if($key && array_key_exists($key, $this->_cleanedData)) {
+            return $this->_cleanedData[$key];
+        } else {
+            return $this->_cleanedData;
+        }
+    }
+
     /**
      * @param array $data
      * @return $this
      */
-    public function setData(array $data)
+    public function setAttributes(array $data)
     {
         $fields = $this->getFieldsInit();
         foreach ($data as $key => $value) {
+            if(method_exists($this, 'clean' . ucfirst($key))) {
+                $value = call_user_func([$this, 'clean' . ucfirst($key)], $value);
+            }
+            $this->_cleanedData[$key] = $value;
             if (array_key_exists($key, $fields)) {
                 $fields[$key]->setValue($value);
             }
         }
         return $this;
-    }
-
-    public function setFiles(array $data)
-    {
-        return $this->setData($data);
     }
 
     /**

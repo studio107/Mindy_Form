@@ -19,11 +19,12 @@ use Exception;
 use Mindy\Helper\Creator;
 use Mindy\Helper\Traits\Accessors;
 use Mindy\Helper\Traits\Configurator;
+use Mindy\Utils\RenderTrait;
 
 
 abstract class ManagedForm
 {
-    use Accessors, Configurator;
+    use Accessors, Configurator, RenderTrait;
 
     public $templates = [
         'block' => 'core/form/management/block.twig',
@@ -99,8 +100,7 @@ abstract class ManagedForm
     public function getTemplateFromType($type)
     {
         if (array_key_exists($type, $this->templates)) {
-            $templatePath = $this->getForm()->getTemplatePath();
-            $template = $templatePath ? $templatePath . $this->templates[$type] : $this->templates[$type];
+            $template = $this->templates[$type];
         } else {
             throw new Exception("Template type {$type} not found");
         }
@@ -113,7 +113,7 @@ abstract class ManagedForm
      */
     public function render($template)
     {
-        return $this->getForm()->getRenderer()->render($template, [
+        return $this->renderTemplate($template, [
             'form' => $this->getForm(),
             'inlines' => $this->getExistInlines()
         ]);
@@ -169,13 +169,8 @@ abstract class ManagedForm
 
     public function setAttributes($data)
     {
-        return $this->setData($data);
-    }
-
-    public function setData($data)
-    {
         $form = $this->getForm();
-        $form->setData($data);
+        $form->setAttributes($data);
 
         $instance = $form->getInstance();
 
@@ -193,7 +188,7 @@ abstract class ManagedForm
                         'class' => $class,
                         'link' => $link
                     ]);
-                    $inline->setData(array_merge([$link => $instance], $item));
+                    $inline->setAttributes(array_merge([$link => $instance], $item));
 
                     if (array_key_exists(InlineModelForm::DELETE_KEY, $item)) {
                         $delete[] = $inline;
@@ -212,11 +207,6 @@ abstract class ManagedForm
         $this->inlinesData = $save;
         $this->inlinesDelete = $delete;
         return [$save, $delete];
-    }
-
-    public function setFiles($data)
-    {
-        return $this->getForm()->setFiles($data);
     }
 
     public function getErrors()

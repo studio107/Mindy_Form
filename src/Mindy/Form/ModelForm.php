@@ -38,6 +38,10 @@ class ModelForm extends BaseForm
     {
         parent::initFields();
         foreach($this->getInstance()->getFieldsInit() as $name => $field) {
+            if(in_array($name, $this->exclude)) {
+                continue;
+            }
+
             $modelField = $field->getFormField($this);
             if($modelField && !isset($this->_fields[$name])) {
                 $this->_fields[$name] = $modelField;
@@ -87,22 +91,12 @@ class ModelForm extends BaseForm
     }
 
     /**
-     * @deprecated since 0.9
-     * @param array $data
-     * @return $this
-     */
-    public function setData(array $data)
-    {
-        return $this->setAttributes($data);
-    }
-
-    /**
      * @param array $data
      * @return $this
      */
     public function setAttributes(array $data)
     {
-        parent::setData($data);
+        parent::setAttributes($data);
         $this->getInstance()->setAttributes($data);
         return $this;
     }

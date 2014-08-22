@@ -19,6 +19,7 @@ use Mindy\Form\Fields\CheckboxField;
 use Mindy\Form\Fields\DeleteInlineField;
 use Mindy\Form\Fields\HiddenField;
 use Mindy\Helper\Creator;
+use Mindy\Orm\Model;
 use Modules\Core\CoreModule;
 
 abstract class InlineModelForm extends ModelForm
@@ -52,7 +53,8 @@ abstract class InlineModelForm extends ModelForm
         $fields = parent::getFieldsInit();
         $isNew = $this->getInstance()->getIsNewRecord();
         if(!$isNew) {
-            $pkName = $this->getInstance()->primaryKey();
+            $instance = $this->getInstance();
+            $pkName = $instance->getPkName();
             $fields[$pkName] = Creator::createObject([
                 'class' => HiddenField::className(),
                 'form' => $this,
@@ -74,7 +76,7 @@ abstract class InlineModelForm extends ModelForm
     public function setRenderOptions()
     {
         $field = $this->getInstance()->getField($this->link);
-        if(is_a($field, $this->getModel()->oneToOneField)) {
+        if(is_a($field, Model::$oneToOneField)) {
             $this->extra = 1;
             $this->max = 1;
             $this->showAddButton = false;

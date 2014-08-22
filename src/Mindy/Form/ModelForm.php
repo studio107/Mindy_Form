@@ -37,8 +37,9 @@ class ModelForm extends BaseForm
     public function initFields()
     {
         parent::initFields();
-        foreach($this->getInstance()->getFieldsInit() as $name => $field) {
-            if(in_array($name, $this->exclude)) {
+        $instance = $this->getInstance();
+        foreach($instance->getFieldsInit() as $name => $field) {
+            if(in_array($name, $this->exclude) || $instance->getMeta()->isBackwardField($name)) {
                 continue;
             }
 
@@ -145,7 +146,7 @@ class ModelForm extends BaseForm
     }
 
     /**
-     * @return \Mindy\Orm\Model
+     * @return \Mindy\Orm\Model|\Mindy\Orm\TreeModel|\Mindy\Orm\IFormModel
      */
     public function getInstance()
     {

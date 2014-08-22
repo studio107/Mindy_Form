@@ -1,13 +1,17 @@
 <?php
+
+namespace Mindy\Form\Tests;
+
 use Mindy\Form;
 use Mindy\Form\BaseForm;
 use Mindy\Form\Fields\CharField;
-use Mindy\Form\Renderer\DebugRenderer;
+use Mindy\Form\Fields\EmailField;
+use Mindy\Form\TestForm;
+use Mindy\Form\Validator\EmailValidator;
+use Mindy\Form\Validator\RequiredValidator;
 use Tests\TestCase;
 
 /**
- *
- *
  * All rights reserved.
  *
  * @author Falaleev Maxim
@@ -17,6 +21,73 @@ use Tests\TestCase;
  * @site http://studio107.ru
  * @date 17/04/14.04.2014 18:15
  */
+
+class TemplateForm extends TestForm
+{
+    public $templates = [
+        'block' => 'block.twig',
+        'table' => 'table.twig',
+        'custom' => 'custom.twig'
+    ];
+
+    public function render($template, array $fields = [])
+    {
+        return $template;
+    }
+}
+
+class SimpleForm extends TestForm
+{
+    public function getFields()
+    {
+        return [
+            'name' => [
+                'class' => CharField::className()
+            ],
+            'email' => [
+                'class' => EmailField::className()
+            ],
+        ];
+    }
+}
+
+class ValidationForm extends BaseForm
+{
+    public function getFields()
+    {
+        return [
+            'name' => [
+                'class' => CharField::className(),
+                'validators' => [
+                    new RequiredValidator()
+                ]
+            ],
+            'email' => [
+                'class' => EmailField::className(),
+                'validators' => [
+                    new RequiredValidator(),
+                    new EmailValidator()
+                ]
+            ],
+        ];
+    }
+}
+
+class RenderTemplateForm extends TestForm
+{
+    public function setTemplates(array $templates)
+    {
+        $this->templates = $templates;
+        return $this;
+    }
+
+    public function addTemplate($name, $template)
+    {
+        $this->templates[$name] = $template;
+        return $this;
+    }
+}
+
 class FormTest extends TestCase
 {
     public function setUp()
@@ -27,13 +98,13 @@ class FormTest extends TestCase
     public function testInit()
     {
         $form = new EmptyForm;
-        $this->assertInstanceOf('EmptyForm', $form);
+        $this->assertInstanceOf('\Mindy\Form\Tests\EmptyForm', $form);
         $this->assertEquals([], $form->getFields());
     }
 
     public function testTemplates()
     {
-        $form = new TemplateForm();
+        $form = new TemplateForm;
         $this->assertEquals('block.twig', $form->asBlock());
         $this->assertEquals('table.twig', $form->asTable());
         $this->assertEquals('custom.twig', $form->asCustom());

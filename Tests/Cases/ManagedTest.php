@@ -1,11 +1,124 @@
 <?php
+
+namespace Mindy\Form\Tests;
+
 use Mindy\Form\BaseForm;
 use Mindy\Form\InlineModelForm;
-use Mindy\Form\Renderer\PhpRenderer;
+use Mindy\Form\TestInlineModelForm;
+use Mindy\Form\TestManagedForm;
+use Mindy\Form\ModelForm;
+use Mindy\Form\Fields\CharField as FormCharField;
+use Mindy\Form\TestModelForm;
+use Mindy\Orm\Fields\CharField;
+use Mindy\Orm\Fields\ForeignField;
+use Mindy\Orm\Model;
+
+class User extends Model
+{
+    public static function getFields()
+    {
+        return [
+            'name' => [
+                'class' => CharField::className()
+            ],
+        ];
+    }
+}
+
+class Customer extends Model
+{
+    public static function getFields()
+    {
+        return [
+            'user' => [
+                'class' => ForeignField::className(),
+                'modelClass' => User::className(),
+                'relatedName' => 'customer'
+            ],
+            'address' => [
+                'class' => CharField::className()
+            ]
+        ];
+    }
+}
+
+class UserForm extends TestModelForm
+{
+    public function init()
+    {
+        parent::init();
+        $this->templates = [
+            'block' => __DIR__ . '/../Templates/block.php'
+        ];
+    }
+
+    public function getFields()
+    {
+        return [
+            'name' => ['class' => FormCharField::className()]
+        ];
+    }
+
+    public function getModel()
+    {
+        return new User;
+    }
+}
+
+class CustomerInlineForm extends TestInlineModelForm
+{
+    public $extra = 1;
+
+    public $max = 1;
+
+    public function init()
+    {
+        parent::init();
+        $this->templates = [
+            'inline' => __DIR__ . '/../Templates/inline.php'
+        ];
+    }
+
+    public function getFields()
+    {
+        return [
+            'address' => ['class' => FormCharField::className()]
+        ];
+    }
+
+    public function getModel()
+    {
+        return new Customer;
+    }
+}
+
+class AdminForm extends TestManagedForm
+{
+    public function init()
+    {
+        parent::init();
+        $this->templates = [
+            'ul' => __DIR__ . '/../Templates/managed.php',
+        ];
+    }
+
+    /**
+     * @return string form class
+     */
+    public function getFormClass()
+    {
+        return UserForm::className();
+    }
+
+    public function getInlines()
+    {
+        return [
+            'user' => CustomerInlineForm::className()
+        ];
+    }
+}
 
 /**
- *
- *
  * All rights reserved.
  *
  * @author Falaleev Maxim
@@ -19,12 +132,9 @@ class ManagedTest extends \Tests\DatabaseTestCase
 {
     public function setUp()
     {
-        $this->settings = require __DIR__ . '/../../config_local.php';
-        $this->setConnection('mysql');
-
+        parent::setUp();
+        $this->settings = require __DIR__ . '/../config_local.php';
         $this->initModels([new User, new Customer]);
-
-        BaseForm::setRenderer(new PhpRenderer());
         BaseForm::$ids = [];
     }
 
@@ -41,14 +151,14 @@ class ManagedTest extends \Tests\DatabaseTestCase
         $this->assertInstanceOf(UserForm::className(), $managed->getForm());
         $this->assertEquals(1, count($existInlines['CustomerInlineForm']));
 
-        foreach($managed->getExistInlines() as $name => $inlines) {
-            foreach($inlines as $inline) {
+        foreach ($managed->getExistInlines() as $name => $inlines) {
+            foreach ($inlines as $inline) {
                 $this->assertEquals(1, $inline->extra);
             }
         }
 
-        $mainForm = "<label for='UserForm_0_name'>Name</label><input type='text' value='' id='UserForm_0_name' name='name'/>";
-        $inlineForms = "<h1>CustomerInlineForm</h1><label for='CustomerInlineForm_0_address'>Address</label><input type='text' value='' id='CustomerInlineForm_0_address' name='CustomerInlineForm[CustomerInlineForm_0][address]'/><input type='hidden' value='' name='to_be_deleted' /><input type='checkbox' id='CustomerInlineForm_0_to_be_deleted' name='CustomerInlineForm[CustomerInlineForm_0][to_be_deleted]'disabled/><label for='CustomerInlineForm_0_to_be_deleted'>Delete</label>";
+        $mainForm = "<label for='UserForm_0_name'>Name</label><input type='text' value='' id='UserForm_0_name' name='name'/><input type='hidden' value='' name='customer' /><label for='UserForm_0_customer'>Customer</label><select id='UserForm_0_customer' name='customer[]'  multiple='multiple'></select>";
+        $inlineForms = "<h1>CustomerInlineForm</h1><label for='CustomerInlineForm_0_address'>Address</label><input type='text' value='' id='CustomerInlineForm_0_address' name='CustomerInlineForm[CustomerInlineForm_0][address]'/><input type='hidden' value='' name='to_be_deleted' /><input type='checkbox' id='CustomerInlineForm_0_to_be_deleted' name='CustomerInlineForm[CustomerInlineForm_0][to_be_deleted]' disabled='disabled'/><label for='CustomerInlineForm_0_to_be_deleted'>Delete</label>";
         $this->assertEquals($mainForm . $inlineForms, $managed->asUl());
     }
 

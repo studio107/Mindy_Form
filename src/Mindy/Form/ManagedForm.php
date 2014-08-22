@@ -19,17 +19,16 @@ use Exception;
 use Mindy\Helper\Creator;
 use Mindy\Helper\Traits\Accessors;
 use Mindy\Helper\Traits\Configurator;
-use Mindy\Utils\RenderTrait;
 
 
 abstract class ManagedForm
 {
-    use Accessors, Configurator, RenderTrait;
+    use Accessors, Configurator;
 
     public $templates = [
-        'block' => 'core/form/management/block.twig',
-        'table' => 'core/form/management/table.twig',
-        'ul' => 'core/form/management/ul.twig',
+        'block' => 'core/form/management/block.html',
+        'table' => 'core/form/management/table.html',
+        'ul' => 'core/form/management/ul.html',
     ];
 
     public $defaultTemplateType = 'block';
@@ -82,13 +81,14 @@ abstract class ManagedForm
 
     public function __call($name, $arguments)
     {
-        $type = strtolower(ltrim($name, 'as'));
-        if (isset($this->templates[$type])) {
-            $template = $this->getTemplateFromType($type);
-            return $this->render($template);
-        } else {
-            return $this->__callInternal($name, $arguments);
+        if(strpos($name, 'as') === 0) {
+            $type = strtolower(ltrim($name, 'as'));
+            if (isset($this->templates[$type])) {
+                $template = $this->getTemplateFromType($type);
+                return $this->render($template);
+            }
         }
+        return $this->__callInternal($name, $arguments);
     }
 
     public function __toString()

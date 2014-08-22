@@ -1,6 +1,11 @@
 <?php
+
+namespace Mindy\Form\Tests;
+
 use Mindy\Form\BaseForm;
-use Mindy\Form\Renderer\DebugRenderer;
+use Mindy\Form\ModelForm;
+use Mindy\Orm\Fields\CharField;
+use Mindy\Orm\Model;
 use Tests\TestCase;
 
 /**
@@ -16,30 +21,38 @@ use Tests\TestCase;
  * @date 21/04/14.04.2014 18:45
  */
 
-class ModelFormTest extends TestCase
+class Example extends Model
 {
-    public function setUp()
+    public static function getFields()
     {
-        BaseForm::setRenderer(new DebugRenderer());
-        BaseForm::$ids = [];
-    }
-
-    public function testModelForm()
-    {
-        $form = new DummyForm();
-
-        $this->assertEquals(0, DummyModel::$count);
-        $this->assertInstanceOf('DummyModel', $form->getInstance());
-
-        $this->assertEquals(1, DummyModel::$count);
-        $form->setData(["name" => "1"]);
-
-        $this->assertEquals(1, DummyModel::$count);
-        $this->assertEquals(["name" => "1"], $form->getInstance()->getData());
-
-        $this->assertTrue($form->isValid());
-        $form->setData([]);
-        $this->assertFalse($form->isValid());
+        return [
+            'name' => [
+                'class' => CharField::className()
+            ]
+        ];
     }
 }
 
+class ExampleForm extends ModelForm
+{
+    public function getModel()
+    {
+        return Example::className();
+    }
+}
+
+class ModelFormTest extends \Tests\DatabaseTestCase
+{
+    public function setUp()
+    {
+        parent::setUp();
+        BaseForm::$ids = [];
+        $this->initModels([new Example]);
+    }
+
+    public function testForm()
+    {
+        // TODO
+        $this->assertEquals(1, 1);
+    }
+}

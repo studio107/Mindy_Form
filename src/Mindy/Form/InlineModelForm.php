@@ -66,7 +66,7 @@ abstract class InlineModelForm extends ModelForm
         $fields[self::DELETE_KEY] = Creator::createObject([
             'class' => DeleteInlineField::className(),
             'form' => $this,
-            'label' => CoreModule::t('Delete'),
+            'label' => 'Delete',
             'name' => self::DELETE_KEY,
             'html' => $isNew ? ['disabled' => 'disabled'] : [],
         ]);

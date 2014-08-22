@@ -180,18 +180,24 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess
         return $this->renderTemplate($template, ['form' => $this]);
     }
 
-    public function setRenderFields(array $fields)
+    public function setRenderFields(array $fields = [])
     {
         $this->_renderFields = [];
 
         $initFields = $this->getFieldsInit();
-        foreach ($fields as $name) {
-            if(in_array($name, $this->exclude)) {
-                continue;
-            }
-
-            if (array_key_exists($name, $initFields)) {
+        if(empty($fields)) {
+            foreach($initFields as $name => $field) {
                 $this->_renderFields[$name] = $initFields[$name];
+            }
+        } else {
+            foreach ($fields as $name) {
+                if(in_array($name, $this->exclude)) {
+                    continue;
+                }
+
+                if (array_key_exists($name, $initFields)) {
+                    $this->_renderFields[$name] = $initFields[$name];
+                }
             }
         }
     }

@@ -15,8 +15,6 @@
 namespace Mindy\Form\Validator;
 
 
-use Modules\Core\CoreModule;
-
 class EmailValidator extends Validator
 {
     /**
@@ -68,7 +66,7 @@ class EmailValidator extends Validator
         }
 
         if(!$valid) {
-            $this->addError(CoreModule::t("is not a valid email address", ['{name}' => $this->getName()]));
+            $this->addError(strtr("is not a valid email address", ['{name}' => $this->getName()]));
         }
 
         return $this->hasErrors() === false;

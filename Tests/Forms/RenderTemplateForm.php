@@ -1,5 +1,6 @@
 <?php
 use Mindy\Form\BaseForm;
+use Mindy\Form\TestForm;
 
 /**
  * 
@@ -14,7 +15,7 @@ use Mindy\Form\BaseForm;
  * @date 17/04/14.04.2014 18:49
  */
 
-class RenderTemplateForm extends BaseForm
+class RenderTemplateForm extends TestForm
 {
     public function setTemplates(array $templates)
     {

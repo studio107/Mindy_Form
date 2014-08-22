@@ -17,6 +17,7 @@ namespace Mindy\Form\Tests;
 
 use Mindy\Form\Fields\CharField;
 use Mindy\Form\TestForm;
+use Mindy\Orm\Model;
 use PHPUnit_Framework_TestCase;
 
 

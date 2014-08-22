@@ -2,6 +2,7 @@
 use Mindy\Form\Fields\CharField;
 use Mindy\Form\Fields\EmailField;
 use Mindy\Form\BaseForm;
+use Mindy\Form\TestForm;
 
 /**
  * 
@@ -16,7 +17,7 @@ use Mindy\Form\BaseForm;
  * @date 17/04/14.04.2014 18:25
  */
 
-class SimpleForm extends BaseForm
+class SimpleForm extends TestForm
 {
     public function getFields()
     {

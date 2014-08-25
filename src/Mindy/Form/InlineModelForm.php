@@ -51,17 +51,18 @@ abstract class InlineModelForm extends ModelForm
     public function getFieldsInit()
     {
         $fields = parent::getFieldsInit();
-        $isNew = $this->getInstance()->getIsNewRecord();
+        $instance = $this->getInstance();
+        $isNew = $instance->getIsNewRecord();
         if(!$isNew) {
-            $instance = $this->getInstance();
-            $pkName = $instance->getPkName();
-            $fields[$pkName] = Creator::createObject([
-                'class' => HiddenField::className(),
-                'form' => $this,
-                'label' => 'Primary Key',
-                'name' => $pkName,
-                'value' => $this->getInstance()->pk
-            ]);
+//            $instance = $this->getInstance();
+//            $pkName = $instance->getPkName();
+//            $fields[$pkName] = Creator::createObject([
+//                'class' => HiddenField::className(),
+//                'form' => $this,
+//                'label' => 'Primary Key',
+//                'name' => $pkName,
+//                'value' => $this->getInstance()->pk
+//            ]);
         }
         $fields[self::DELETE_KEY] = Creator::createObject([
             'class' => DeleteInlineField::className(),

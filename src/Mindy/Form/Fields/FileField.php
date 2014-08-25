@@ -19,7 +19,7 @@ use Modules\Core\CoreModule;
 class FileField extends Field
 {
     public $type = 'file';
-    public $cleanValue = 'NULL';
+    public $cleanValue = '';
 
     public $currentTemplate = '<p>{label}:<br/><a class="current-file" href="{current}" target="_blank">{current}</a></p>';
     public $cleanTemplate = '<label for="{id}-clean" class="clean-label"><input type="checkbox" id="{id}-clean" name="{name}" value="{value}"> {label}</label>';

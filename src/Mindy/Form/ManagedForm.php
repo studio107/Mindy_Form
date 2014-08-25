@@ -16,6 +16,7 @@ namespace Mindy\Form;
 
 
 use Exception;
+use Mindy\Helper\Arr;
 use Mindy\Helper\Creator;
 use Mindy\Helper\Traits\Accessors;
 use Mindy\Helper\Traits\Configurator;
@@ -64,12 +65,15 @@ abstract class ManagedForm
     {
         $this->_form = Creator::createObject([
             'class' => $this->getFormClass(),
-            'instance' => $this->instance
         ]);
 
-        foreach ($this->getInlines() as $link => $config) {
+        if ($this->instance) {
+            $this->_form->setInstance($this->instance);
+        }
+
+        foreach ($this->getInlines() as $link => $className) {
             $this->_inlines[$link] = Creator::createObject([
-                'class' => $config,
+                'class' => $className,
                 'link' => $link
             ]);
         }
@@ -81,7 +85,7 @@ abstract class ManagedForm
 
     public function __call($name, $arguments)
     {
-        if(strpos($name, 'as') === 0) {
+        if (strpos($name, 'as') === 0) {
             $type = strtolower(ltrim($name, 'as'));
             if (isset($this->templates[$type])) {
                 $template = $this->getTemplateFromType($type);
@@ -115,28 +119,34 @@ abstract class ManagedForm
     {
         return $this->renderTemplate($template, [
             'form' => $this->getForm(),
-            'inlines' => $this->getExistInlines()
+            'inlines' => $this->getInlinesExist()
         ]);
     }
 
-    public function getExistInlines()
+    public function getInlinesExist($extra = true)
     {
         $inlines = [];
         $model = $this->getForm()->getInstance();
         foreach ($this->_inlines as $link => $inline) {
             $name = $inline->getName();
-            $inlines[$name] = [];
-
             $models = $inline->getLinkModels([$link => $model]);
-            foreach ($models as $model) {
-                $inlines[$name][] = Creator::createObject([
-                    'class' => $inline->className(),
-                    'instance' => $model,
-                    'link' => $link
-                ]);
+            if (count($models) > 0) {
+                $inlines[$name] = [];
+                foreach ($models as $model) {
+                    $i = Creator::createObject([
+                        'class' => $inline->className(),
+                        'link' => $link,
+                        'instance' => $model
+                    ]);
+                    $inlines[$name][] = $i;
+                }
             }
-
-            if ($inline->extra > 0 && count($inlines[$name]) != $inline->extra) {
+            if ($extra && $inline->extra > 0 &&
+                (
+                    array_key_exists($name, $inlines) && count($inlines[$name]) != $inline->extra ||
+                    array_key_exists($name, $inlines) === false
+                )
+            ) {
                 foreach (range(1, $inline->extra) as $number) {
                     $inlines[$name][] = Creator::createObject([
                         'class' => $inline->className(),
@@ -177,17 +187,23 @@ abstract class ManagedForm
         $save = [];
         $delete = [];
 
-        $inlines = array_flip($this->getInlines());
+        $inlinesData = array_flip($this->getInlines());
+        $inlines = $this->getInlinesExist();
         foreach ($this->_inlineClasses as $classNameShort => $class) {
             if (array_key_exists($classNameShort, $data)) {
+                $cleanData = Arr::cleanArrays($data[$classNameShort]);
                 $count = 0;
-                $cleanData = $this->cleanArrays($data[$classNameShort]);
                 foreach ($cleanData as $item) {
-                    $link = $inlines[$class];
-                    $inline = Creator::createObject([
-                        'class' => $class,
-                        'link' => $link
-                    ]);
+                    $link = $inlinesData[$class];
+                    if (count($inlines) > 0) {
+                        $inline = array_shift($inlines[$classNameShort]);
+                    } else {
+                        $inline = Creator::createObject([
+                            'class' => $class,
+                            'link' => $link
+                        ]);
+                    }
+
                     $inline->setAttributes(array_merge([$link => $instance], $item));
 
                     if (array_key_exists(InlineModelForm::DELETE_KEY, $item)) {
@@ -214,19 +230,6 @@ abstract class ManagedForm
         return $this->getForm()->getErrors();
     }
 
-    public function cleanArrays(array $data)
-    {
-        $new = [];
-        foreach ($data as $item) {
-            $tmp = array_filter($item);
-            if (empty($tmp)) {
-                continue;
-            }
-            $new[] = $tmp;
-        }
-        return $new;
-    }
-
     /**
      * @return string form class
      */
@@ -244,14 +247,9 @@ abstract class ManagedForm
      * Возвращает инициализированные inline формы
      * @return InlineForm[]
      */
-    public function getInitInlines()
+    public function getInlinesInit()
     {
         return $this->_inlines;
-    }
-
-    public function getField($attribute)
-    {
-        return $this->getForm()->getField($attribute);
     }
 
     /**
@@ -268,7 +266,6 @@ abstract class ManagedForm
                 foreach ($this->inlinesData as $inline) {
                     $valid = $inline->isValid();
                 }
-
                 return $valid;
             }
         } else {
@@ -284,7 +281,7 @@ abstract class ManagedForm
         $r = $this->getForm()->save();
 
         foreach ($this->inlinesData as $inline) {
-            $inline->save();
+            $r = $inline->save();
         }
 
         foreach ($this->inlinesDelete as $inline) {

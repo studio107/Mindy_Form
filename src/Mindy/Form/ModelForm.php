@@ -15,20 +15,13 @@
 namespace Mindy\Form;
 
 use Exception;
+use Mindy\Orm\Fields\FileField;
 
 class ModelForm extends BaseForm
 {
     public $ormClass = '\Mindy\Orm\Model';
 
-    public $instance;
-
-    public function init()
-    {
-        parent::init();
-        if($this->instance) {
-            $this->setInstance($this->instance);
-        }
-    }
+    protected $instance;
 
     /**
      * Initialize fields
@@ -103,24 +96,13 @@ class ModelForm extends BaseForm
     }
 
     /**
-     * @param array $data
-     * @return $this
-     */
-    public function setFiles(array $data)
-    {
-        parent::setFiles($data);
-        $this->getInstance()->setAttributes($data);
-        return $this;
-    }
-
-    /**
      * @param $model \Mindy\Orm\Model
      * @return $this
      * @throws \Exception
      */
     public function setInstance($model)
     {
-        if(is_subclass_of($model, $this->ormClass) || $model instanceof IFormModel) {
+        if(is_subclass_of($model, $this->ormClass)) {
             $this->instance = $model;
             /* @var $model \Mindy\Orm\Model */
             foreach($model->getFieldsInit() as $name => $field) {
@@ -136,13 +118,17 @@ class ModelForm extends BaseForm
 //                    if($name == 'view') {
 //                        d($model->{$name});
 //                    }
-                    $this->getField($name)->setValue($model->{$name});
+                    $value = $model->{$name};
+                    if($value instanceof FileField) {
+                        $value = $value->getValue();
+                    }
+                    $this->getField($name)->setValue($value);
                 }
             }
             return $this;
         }
 
-        throw new Exception("Please use Mindy\\Orm\\Model or IFormModel");
+        throw new Exception("Please use Mindy\\Orm\\Model");
     }
 
     /**
@@ -150,15 +136,9 @@ class ModelForm extends BaseForm
      */
     public function getInstance()
     {
-        if(!$this->instance) {
+        if($this->instance === null) {
             $modelClass = $this->getModel();
-            if(is_string($modelClass)) {
-                $model = new $modelClass;
-            } else {
-                $model = $modelClass;
-            }
-            $this->instance = $model;
-
+            $this->instance = $instance = is_string($modelClass) ? new $modelClass : $modelClass;
         }
         return $this->instance;
     }
@@ -170,5 +150,6 @@ class ModelForm extends BaseForm
 
     public function getModel()
     {
+        return null;
     }
 }

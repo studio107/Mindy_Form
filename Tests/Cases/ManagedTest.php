@@ -92,6 +92,12 @@ class CustomerInlineForm extends TestInlineModelForm
     }
 }
 
+class CustomerExtraInlineForm extends CustomerInlineForm
+{
+    public $max = 5;
+    public $extra = 3;
+}
+
 class AdminForm extends TestManagedForm
 {
     public function init()
@@ -114,6 +120,16 @@ class AdminForm extends TestManagedForm
     {
         return [
             'user' => CustomerInlineForm::className()
+        ];
+    }
+}
+
+class AdminExtraForm extends AdminForm
+{
+    public function getInlines()
+    {
+        return [
+            'user' => CustomerExtraInlineForm::className()
         ];
     }
 }
@@ -247,5 +263,36 @@ class ManagedTest extends \Tests\DatabaseTestCase
         $this->assertTrue($m->save());
 
         $this->assertEquals(0, Customer::objects()->count());
+    }
+
+    public function testManagedIncorrectData()
+    {
+        $user = User::objects()->getOrCreate(['name' => 'example']);
+        $m = new AdminExtraForm(['instance' => $user]);
+        list($save, $delete) = $m->setAttributes(['name' => 'oleg']);
+        $this->assertTrue(empty($save));
+        $this->assertTrue(empty($delete));
+
+        $this->assertTrue($m->isValid());
+        $this->assertTrue($m->save());
+
+        // Delete inline
+        list($save, $delete) = $m->setAttributes([
+            'name' => 'oleg',
+            'CustomerExtraInlineForm' => [
+                ['address' => "test1", InlineModelForm::DELETE_KEY => ""],
+                ['address' => "test2", InlineModelForm::DELETE_KEY => ""],
+                ['address' => "test3", InlineModelForm::DELETE_KEY => ""],
+            ]
+        ]);
+        $this->assertTrue(empty($delete));
+        $this->assertFalse(empty($save));
+        $this->assertEquals(3, count($save));
+        $this->assertEquals(0, count($delete));
+        $this->assertEquals(0, count($m->inlinesDelete));
+        $this->assertTrue($m->isValid());
+        $this->assertTrue($m->save());
+
+        $this->assertEquals(3, Customer::objects()->count());
     }
 }

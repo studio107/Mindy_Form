@@ -9,20 +9,20 @@
  * @version 1.0
  * @company Studio107
  * @site http://studio107.ru
- * @date 22/08/14.08.2014 19:45
+ * @date 22/08/14.08.2014 19:54
  */
 
 namespace Mindy\Form;
 
 
-abstract class TestManagedForm extends ManagedForm
+class TestModelForm extends ModelForm
 {
-    public function renderTemplate($template, $data = [])
+    public function renderTemplate($view, array $data = [])
     {
-        $data = array_merge($data, ['form' => $this->getForm()]);
+        $data = array_merge($data, ['form' => $this]);
         ob_start();
         extract($data);
-        include($template);
+        include($view);
         return ob_get_clean();
     }
 }

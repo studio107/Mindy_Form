@@ -234,7 +234,6 @@ class ManagedTest extends \Tests\DatabaseTestCase
         // Delete inline
         list($save, $delete) = $m->setAttributes([
             'name' => 'oleg',
-
             'CustomerInlineForm' => [
                 ['address' => "test1", InlineModelForm::DELETE_KEY => "on"],
             ]

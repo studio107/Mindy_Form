@@ -195,9 +195,11 @@ abstract class ManagedForm
                 $cleanData = Arr::cleanArrays($data[$classNameShort]);
                 $count = 0;
                 foreach ($cleanData as $item) {
+                    $shortName = explode('\\', $class);
+                    $shortName = end($shortName);
                     $link = $inlinesData[$class];
-                    if (count($inlines) > 0 && isset($inlines[$class]) && $inlines[$class]) {
-                        $inline = array_shift($inlines[$class]);
+                    if (isset($inlines[$shortName]) && count($inlines[$shortName]) > 0) {
+                        $inline = array_shift($inlines[$shortName]);
                     } else {
                         $inline = Creator::createObject([
                             'class' => $class,

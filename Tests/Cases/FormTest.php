@@ -213,15 +213,15 @@ class FormTest extends TestCase
         $this->assertEquals(1, count($form->getField("name")->getErrors()));
 
         $this->assertEquals(
-            "<label for='ValidationForm_0_name'>Name</label><input type='text' value='' id='ValidationForm_0_name' name='name'/><ul class='error'><li>\"name\" cannot be empty</li></ul>",
+            "<label for='ValidationForm_0_name'>Name</label><input type='text' value='' id='ValidationForm_0_name' name='[ValidationForm_0][name]'/><ul class='error'><li>\"name\" cannot be empty</li></ul>",
             $form->getField("name")->render()
         );
         $this->assertEquals(
-            "<label for='ValidationForm_0_name'>Name</label><input type='text' value='' id='ValidationForm_0_name' name='name'/><ul class='error'><li>\"name\" cannot be empty</li></ul>",
+            "<label for='ValidationForm_0_name'>Name</label><input type='text' value='' id='ValidationForm_0_name' name='[ValidationForm_0][name]'/><ul class='error'><li>\"name\" cannot be empty</li></ul>",
             $form["name"]->render()
         );
         $this->assertEquals(
-            "<label for='ValidationForm_0_email'>Email</label><input type='text' id='ValidationForm_0_email' name='email'/><ul class='error'><li>\"email\" cannot be empty</li><li>is not a valid email address</li></ul>",
+            "<label for='ValidationForm_0_email'>Email</label><input type='text' id='ValidationForm_0_email' name='[ValidationForm_0][email]'/><ul class='error'><li>\"email\" cannot be empty</li><li>is not a valid email address</li></ul>",
             $form->getField("email")->render()
         );
     }

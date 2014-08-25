@@ -17,7 +17,6 @@ namespace Mindy\Form\Tests;
 
 use Mindy\Form\Fields\CharField;
 use Mindy\Form\TestForm;
-use Mindy\Orm\Model;
 use PHPUnit_Framework_TestCase;
 
 
@@ -39,7 +38,7 @@ class FirstForm extends TestForm
 
     public function cleanName($value)
     {
-        if(mb_strlen($value, 'utf-8') < 3) {
+        if (mb_strlen($value, 'utf-8') < 3) {
             $this->addError('name', '<3');
         } else {
             return '1' . $value;
@@ -86,11 +85,11 @@ class BaseFormTest extends PHPUnit_Framework_TestCase
         $form = new FirstForm();
         $this->assertEquals(1, count($form->getFields()));
         $this->assertEquals(
-            "<label for='FirstForm_0_name'>Name</label><input type='text' value='' id='FirstForm_0_name' name='name'/>",
+            "<label for='FirstForm_0_name'>Name</label><input type='text' value='' id='FirstForm_0_name' name='[FirstForm_0][name]'/>",
             $form->render(__DIR__ . '/../templates/block.php'));
         $this->assertFalse($form->isValid());
         $this->assertEquals(
-            "<label for='FirstForm_0_name'>Name</label><input type='text' value='' id='FirstForm_0_name' name='name'/><ul class='error'><li>\"name\" cannot be empty</li></ul>",
+            "<label for='FirstForm_0_name'>Name</label><input type='text' value='' id='FirstForm_0_name' name='[FirstForm_0][name]'/><ul class='error'><li>\"name\" cannot be empty</li></ul>",
             $form->render(__DIR__ . '/../templates/block.php'));
         $form->setAttributes([
             'name' => 'name'
@@ -100,7 +99,7 @@ class BaseFormTest extends PHPUnit_Framework_TestCase
             'name' => '1name'
         ], $form->cleanedData);
         $this->assertEquals(
-            "<label for='FirstForm_0_name'>Name</label><input type='text' value='1name' id='FirstForm_0_name' name='name'/>",
+            "<label for='FirstForm_0_name'>Name</label><input type='text' value='1name' id='FirstForm_0_name' name='[FirstForm_0][name]'/>",
             $form->render(__DIR__ . '/../templates/block.php'));
 
         $form->setAttributes([
@@ -111,7 +110,7 @@ class BaseFormTest extends PHPUnit_Framework_TestCase
             'name' => 'na'
         ], $form->cleanedData);
         $this->assertEquals(
-            "<label for='FirstForm_0_name'>Name</label><input type='text' value='na' id='FirstForm_0_name' name='name'/>",
+            "<label for='FirstForm_0_name'>Name</label><input type='text' value='na' id='FirstForm_0_name' name='[FirstForm_0][name]'/>",
             $form->render(__DIR__ . '/../templates/block.php'));
 
         $this->assertEquals('1', $form->render(__DIR__ . '/../templates/empty.php'));
@@ -119,7 +118,7 @@ class BaseFormTest extends PHPUnit_Framework_TestCase
 
         $this->assertFalse($form->isValid());
         $this->assertEquals(
-            "<label for='FirstForm_0_name'>Name</label><input type='text' value='' id='FirstForm_0_name' name='name'/>\"name\" cannot be empty",
+            "<label for='FirstForm_0_name'>Name</label><input type='text' value='' id='FirstForm_0_name' name='[FirstForm_0][name]'/>\"name\" cannot be empty",
             $form->render(__DIR__ . '/../templates/block_separate.php'));
     }
 

@@ -132,38 +132,35 @@ abstract class ManagedForm
 
     public function getInlinesExist($extra = true)
     {
-        if(empty($this->_inlineInstances)) {
-            $inlines = [];
-            $model = $this->getForm()->getInstance();
-            foreach ($this->_inlines as $link => $inline) {
-                $name = $inline->getName();
-                $models = $inline->getLinkModels([$link => $model]);
-                if (count($models) > 0) {
-                    $inlines[$name] = [];
-                    foreach ($models as $model) {
-                        $inlines[$name][] = Creator::createObject([
-                            'class' => $inline->className(),
-                            'link' => $link,
-                            'instance' => $model
-                        ]);
-                    }
-                }
-                if ($extra && $inline->extra > 0 && (
-                    array_key_exists($name, $inlines) && count($inlines[$name]) != $inline->extra ||
-                    array_key_exists($name, $inlines) === false
-                )) {
-                    foreach (range(1, $inline->extra) as $number) {
-                        $inlines[$name][] = Creator::createObject([
-                            'class' => $inline->className(),
-                            'link' => $link,
-                        ]);
-                    }
+        $inlines = [];
+        $model = $this->getForm()->getInstance();
+        foreach ($this->_inlines as $link => $inline) {
+            $name = $inline->getName();
+            $models = $inline->getLinkModels([$link => $model]);
+            if (count($models) > 0) {
+                $inlines[$name] = [];
+                foreach ($models as $model) {
+                    $inlines[$name][] = Creator::createObject([
+                        'class' => $inline->className(),
+                        'link' => $link,
+                        'instance' => $model
+                    ]);
                 }
             }
-            $this->_inlineInstances = $inlines;
+            if ($extra && $inline->extra > 0 && (
+                array_key_exists($name, $inlines) && count($inlines[$name]) != $inline->extra ||
+                array_key_exists($name, $inlines) === false
+            )) {
+                foreach (range(1, $inline->extra) as $number) {
+                    $inlines[$name][] = Creator::createObject([
+                        'class' => $inline->className(),
+                        'link' => $link,
+                    ]);
+                }
+            }
         }
 
-        return $this->_inlineInstances;
+        return $inlines;
     }
 
     public function getInstance()
@@ -185,45 +182,7 @@ abstract class ManagedForm
         return $this->_form;
     }
 
-    public function getInlineInstances(array $data)
-    {
-        if(empty($this->_inlineInstances)) {
-            $instances = [];
-
-            $form = $this->getForm();
-            $form->setAttributes($data);
-
-            $inlinesData = array_flip($this->getInlines());
-            $inlines = $this->getInlinesExist();
-            foreach ($this->_inlineClasses as $classNameShort => $class) {
-                if (array_key_exists($classNameShort, $data)) {
-                    $cleanData = Arr::cleanArrays($data[$classNameShort]);
-                    $count = 0;
-                    foreach ($cleanData as $item) {
-                        $shortName = explode('\\', $class);
-                        $shortName = end($shortName);
-                        $link = $inlinesData[$class];
-                        if (isset($inlines[$shortName]) && count($inlines[$shortName]) > 0) {
-                            $inline = array_shift($inlines[$shortName]);
-                        } else {
-                            $inline = Creator::createObject(['class' => $class, 'link' => $link]);
-                        }
-
-                        $this->_inlineInstances[] = $inline;
-                        $count++;
-                        if ($inline->max == $count) {
-                            break;
-                        }
-                    }
-                }
-            }
-
-            $this->_inlineInstances = $instances;
-        }
-        return $this->_inlineInstances;
-    }
-
-    public function setAttributes(array $data, array $files)
+    public function setAttributes(array $data, array $files = [])
     {
         $form = $this->getForm();
         $form->setAttributes(array_merge($data, $files));

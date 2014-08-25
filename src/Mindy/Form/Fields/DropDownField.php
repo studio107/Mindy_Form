@@ -42,7 +42,9 @@ class DropDownField extends Field
         $hint = $this->hint ? $this->renderHint() : '';
         $errors = $this->getErrors() ? $this->renderErrors() : '';
         $out =  $label . $input . $hint . $errors;
-        return "<input type='hidden' value='' name='{$this->name}' />" . $out;
+
+        $name = implode('_', $this->form->prefix) . "[" . $this->form->getId() . "][" . $this->name . "]";
+        return "<input type='hidden' value='' name='{$name}' />" . $out;
     }
 
     public function getValue()

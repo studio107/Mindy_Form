@@ -158,8 +158,8 @@ class ManagedTest extends \Tests\DatabaseTestCase
             }
         }
 
-        $mainForm = "<label for='UserForm_0_name'>Name</label><input type='text' value='' id='UserForm_0_name' name='name'/><input type='hidden' value='' name='customer' /><label for='UserForm_0_customer'>Customer</label><select id='UserForm_0_customer' name='customer[]'  multiple='multiple'></select>";
-        $inlineForms = "<h1>CustomerInlineForm</h1><label for='CustomerInlineForm_0_address'>Address</label><input type='text' value='' id='CustomerInlineForm_0_address' name='CustomerInlineForm[CustomerInlineForm_0][address]'/><input type='hidden' value='' name='to_be_deleted' /><input type='checkbox' id='CustomerInlineForm_0_to_be_deleted' name='CustomerInlineForm[CustomerInlineForm_0][to_be_deleted]' disabled='disabled'/><label for='CustomerInlineForm_0_to_be_deleted'>Delete</label>";
+        $mainForm = "<label for='UserForm_0_name'>Name</label><input type='text' value='' id='UserForm_0_name' name='[UserForm_0][name]'/><input type='hidden' value='' name='[UserForm_0][customer]' /><label for='UserForm_0_customer'>Customer</label><select id='UserForm_0_customer' name='[UserForm_0][customer][]'  multiple='multiple'></select>";
+        $inlineForms = "<h1>CustomerInlineForm</h1><label for='CustomerInlineForm_0_address'>Address</label><input type='text' value='' id='CustomerInlineForm_0_address' name='CustomerInlineForm[CustomerInlineForm_0][address]'/><input type='hidden' value='' name='CustomerInlineForm[CustomerInlineForm_0][to_be_deleted]' /><input type='checkbox' id='CustomerInlineForm_0_to_be_deleted' name='CustomerInlineForm[CustomerInlineForm_0][to_be_deleted]' disabled='disabled'/><label for='CustomerInlineForm_0_to_be_deleted'>Delete</label>";
         $this->assertEquals($mainForm . $inlineForms, $managed->asUl());
     }
 
@@ -170,8 +170,8 @@ class ManagedTest extends \Tests\DatabaseTestCase
             'instance' => $user
         ]);
 
-        $mainForm = "<label for='UserForm_0_name'>Name</label><input type='text' value='example' id='UserForm_0_name' name='name'/><input type='hidden' value='' name='customer' /><label for='UserForm_0_customer'>Customer</label><select id='UserForm_0_customer' name='customer[]'  multiple='multiple'></select>";
-        $inlineForms = "<h1>CustomerInlineForm</h1><label for='CustomerInlineForm_0_address'>Address</label><input type='text' value='' id='CustomerInlineForm_0_address' name='CustomerInlineForm[CustomerInlineForm_0][address]'/><input type='hidden' value='' name='to_be_deleted' /><input type='checkbox' id='CustomerInlineForm_0_to_be_deleted' name='CustomerInlineForm[CustomerInlineForm_0][to_be_deleted]' disabled='disabled'/><label for='CustomerInlineForm_0_to_be_deleted'>Delete</label>";
+        $mainForm = "<label for='UserForm_0_name'>Name</label><input type='text' value='example' id='UserForm_0_name' name='[UserForm_0][name]'/><input type='hidden' value='' name='[UserForm_0][customer]' /><label for='UserForm_0_customer'>Customer</label><select id='UserForm_0_customer' name='[UserForm_0][customer][]'  multiple='multiple'></select>";
+        $inlineForms = "<h1>CustomerInlineForm</h1><label for='CustomerInlineForm_0_address'>Address</label><input type='text' value='' id='CustomerInlineForm_0_address' name='CustomerInlineForm[CustomerInlineForm_0][address]'/><input type='hidden' value='' name='CustomerInlineForm[CustomerInlineForm_0][to_be_deleted]' /><input type='checkbox' id='CustomerInlineForm_0_to_be_deleted' name='CustomerInlineForm[CustomerInlineForm_0][to_be_deleted]' disabled='disabled'/><label for='CustomerInlineForm_0_to_be_deleted'>Delete</label>";
         $this->assertEquals($mainForm . $inlineForms, $managed->asUl());
     }
 

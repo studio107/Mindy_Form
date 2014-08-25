@@ -191,7 +191,6 @@ abstract class ManagedForm
         if(!empty($files)) {
             $data = array_merge($data, $files);
         }
-
         $instance = $form->getInstance();
 
         $save = [];
@@ -213,9 +212,13 @@ abstract class ManagedForm
                         $inline = Creator::createObject(['class' => $class, 'link' => $link]);
                     }
 
-                    if (array_key_exists(InlineModelForm::DELETE_KEY, $item)) {
+                    if (array_key_exists(InlineModelForm::DELETE_KEY, $item) && $item[InlineModelForm::DELETE_KEY]) {
                         $delete[] = $inline;
                     } else {
+                        unset($item[InlineModelForm::DELETE_KEY]);
+                        if(empty($item)) {
+                            continue;
+                        }
                         $inline->setAttributes(array_merge([$link => $instance], $item));
                         $save[] = $inline;
                     }

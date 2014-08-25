@@ -20,11 +20,12 @@ use Mindy\Helper\Arr;
 use Mindy\Helper\Creator;
 use Mindy\Helper\Traits\Accessors;
 use Mindy\Helper\Traits\Configurator;
+use Mindy\Utils\RenderTrait;
 
 
 abstract class ManagedForm
 {
-    use Accessors, Configurator;
+    use Accessors, Configurator, RenderTrait;
 
     public $templates = [
         'block' => 'core/form/management/block.html',
@@ -195,8 +196,8 @@ abstract class ManagedForm
                 $count = 0;
                 foreach ($cleanData as $item) {
                     $link = $inlinesData[$class];
-                    if (count($inlines) > 0) {
-                        $inline = array_shift($inlines[$classNameShort]);
+                    if (count($inlines) > 0 && isset($inlines[$class]) && $inlines[$class]) {
+                        $inline = array_shift($inlines[$class]);
                     } else {
                         $inline = Creator::createObject([
                             'class' => $class,

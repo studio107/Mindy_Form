@@ -22,6 +22,7 @@ use IteratorAggregate;
 use Mindy\Helper\Creator;
 use Mindy\Helper\Traits\Accessors;
 use Mindy\Helper\Traits\Configurator;
+use Mindy\Utils\RenderTrait;
 
 /**
  * Class BaseForm
@@ -32,14 +33,14 @@ use Mindy\Helper\Traits\Configurator;
  */
 abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess
 {
-    use Accessors, Configurator;
+    use Accessors, Configurator, RenderTrait;
 
     public $fields = [];
 
     public $templates = [
-        'block' => 'core/form/block.twig',
-        'table' => 'core/form/table.twig',
-        'ul' => 'core/form/ul.twig',
+        'block' => 'core/form/block.html',
+        'table' => 'core/form/table.html',
+        'ul' => 'core/form/ul.html',
     ];
 
     public $defaultTemplateType = 'block';

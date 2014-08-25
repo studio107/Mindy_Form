@@ -18,7 +18,7 @@ namespace Mindy\Form;
 abstract class InlineForm extends Form
 {
     public $templates = [
-        'inline' => 'core/form/inline.twig',
+        'inline' => 'core/form/inline.html',
     ];
 
     public $defaultTemplateType = 'inline';

@@ -193,7 +193,7 @@ class ManagedTest extends \Tests\DatabaseTestCase
         $this->assertEquals('oleg', $m->getInstance()->name);
         $this->assertEquals('oleg', User::objects()->filter(['pk' => 1])->get()->name);
 
-        $this->assertEquals(0, count($m->getInlinesExist()));
+        $this->assertEquals(0, count($m->getInlinesExist(false)));
         $this->assertEquals(1, count($m->getInlinesInit()));
 
         list($save, $delete) = $m->setAttributes([

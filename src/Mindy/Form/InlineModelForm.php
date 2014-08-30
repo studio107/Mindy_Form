@@ -34,6 +34,8 @@ abstract class InlineModelForm extends ModelForm
 
     public $showAddButton = true;
 
+    public $isExtra = false;
+
     public $templates = [
         'inline' => 'core/form/inline.twig',
         'tabular' => 'core/form/tabular.twig',
@@ -53,24 +55,25 @@ abstract class InlineModelForm extends ModelForm
         $fields = parent::getFieldsInit();
         $instance = $this->getInstance();
         $isNew = $instance->getIsNewRecord();
-        if(!$isNew) {
-//            $instance = $this->getInstance();
-//            $pkName = $instance->getPkName();
-//            $fields[$pkName] = Creator::createObject([
-//                'class' => HiddenField::className(),
-//                'form' => $this,
-//                'label' => 'Primary Key',
-//                'name' => $pkName,
-//                'value' => $this->getInstance()->pk
-//            ]);
+        if(!$isNew && $this->getInstance()->pk) {
+            $pkName = '_pk';
+            $fields[$pkName] = Creator::createObject([
+                'class' => HiddenField::className(),
+                'form' => $this,
+                'label' => 'Primary Key',
+                'name' => $pkName,
+                'value' => $this->getInstance()->pk
+            ]);
         }
-        $fields[self::DELETE_KEY] = Creator::createObject([
-            'class' => DeleteInlineField::className(),
-            'form' => $this,
-            'label' => 'Delete',
-            'name' => self::DELETE_KEY,
-            'html' => $isNew ? ['disabled' => 'disabled'] : [],
-        ]);
+        if($this->isExtra === false) {
+            $fields[self::DELETE_KEY] = Creator::createObject([
+                'class' => DeleteInlineField::className(),
+                'form' => $this,
+                'label' => 'Delete',
+                'name' => self::DELETE_KEY,
+                'html' => $isNew ? ['disabled' => 'disabled'] : [],
+            ]);
+        }
         return $fields;
     }
 

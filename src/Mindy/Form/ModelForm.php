@@ -67,6 +67,14 @@ class ModelForm extends BaseForm
         }
 
         foreach ($fields as $name => $field) {
+            if(method_exists($this, 'clean' . ucfirst($name))) {
+                $value = call_user_func([$this, 'clean' . ucfirst($name)], $field->getValue());
+                if($value) {
+                    $this->cleanedData[$name] = $value;
+                    $field->setValue($value);
+                }
+            }
+
             $errors = $field->getErrors();
             if(empty($error)) {
                 if ($field->isValid() === false) {
@@ -79,6 +87,8 @@ class ModelForm extends BaseForm
                     $this->addError($name, $error);
                 }
             }
+
+            $this->cleanedData[$name] = $field->getValue();
         }
 
         return $this->hasErrors() === false;
@@ -102,7 +112,7 @@ class ModelForm extends BaseForm
      */
     public function setInstance($model)
     {
-        if(is_subclass_of($model, $this->ormClass)) {
+        if(is_a($model, $this->ormClass)) {
             $this->instance = $model;
             /* @var $model \Mindy\Orm\Model */
             foreach($model->getFieldsInit() as $name => $field) {
@@ -150,6 +160,6 @@ class ModelForm extends BaseForm
 
     public function getModel()
     {
-        return null;
+        throw new Exception("Not implemented");
     }
 }

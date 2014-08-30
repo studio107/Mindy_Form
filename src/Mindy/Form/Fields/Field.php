@@ -123,7 +123,12 @@ abstract class Field
     public function getName()
     {
         $prefixes = $this->form->prefix;
-        return implode('_', $prefixes) . '[' . $this->form->getId() . '][' . $this->name . ']';
+        if(count($prefixes) > 0) {
+            $name = implode('_', $prefixes) . '[' . $this->form->getId() . '][' . $this->name . ']';
+        } else {
+            $name = $this->name;
+        }
+        return $name;
     }
 
     public function getHtmlAttributes()

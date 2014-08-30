@@ -153,7 +153,11 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess
     public function __toString()
     {
         $template = $this->getTemplateFromType($this->defaultTemplateType);
-        return (string)$this->render($template);
+        try{
+            return (string)$this->render($template);
+        } catch(Exception $e) {
+            return $e->getMessage();
+        }
     }
 
     public function getTemplateFromType($type)
@@ -317,7 +321,6 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess
             if(method_exists($this, 'clean' . ucfirst($name))) {
                 $value = call_user_func([$this, 'clean' . ucfirst($name)], $field->getValue());
                 if($value) {
-                    $this->cleanedData[$name] = $value;
                     $field->setValue($value);
                 }
             }
@@ -326,9 +329,9 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess
                 foreach ($field->getErrors() as $error) {
                     $this->addError($name, $error);
                 }
-            } else {
-                $this->cleanedData[$name] = $field->getValue();
             }
+
+            $this->cleanedData[$name] = $field->getValue();
         }
         return $this->hasErrors() === false;
     }

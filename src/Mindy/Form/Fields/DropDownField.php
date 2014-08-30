@@ -65,6 +65,13 @@ class DropDownField extends Field
             } else {
                 $data = $choices;
             }
+            if($this->form instanceof ModelForm) {
+                $model = $this->form->getInstance();
+                $field = $model->getField($this->name);
+                if($field->null) {
+                    $data = ['' => ''] + $data;
+                }
+            }
             return $this->valueToHtml($data, [$this->value instanceof Model ? $this->value->pk : $this->value]);
         }
 

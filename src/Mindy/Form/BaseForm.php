@@ -55,6 +55,9 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess
 
     private $_errors = [];
 
+    /**
+     * @var \Mindy\Form\Fields\Field[]
+     */
     protected $_fields = [];
 
     private $_renderFields = [];

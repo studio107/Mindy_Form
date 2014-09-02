@@ -162,6 +162,9 @@ abstract class Field
 
     public function renderLabel()
     {
+        if($this->label === false) {
+            return '';
+        }
         $label = $this->label ? $this->label : ucfirst($this->name);
         return strtr("<label for='{for}'>{label}</label>", [
             '{for}' => $this->id,

@@ -16,6 +16,7 @@ namespace Mindy\Form;
 
 use Exception;
 use Mindy\Orm\Fields\FileField;
+use Mindy\Orm\Model;
 
 class ModelForm extends BaseForm
 {
@@ -32,13 +33,19 @@ class ModelForm extends BaseForm
         parent::initFields();
         $instance = $this->getInstance();
         foreach($instance->getFieldsInit() as $name => $field) {
-            if(in_array($name, $this->exclude) || $instance->getMeta()->isBackwardField($name)) {
+            if(is_a($field, Model::$autoField) || in_array($name, $this->exclude) || $instance->getMeta()->isBackwardField($name)) {
                 continue;
             }
 
             $modelField = $field->getFormField($this);
             if($modelField && !isset($this->_fields[$name])) {
                 $this->_fields[$name] = $modelField;
+
+                $value = $instance->{$name};
+                if($value instanceof FileField) {
+                    $value = $value->getValue();
+                }
+                $this->_fields[$name]->setValue($value);
             }
         }
     }
@@ -121,13 +128,6 @@ class ModelForm extends BaseForm
                 }
 
                 if($this->hasField($name)) {
-//                    $fieldValue = $this->getField($name)->getValue();
-//                    if(empty($fieldValue)) {
-//                        $this->getField($name)->setValue($field->getValue());
-//                    }
-//                    if($name == 'view') {
-//                        d($model->{$name});
-//                    }
                     $value = $model->{$name};
                     if($value instanceof FileField) {
                         $value = $value->getValue();

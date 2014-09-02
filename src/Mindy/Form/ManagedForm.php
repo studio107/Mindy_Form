@@ -219,7 +219,10 @@ abstract class ManagedForm
                     }
 
                     if(array_key_exists(InlineModelForm::DELETE_KEY, $item) === false) {
-                        continue;
+                        $tmp = Arr::cleanArrays($item);
+                        if(empty($tmp)) {
+                            continue;
+                        }
                     }
 
                     if (array_key_exists(InlineModelForm::DELETE_KEY, $item) && !empty($item[InlineModelForm::DELETE_KEY])) {

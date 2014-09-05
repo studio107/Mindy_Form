@@ -15,6 +15,7 @@
 namespace Mindy\Form;
 
 
+use Mindy\Base\Mindy;
 use Mindy\Form\Fields\CheckboxField;
 use Mindy\Form\Fields\DeleteInlineField;
 use Mindy\Form\Fields\HiddenField;
@@ -37,8 +38,8 @@ abstract class InlineModelForm extends ModelForm
     public $isExtra = false;
 
     public $templates = [
-        'inline' => 'core/form/inline.twig',
-        'tabular' => 'core/form/tabular.twig',
+        'block' => 'core/form/inline/block.html',
+        'table' => 'core/form/inline/table.html',
     ];
 
     public $defaultTemplateType = 'inline';
@@ -48,6 +49,40 @@ abstract class InlineModelForm extends ModelForm
         parent::init();
         $this->prefix[] = self::classNameShort();
         $this->setRenderOptions();
+    }
+
+    public function initEvents()
+    {
+        parent::initEvents();
+
+        $signal = Mindy::app()->signal;
+        $signal->handler($this, 'beforeOwnerSave', [$this, 'beforeOwnerSave']);
+        $signal->handler($this, 'afterOwnerSave', [$this, 'afterOwnerSave']);
+        $signal->handler($this, 'beforeSetAttributes', [$this, 'beforeSetAttributes']);
+    }
+
+    /**
+     * @param $owner Model
+     * @param array $data
+     * @return array
+     */
+    public function beforeSetAttributes($owner, array $data)
+    {
+        return $data;
+    }
+
+    /**
+     * @param $owner Model
+     */
+    public function beforeOwnerSave($owner)
+    {
+    }
+
+    /**
+     * @param $owner Model
+     */
+    public function afterOwnerSave($owner)
+    {
     }
 
     public function getFieldsInit()

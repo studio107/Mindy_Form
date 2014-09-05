@@ -17,6 +17,7 @@ namespace Mindy\Form\Fields;
 use Closure;
 use Exception;
 use Mindy\Form\BaseForm;
+use Mindy\Form\ModelForm;
 use Mindy\Form\Validator\RequiredValidator;
 use Mindy\Helper\Traits\Accessors;
 use Mindy\Helper\Traits\Configurator;
@@ -88,7 +89,7 @@ abstract class Field
         try {
             return (string)$this->render();
         } catch (Exception $e) {
-            echo "Exception: " . $e->getFile() . ' ' . $e->getLine() . ' ' . $e->getMessage();
+            echo (string) $e;
             die();
         }
     }
@@ -152,6 +153,12 @@ abstract class Field
 
     public function getValue()
     {
+        if($this->form instanceof ModelForm) {
+            $instance = $this->form->getInstance();
+            if ($instance->hasField($this->name)) {
+                return $instance->getField($this->name)->getValue();
+            }
+        }
         return $this->value;
     }
 
@@ -165,7 +172,25 @@ abstract class Field
         if($this->label === false) {
             return '';
         }
-        $label = $this->label ? $this->label : ucfirst($this->name);
+
+        if($this->label) {
+            $label = $this->label;
+        } else {
+            if($this->form instanceof ModelForm) {
+                $instance = $this->form->getInstance();
+                if($instance->hasField($this->name)) {
+                    $verboseName = $instance->getField($this->name)->verboseName;
+                    if($verboseName) {
+                        $label = $verboseName;
+                    }
+                }
+            }
+
+            if(!isset($label)) {
+                $label = ucfirst($this->name);
+            }
+        }
+
         return strtr("<label for='{for}'>{label}</label>", [
             '{for}' => $this->id,
             '{label}' => $label

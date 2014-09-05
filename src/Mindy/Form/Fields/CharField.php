@@ -39,6 +39,10 @@ class CharField extends Field
 
     public function getValue()
     {
+        $value = parent::getValue();
+        if($value) {
+            return $value;
+        }
         if($this->value instanceof Manager) {
             throw new Exception("Value must be a string, not a manager");
         }

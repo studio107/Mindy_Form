@@ -16,6 +16,7 @@ namespace Mindy\Form;
 
 
 use Exception;
+use Mindy\Base\Mindy;
 use Mindy\Helper\Arr;
 use Mindy\Helper\Creator;
 use Mindy\Helper\File;
@@ -189,6 +190,7 @@ abstract class ManagedForm
         $data = array_merge_recursive($data, $files);
         $form->setAttributes($data);
         $instance = $form->getInstance();
+        $signal = Mindy::app()->signal;
 
         $save = [];
         $delete = [];
@@ -217,6 +219,9 @@ abstract class ManagedForm
                             $inline->setInstance($modelInstance);
                         }
                     }
+
+                    $results = $signal->send($inline, 'beforeSetAttributes', $instance, $item);
+                    $item = $results->getLast()->value;
 
                     if(array_key_exists(InlineModelForm::DELETE_KEY, $item) === false) {
                         $tmp = Arr::cleanArrays($item);
@@ -302,7 +307,19 @@ abstract class ManagedForm
      */
     public function save()
     {
+        $instance = $this->getForm()->getInstance();
+        $signal = Mindy::app()->signal;
+
+        $merged = array_merge($this->inlinesData, $this->inlinesDelete);
+        array_map(function($inline) use ($signal, $instance) {
+            $signal->send($inline, 'beforeOwnerSave', $instance);
+        }, $merged);
+
         $r = $this->getForm()->save();
+
+        array_map(function($inline) use ($signal, $instance) {
+            $signal->send($inline, 'afterOwnerSave', $instance);
+        }, $merged);
 
         foreach ($this->inlinesData as $inline) {
             $r = $inline->save();

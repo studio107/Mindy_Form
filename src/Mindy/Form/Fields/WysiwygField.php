@@ -26,16 +26,16 @@ class WysiwygField extends TextAreaField
     public function render()
     {
         if (!isset($this->options['flowOptions'])) {
-            $http = Mindy::app()->request;
+            $request = Mindy::app()->request;
             $this->options['flowOptions'] = [
-                'target' => Mindy::app()->urlManager->createUrl('files.upload'),
+                'target' => Mindy::app()->urlManager->reverse('files.upload'),
                 'chunkSize' => 1024 * 1024,
                 'testChunks' => false,
-                'query' => [$http->csrfTokenName => $http->getCsrfToken()]
+                'query' => [$request->csrf->getName() => $request->csrf->getValue()]
             ];
         }
         if (!isset($this->options['filemanUrl'])) {
-            $this->options['filemanUrl'] = Mindy::app()->urlManager->createUrl('files.index');
+            $this->options['filemanUrl'] = Mindy::app()->urlManager->reverse('files.index');
         }
         $options = JavaScript::encode($this->options);
 

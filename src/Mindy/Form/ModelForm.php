@@ -148,7 +148,7 @@ class ModelForm extends BaseForm
     {
         if($this->instance === null) {
             $modelClass = $this->getModel();
-            $this->instance = $instance = is_string($modelClass) ? new $modelClass : $modelClass;
+            $this->instance = is_string($modelClass) ? new $modelClass : $modelClass;
         }
         return $this->instance;
     }

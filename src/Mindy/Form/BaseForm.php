@@ -19,6 +19,7 @@ use ArrayIterator;
 use Countable;
 use Exception;
 use IteratorAggregate;
+use Mindy\Base\Mindy;
 use Mindy\Helper\Creator;
 use Mindy\Helper\Traits\Accessors;
 use Mindy\Helper\Traits\Configurator;
@@ -67,7 +68,29 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess
     public function init()
     {
         $this->initFields();
+        $this->initEvents();
         $this->setRenderFields(array_keys($this->getFieldsInit()));
+    }
+
+    public function initEvents()
+    {
+        $signal = Mindy::app()->signal;
+        $signal->handler($this, 'beforeValidate', [$this, 'beforeValidate']);
+        $signal->handler($this, 'afterValidate', [$this, 'afterValidate']);
+    }
+
+    /**
+     * @param $owner BaseForm
+     */
+    public function beforeValidate($owner)
+    {
+    }
+
+    /**
+     * @param $owner BaseForm
+     */
+    public function afterValidate($owner)
+    {
     }
 
     public function getName()

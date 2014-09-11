@@ -182,7 +182,7 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess
         try{
             return (string)$this->render($template);
         } catch(Exception $e) {
-            return $e->getMessage();
+            return (string) $e;
         }
     }
 

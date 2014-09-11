@@ -42,7 +42,7 @@ abstract class InlineModelForm extends ModelForm
         'table' => 'core/form/inline/table.html',
     ];
 
-    public $defaultTemplateType = 'inline';
+    public $defaultTemplateType = 'block';
 
     public function init()
     {

@@ -69,7 +69,7 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess
     {
         $this->initFields();
         $this->initEvents();
-        $this->setRenderFields(array_keys($this->getFieldsInit()));
+//        $this->setRenderFields(array_keys($this->getFieldsInit()));
     }
 
     public function initEvents()
@@ -203,34 +203,32 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess
      */
     public function render($template, array $fields = [])
     {
-        if (!empty($fields)) {
-            $this->setRenderFields($fields);
-        } else {
-            $this->setRenderFields(array_keys($this->getFieldsInit()));
-        }
-        return $this->renderTemplate($template, ['form' => $this]);
+        return $this->setRenderFields($fields)->renderTemplate($template, ['form' => $this]);
     }
 
+    /**
+     * Set fields for render
+     * @param array $fields
+     * @return $this
+     */
     public function setRenderFields(array $fields = [])
     {
-        $this->_renderFields = [];
-
-        $initFields = $this->getFieldsInit();
         if(empty($fields)) {
-            foreach($initFields as $name => $field) {
-                $this->_renderFields[$name] = $initFields[$name];
+            $fields = array_keys($this->getFieldsInit());
+        }
+        $this->_renderFields = [];
+        $initFields = $this->getFieldsInit();
+        foreach ($fields as $name) {
+            if(in_array($name, $this->exclude)) {
+                continue;
             }
-        } else {
-            foreach ($fields as $name) {
-                if(in_array($name, $this->exclude)) {
-                    continue;
-                }
-
-                if (array_key_exists($name, $initFields)) {
-                    $this->_renderFields[$name] = $initFields[$name];
-                }
+            if (array_key_exists($name, $initFields)) {
+                $this->_renderFields[$name] = $initFields[$name];
+            } else {
+                throw new Exception("Field $name not found");
             }
         }
+        return $this;
     }
 
     public function getRenderFields()
@@ -371,7 +369,7 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess
         $fields = $this->getFieldsInit();
         if(empty($data)) {
             $this->cleanedData = $data;
-            foreach($fields as $name => $field) {
+            foreach($fields as $field) {
                 $field->setValue(null);
             }
         } else {

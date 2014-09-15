@@ -68,6 +68,7 @@ abstract class ManagedForm
     {
         $this->_form = Creator::createObject([
             'class' => $this->getFormClass(),
+            'instance' => $this->getModel()
         ]);
 
         if ($this->instance) {
@@ -77,8 +78,11 @@ abstract class ManagedForm
         foreach ($this->getInlines() as $link => $className) {
             $this->_inlines[$link] = Creator::createObject([
                 'class' => $className,
-                'link' => $link
+                'link' => $link,
             ]);
+            if(!in_array($link, $this->_inlines[$link]->exclude)) {
+                $this->_inlines[$link]->exclude[] = $link;
+            }
         }
 
         foreach ($this->getInlines() as $link => $class) {
@@ -139,7 +143,8 @@ abstract class ManagedForm
                     $inlines[$name][] = Creator::createObject([
                         'class' => $inline->className(),
                         'link' => $link,
-                        'instance' => $model
+                        'instance' => $model,
+                        'exclude' => array_merge($inline->exclude, [$link])
                     ]);
                 }
             }
@@ -155,7 +160,8 @@ abstract class ManagedForm
                     $inlines[$name][] = Creator::createObject([
                         'class' => $inline->className(),
                         'link' => $link,
-                        'isExtra' => true
+                        'isExtra' => true,
+                        'exclude' => array_merge($inline->exclude, [$link])
                     ]);
                 }
             }
@@ -262,7 +268,10 @@ abstract class ManagedForm
     /**
      * @return string form class
      */
-    abstract public function getFormClass();
+    public function getFormClass()
+    {
+        return ModelForm::className();
+    }
 
     /**
      * @return \Mindy\Form\InlineModelForm[]

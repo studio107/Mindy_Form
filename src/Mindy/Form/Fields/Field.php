@@ -117,7 +117,7 @@ abstract class Field
         $input = $this->renderInput();
 
         $hint = $this->hint ? $this->renderHint() : '';
-        $errors = $this->getErrors() ? $this->renderErrors() : '';
+        $errors = $this->renderErrors();
         return $label . $input . $hint . $errors;
     }
 
@@ -204,7 +204,14 @@ abstract class Field
             $errors .= "<li>{$error}</li>";
         }
 
-        return "<ul class='{$this->errorClass}'>{$errors}</ul>";
+        $html = "";
+        if (!$errors) {
+            $html = "style='display:none;'";
+        }
+
+        $id = $this->getId() . '_errors';
+
+        return "<ul class='{$this->errorClass}' id='{$id}' {$html}>{$errors}</ul>";
     }
 
     public function renderHint()

@@ -121,7 +121,7 @@ class DropDownField extends Field
                     $qs = $qs->exclude(['pk' => $model->pk]);
                 }
                 /* @var $modelClass \Mindy\Orm\Model */
-                if($field->null) {
+                if($this->required) {
                     $data[''] = $this->empty;
                 }
                 $related = $model->{$this->name};

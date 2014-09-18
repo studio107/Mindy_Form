@@ -28,6 +28,8 @@ class DropDownField extends Field
 
     public $multiple = false;
 
+    public $empty = '';
+
     public function render()
     {
         $label = $this->renderLabel();
@@ -120,7 +122,7 @@ class DropDownField extends Field
                 }
                 /* @var $modelClass \Mindy\Orm\Model */
                 if($field->null) {
-                    $data[''] = '';
+                    $data[''] = $this->empty;
                 }
                 $related = $model->{$this->name};
                 if($related) {

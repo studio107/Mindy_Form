@@ -80,7 +80,9 @@ abstract class Field
             $this->validators[] = new RequiredValidator();
         }
         foreach($this->validators as $validator) {
-            $validator->setName($this->label ? $this->label : $this->name);
+            if (is_subclass_of($validator, $this->_validatorClass)) {
+                $validator->setName($this->label ? $this->label : $this->name);
+            }
         }
     }
 

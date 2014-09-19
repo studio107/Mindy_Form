@@ -18,6 +18,18 @@ namespace Mindy\Form\Fields;
 class LicenseField extends CheckboxField
 {
     public $htmlLabel = [];
+    public $errorMessage = 'You must agree terms';
+
+    public function init()
+    {
+        $this->validators[] = function ($value) {
+            if (!$value) {
+                return $this->errorMessage;
+            }
+            return true;
+        };
+        parent::init();
+    }
 
     public function renderLabel()
     {

@@ -17,7 +17,7 @@ namespace Mindy\Form\Fields;
 
 class CheckboxField extends CharField
 {
-    public $template = "<input type='{type}' id='{id}' name='{name}'{html}/>";
+    public $template = "<input type='{type}' id='{id}' value='{value}' name='{name}'{html}/>";
 
     public $type = "checkbox";
 
@@ -31,7 +31,7 @@ class CheckboxField extends CharField
             '{type}' => $this->type,
             '{id}' => $this->getId(),
             '{name}' => $this->getName(),
-            '{value}' => $this->getValue(),
+            '{value}' => 1,
             '{html}' => $this->getHtmlAttributes()
         ]);
 

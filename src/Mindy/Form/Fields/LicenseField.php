@@ -40,11 +40,11 @@ class LicenseField extends CheckboxField
         return strtr("<label for='{for}'{html}>{label}</label>", [
             '{for}' => $this->id,
             '{label}' => $label,
-            '{html}' => $this->getHtmlAttributes()
+            '{html}' => $this->getHtmlLabelAttributes()
         ]);
     }
 
-    public function getHtmlAttributes()
+    public function getHtmlLabelAttributes()
     {
         if (is_array($this->htmlLabel)) {
             $html = '';

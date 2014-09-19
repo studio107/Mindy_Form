@@ -24,7 +24,11 @@ class DropDownField extends Field
 {
     public $choices = [];
 
-    public $template = "<select id='{id}' name='{name}' {html}>{value}</select>";
+    /**
+     * Span needs for custom frontend. See: http://stackoverflow.com/questions/23920990/firefox-30-is-not-hiding-select-box-arrows-anymore
+     * @var string
+     */
+    public $template = "<span class='select-holder'><select id='{id}' name='{name}' {html}>{value}</select></span>";
 
     public $multiple = false;
 

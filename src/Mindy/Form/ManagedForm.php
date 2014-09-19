@@ -326,6 +326,13 @@ abstract class ManagedForm
         $r = $this->getForm()->save();
 
         array_map(function($inline) use ($signal, $instance) {
+            if (is_a($inline, InlineModelForm::className())) {
+                $link = $inline->link;
+                $inline->getInstance()->{$link} = $instance->pk;
+            }
+        }, $merged);
+
+        array_map(function($inline) use ($signal, $instance) {
             $signal->send($inline, 'afterOwnerSave', $instance);
         }, $merged);
 

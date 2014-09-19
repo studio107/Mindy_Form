@@ -36,7 +36,7 @@ class CheckboxField extends CharField
         ]);
 
         $hint = $this->hint ? $this->renderHint() : '';
-        $errors = $this->getErrors() ? $this->renderErrors() : '';
+        $errors = $this->renderErrors();
         $checkbox = $input . $label . $hint . $errors;
 
         $name = implode('_', $this->form->prefix) . "[" . $this->form->getId() . "][" . $this->name . "]";

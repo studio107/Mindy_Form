@@ -46,7 +46,7 @@ class DropDownField extends Field
         ]);
 
         $hint = $this->hint ? $this->renderHint() : '';
-        $errors = $this->getErrors() ? $this->renderErrors() : '';
+        $errors = $this->renderErrors();
         $out =  $label . $input . $hint . $errors;
 
         $name = implode('_', $this->form->prefix) . "[" . $this->form->getId() . "][" . $this->name . "]";

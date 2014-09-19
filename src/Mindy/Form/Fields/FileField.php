@@ -67,7 +67,7 @@ class FileField extends Field
         }
 
         $hint = $this->hint ? $this->renderHint() : '';
-        $errors = $this->getErrors() ? $this->renderErrors() : '';
+        $errors = $this->renderErrors();
         return $label . $input . $hint . $errors;
     }
 

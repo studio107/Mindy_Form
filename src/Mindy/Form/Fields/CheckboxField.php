@@ -39,7 +39,7 @@ class CheckboxField extends CharField
         $errors = $this->renderErrors();
         $checkbox = $input . $label . $hint . $errors;
 
-        $name = implode('_', $this->form->prefix) . "[" . $this->form->getId() . "][" . $this->name . "]";
+        $name = $this->getName();
         return "<input type='hidden' value='' name='" . $name . "' />" . $checkbox;
     }
 }

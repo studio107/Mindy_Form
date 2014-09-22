@@ -1,9 +1,9 @@
 <?php
 /**
- * 
+ *
  *
  * All rights reserved.
- * 
+ *
  * @author Falaleev Maxim
  * @email max@studio107.ru
  * @version 1.0
@@ -32,17 +32,17 @@ class ModelForm extends BaseForm
     {
         parent::initFields();
         $instance = $this->getInstance();
-        foreach($instance->getFieldsInit() as $name => $field) {
-            if(is_a($field, Model::$autoField) || in_array($name, $this->exclude) || $instance->getMeta()->isBackwardField($name)) {
+        foreach ($instance->getFieldsInit() as $name => $field) {
+            if (is_a($field, Model::$autoField) || in_array($name, $this->exclude) || $instance->getMeta()->isBackwardField($name)) {
                 continue;
             }
 
             $modelField = $field->getFormField($this);
-            if($modelField && !isset($this->_fields[$name])) {
+            if ($modelField && !isset($this->_fields[$name])) {
                 $this->_fields[$name] = $modelField;
 
                 $value = $instance->{$name};
-                if($value instanceof FileField) {
+                if ($value instanceof FileField) {
                     $value = $value->getValue();
                 }
                 $this->_fields[$name]->setValue($value);
@@ -60,42 +60,45 @@ class ModelForm extends BaseForm
         $this->clearErrors();
         $instance->clearErrors();
 
-        /* @var $field \Mindy\Orm\Fields\Field */
+        /* @var $field \Mindy\Form\Fields\Field */
         $fields = $this->getFieldsInit();
 
-        if(!$instance->isValid()) {
-            foreach($instance->getErrors() as $key => $errors) {
-                foreach($errors as $error) {
-                    if(array_key_exists($key, $fields)) {
-                        $fields[$key]->addError($error);
-                    }
-                }
-            }
-        }
-
         foreach ($fields as $name => $field) {
-            if(method_exists($this, 'clean' . ucfirst($name))) {
+            if (method_exists($this, 'clean' . ucfirst($name))) {
                 $value = call_user_func([$this, 'clean' . ucfirst($name)], $field->getValue());
-                if($value) {
+                if ($value) {
                     $this->cleanedData[$name] = $value;
                     $field->setValue($value);
                 }
             }
 
-            $errors = $field->getErrors();
-            if(empty($errors)) {
-                if ($field->isValid() === false) {
-                    foreach ($field->getErrors() as $error) {
+            if ($field->isValid() === false) {
+                $errors = $field->getErrors();
+                if (empty($errors)) {
+                    if ($field->isValid() === false) {
+                        foreach ($field->getErrors() as $error) {
+                            $this->addError($name, $error);
+                        }
+                    }
+                } else {
+                    foreach ($errors as $error) {
                         $this->addError($name, $error);
                     }
-                }
-            } else {
-                foreach($errors as $error) {
-                    $this->addError($name, $error);
                 }
             }
 
             $this->cleanedData[$name] = $field->getValue();
+        }
+
+        if (!$instance->isValid()) {
+            foreach ($instance->getErrors() as $key => $errors) {
+                foreach ($errors as $error) {
+                    if (array_key_exists($key, $fields)) {
+                        $this->addError($key, $error);
+                        $fields[$key]->addError($error);
+                    }
+                }
+            }
         }
 
         return $this->hasErrors() === false;
@@ -119,17 +122,17 @@ class ModelForm extends BaseForm
      */
     public function setInstance($model)
     {
-        if(is_a($model, $this->ormClass)) {
+        if (is_a($model, $this->ormClass)) {
             $this->instance = $model;
             /* @var $model \Mindy\Orm\Model */
-            foreach($model->getFieldsInit() as $name => $field) {
+            foreach ($model->getFieldsInit() as $name => $field) {
                 if (is_a($field, $model::$autoField)) {
                     continue;
                 }
 
-                if($this->hasField($name)) {
+                if ($this->hasField($name)) {
                     $value = $model->{$name};
-                    if($value instanceof FileField) {
+                    if ($value instanceof FileField) {
                         $value = $value->getValue();
                     }
                     $this->getField($name)->setValue($value);
@@ -146,7 +149,7 @@ class ModelForm extends BaseForm
      */
     public function getInstance()
     {
-        if($this->instance === null) {
+        if ($this->instance === null) {
             $modelClass = $this->getModel();
             $this->instance = is_string($modelClass) ? new $modelClass : $modelClass;
         }

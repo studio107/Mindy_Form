@@ -19,6 +19,7 @@ use Exception;
 use Mindy\Form\BaseForm;
 use Mindy\Form\ModelForm;
 use Mindy\Form\Validator\RequiredValidator;
+use Mindy\Form\Validator\Validator;
 use Mindy\Helper\Traits\Accessors;
 use Mindy\Helper\Traits\Configurator;
 
@@ -235,7 +236,7 @@ abstract class Field
 
         foreach ($this->validators as $validator) {
             if ($validator instanceof Closure) {
-                /* @var $validator \Closure */
+                /* @var $validator Closure */
                 $valid = $validator->__invoke($this->value);
                 if ($valid !== true) {
                     if (!is_array($valid)) {
@@ -244,10 +245,9 @@ abstract class Field
 
                     $this->addErrors($valid);
                 }
-            } else if (is_subclass_of($validator, $this->_validatorClass)) {
+            } else if ($validator instanceof Validator) {
                 /* @var $validator \Mindy\Form\Validator\Validator */
                 $validator->clearErrors();
-
                 if ($validator->validate($this->value) === false) {
                     $this->addErrors($validator->getErrors());
                 }

@@ -90,12 +90,15 @@ class ModelForm extends BaseForm
             $this->cleanedData[$name] = $field->getValue();
         }
 
-        if (!$instance->isValid()) {
-            foreach ($instance->getErrors() as $key => $errors) {
-                foreach ($errors as $error) {
-                    if (array_key_exists($key, $fields)) {
-                        $this->addError($key, $error);
-                        $fields[$key]->addError($error);
+        // @TODO: duplication errors (email validation, for example)
+        if (!$this->hasErrors()) {
+            if (!$instance->isValid()) {
+                foreach ($instance->getErrors() as $key => $errors) {
+                    foreach ($errors as $error) {
+                        if (array_key_exists($key, $fields)) {
+                            $this->addError($key, $error);
+                            $fields[$key]->addError($error);
+                        }
                     }
                 }
             }

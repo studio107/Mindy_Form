@@ -15,6 +15,8 @@
 namespace Mindy\Form\Validator;
 
 
+use Mindy\Base\Mindy;
+
 class MinLengthValidator extends Validator
 {
     public $minLength;
@@ -31,7 +33,7 @@ class MinLengthValidator extends Validator
         }
 
         if (mb_strlen($value, 'UTF-8') < $this->minLength) {
-            $this->addError("Minimal length < {$this->minLength}");
+            $this->addError(Mindy::app()->t("Minimal length is {length}", ['{length}' => $this->minLength], 'validation'));
         }
 
         return $this->hasErrors() === false;

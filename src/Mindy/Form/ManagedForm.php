@@ -328,7 +328,9 @@ abstract class ManagedForm
         array_map(function ($inline) use ($signal, $instance) {
             if (is_a($inline, InlineModelForm::className())) {
                 $link = $inline->link;
-                $inline->getInstance()->{$link} = $instance->pk;
+                if ($inline->getInstance()->hasAttribute($link) || $inline->getInstance()->hasField($link)) {
+                    $inline->getInstance()->{$link} = $instance->pk;
+                }
             }
         }, $merged);
 

@@ -15,12 +15,14 @@
 namespace Mindy\Form\Validator;
 
 
+use Mindy\Base\Mindy;
+
 class RequiredValidator extends Validator
 {
     public function validate($value)
     {
         if (empty($value)) {
-            $this->addError(strtr('"{name}" cannot be empty', ['{name}' => $this->getName()]));
+            $this->addError(Mindy::app()->t("Value cannot be empty", [], 'validation'));
         }
 
         return $this->hasErrors() === false;

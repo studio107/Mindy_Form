@@ -153,6 +153,7 @@ class ModelForm extends BaseForm
             $modelClass = $this->getModel();
             $this->instance = is_string($modelClass) ? new $modelClass : $modelClass;
         }
+
         return $this->instance;
     }
 

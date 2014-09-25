@@ -52,7 +52,7 @@ class FileField extends Field
                 // @TODO: translate
                 '{label}' => CoreModule::t("Current file")
             ]);
-            if($this->required) {
+            if ($this->required) {
                 $clean = '';
             } else {
                 $clean = strtr($this->cleanTemplate, [
@@ -76,10 +76,10 @@ class FileField extends Field
         if (is_object($value)) {
             $this->setOldValue();
             $this->value = $value->getUrl();
-        }elseif($value == $this->cleanValue || is_null($value)){
+        } elseif ($value == $this->cleanValue || is_null($value)) {
             $this->setOldValue();
             $this->value = null;
-        }elseif(is_string($value) || is_array($value)) {
+        } elseif (is_string($value) || is_array($value)) {
             $this->setOldValue();
             $this->value = $value;
         }
@@ -93,7 +93,7 @@ class FileField extends Field
 
     public function setOldValue()
     {
-        if (is_string($this->value) || !$this->oldValue){
+        if (is_string($this->value) || !$this->oldValue) {
             $this->oldValue = $this->value;
         }
     }

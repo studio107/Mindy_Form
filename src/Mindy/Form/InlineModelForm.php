@@ -104,9 +104,10 @@ abstract class InlineModelForm extends ModelForm
             $fields[self::DELETE_KEY] = Creator::createObject([
                 'class' => DeleteInlineField::className(),
                 'form' => $this,
-                'label' => 'Delete',
+                'label' => Mindy::app()->t('Delete', [], 'forms'),
                 'name' => self::DELETE_KEY,
                 'html' => $isNew ? ['disabled' => 'disabled'] : [],
+                'delete' => true
             ]);
         }
         return $fields;

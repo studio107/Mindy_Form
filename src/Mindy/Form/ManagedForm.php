@@ -67,12 +67,9 @@ abstract class ManagedForm
     public function init()
     {
         $this->_form = Creator::createObject([
-            'class' => $this->getFormClass()
+            'class' => $this->getFormClass(),
+            'instance' => $this->instance
         ]);
-
-        if ($this->instance) {
-            $this->_form->setInstance($this->instance);
-        }
 
         foreach ($this->getInlines() as $link => $className) {
             $this->_inlines[$link] = Creator::createObject([

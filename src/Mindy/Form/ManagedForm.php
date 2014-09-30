@@ -193,6 +193,7 @@ abstract class ManagedForm
         $form = $this->getForm();
         $files = Arr::cleanArrays(File::fixMultiFile($files));
         $data = array_merge_recursive($data, $files);
+
         $form->setAttributes($data);
         $instance = $form->getInstance();
         $signal = Mindy::app()->signal;

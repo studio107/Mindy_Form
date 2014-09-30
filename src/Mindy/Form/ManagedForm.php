@@ -67,19 +67,16 @@ abstract class ManagedForm
     public function init()
     {
         $this->_form = Creator::createObject([
-            'class' => $this->getFormClass()
+            'class' => $this->getFormClass(),
+            'instance' => $this->instance
         ]);
-
-        if ($this->instance) {
-            $this->_form->setInstance($this->instance);
-        }
 
         foreach ($this->getInlines() as $link => $className) {
             $this->_inlines[$link] = Creator::createObject([
                 'class' => $className,
                 'link' => $link,
             ]);
-            if(!in_array($link, $this->_inlines[$link]->exclude)) {
+            if (!in_array($link, $this->_inlines[$link]->exclude)) {
                 $this->_inlines[$link]->exclude[] = $link;
             }
         }
@@ -138,11 +135,11 @@ abstract class ManagedForm
             $models = $inline->getLinkModels([$link => $model]);
             if (count($models) > 0) {
                 $inlines[$name] = [];
-                foreach ($models as $model) {
+                foreach ($models as $linkedModel) {
                     $inlines[$name][] = Creator::createObject([
                         'class' => $inline->className(),
                         'link' => $link,
-                        'instance' => $model,
+                        'instance' => $linkedModel,
                         'exclude' => array_merge($inline->exclude, [$link])
                     ]);
                 }
@@ -217,11 +214,11 @@ abstract class ManagedForm
                         $inline = Creator::createObject(['class' => $class, 'link' => $link]);
                     }
 
-                    if(isset($item['_pk']) && !empty($item['_pk'])) {
+                    if (isset($item['_pk']) && !empty($item['_pk'])) {
                         $modelClass = $inline->getModel();
                         $model = is_string($modelClass) ? new $modelClass : $modelClass;
                         $modelInstance = $model->objects()->filter(['pk' => $item['_pk']])->get();
-                        if($modelInstance) {
+                        if ($modelInstance) {
                             $inline->setInstance($modelInstance);
                         }
                     }
@@ -229,9 +226,9 @@ abstract class ManagedForm
                     $results = $signal->send($inline, 'beforeSetAttributes', $instance, $item);
                     $item = $results->getLast()->value;
 
-                    if(array_key_exists(InlineModelForm::DELETE_KEY, $item) === false) {
+                    if (array_key_exists(InlineModelForm::DELETE_KEY, $item) === false) {
                         $tmp = Arr::cleanArrays($item);
-                        if(empty($tmp)) {
+                        if (empty($tmp)) {
                             continue;
                         }
                     }
@@ -240,7 +237,7 @@ abstract class ManagedForm
                         $delete[] = $inline;
                     } else {
                         unset($item[InlineModelForm::DELETE_KEY]);
-                        if(empty($item)) {
+                        if (empty($item)) {
                             continue;
                         }
                         $inline->setAttributes(array_merge([$link => $instance], $item));
@@ -320,13 +317,13 @@ abstract class ManagedForm
         $signal = Mindy::app()->signal;
 
         $merged = array_merge($this->inlinesData, $this->inlinesDelete);
-        array_map(function($inline) use ($signal, $instance) {
+        array_map(function ($inline) use ($signal, $instance) {
             $signal->send($inline, 'beforeOwnerSave', $instance);
         }, $merged);
 
         $r = $this->getForm()->save();
 
-        array_map(function($inline) use ($signal, $instance) {
+        array_map(function ($inline) use ($signal, $instance) {
             if (is_a($inline, InlineModelForm::className())) {
                 $link = $inline->link;
                 if ($inline->getInstance()->hasAttribute($link) || $inline->getInstance()->hasField($link)) {
@@ -335,7 +332,7 @@ abstract class ManagedForm
             }
         }, $merged);
 
-        array_map(function($inline) use ($signal, $instance) {
+        array_map(function ($inline) use ($signal, $instance) {
             $signal->send($inline, 'afterOwnerSave', $instance);
         }, $merged);
 

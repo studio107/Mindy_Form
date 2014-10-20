@@ -14,8 +14,7 @@
 
 namespace Mindy\Form\Validator;
 
-
-use Mindy\Base\Mindy;
+use Mindy\Locale\Translate;
 
 class MinLengthValidator extends Validator
 {
@@ -29,11 +28,11 @@ class MinLengthValidator extends Validator
     public function validate($value)
     {
         if(!is_string($value)) {
-            $this->addError(Mindy::app()->t("{type} is not a string", ['{type}' => gettype($value)], 'validation'));
+            $this->addError(Translate::getInstance()->t("{type} is not a string", ['{type}' => gettype($value)], 'validation'));
         }
 
         if (mb_strlen($value, 'UTF-8') < $this->minLength) {
-            $this->addError(Mindy::app()->t("Minimal length is {length}", ['{length}' => $this->minLength], 'validation'));
+            $this->addError(Translate::getInstance()->t("Minimal length is {length}", ['{length}' => $this->minLength], 'validation'));
         }
 
         return $this->hasErrors() === false;

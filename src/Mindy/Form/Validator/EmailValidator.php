@@ -14,8 +14,7 @@
 
 namespace Mindy\Form\Validator;
 
-
-use Mindy\Base\Mindy;
+use Mindy\Locale\Translate;
 
 class EmailValidator extends Validator
 {
@@ -70,7 +69,7 @@ class EmailValidator extends Validator
         }
 
         if(!$valid) {
-            $this->addError(Mindy::app()->t("Is not a valid email address", [], 'validation'));
+            $this->addError(Translate::getInstance()->t("Is not a valid email address", [], 'validation'));
         }
 
         return $this->hasErrors() === false;

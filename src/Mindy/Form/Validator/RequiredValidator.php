@@ -14,15 +14,14 @@
 
 namespace Mindy\Form\Validator;
 
-
-use Mindy\Base\Mindy;
+use Mindy\Locale\Translate;
 
 class RequiredValidator extends Validator
 {
     public function validate($value)
     {
         if (empty($value)) {
-            $this->addError(Mindy::app()->t("Value cannot be empty", [], 'validation'));
+            $this->addError(Translate::getInstance()->t("Value cannot be empty", [], 'validation'));
         }
 
         return $this->hasErrors() === false;

@@ -14,7 +14,6 @@
 
 namespace Mindy\Form\Validator;
 
-
 abstract class Validator
 {
     private $_errors;

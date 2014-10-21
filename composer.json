@@ -11,13 +11,10 @@
     "require": {
         "php": ">=5.4",
         "mindy/exception": "dev-master",
-        "mindy/query": "dev-master",
-        "mindy/logger": "dev-master",
-        "mindy/cache": "dev-master",
-        "mindy/orm": "dev-master",
+        "mindy/locale": "dev-master",
+        "mindy/validation": "dev-master",
         "mindy/helper": "dev-master",
         "mindy/utils": "dev-master",
-        "mindy/router": "dev-master",
         "mindy/event": "dev-master"
     },
     "require-dev": {

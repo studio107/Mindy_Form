@@ -19,11 +19,11 @@ use Mindy\Form\BaseForm;
 use Mindy\Form\ModelForm;
 use Mindy\Helper\Traits\Accessors;
 use Mindy\Helper\Traits\Configurator;
-use Mindy\Validation\Interfaces\IValidatorObject;
+use Mindy\Validation\Interfaces\IValidateField;
 use Mindy\Validation\RequiredValidator;
 use Mindy\Validation\Traits\ValidateField;
 
-abstract class Field implements IValidatorObject
+abstract class Field implements IValidateField
 {
     use Accessors, Configurator, ValidateField;
 

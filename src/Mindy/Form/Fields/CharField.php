@@ -15,7 +15,6 @@
 namespace Mindy\Form\Fields;
 
 use Mindy\Exception\Exception;
-use Mindy\Orm\Manager;
 
 class CharField extends Field
 {
@@ -43,7 +42,7 @@ class CharField extends Field
         if($value) {
             return $value;
         }
-        if($this->value instanceof Manager) {
+        if($this->value instanceof \Mindy\Orm\Manager) {
             throw new Exception("Value must be a string, not a manager");
         }
         return $this->value;

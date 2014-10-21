@@ -15,6 +15,7 @@
 namespace Mindy\Form;
 
 use Exception;
+use Mindy\Helper\Creator;
 use Mindy\Orm\Fields\FileField;
 use Mindy\Orm\Model;
 
@@ -165,8 +166,33 @@ class ModelForm extends BaseForm
         return $this->getInstance()->save();
     }
 
+    /**
+     * @return \Mindy\Orm\Model
+     */
     public function getModel()
     {
         throw new Exception("Not implemented");
+    }
+
+    public function renderInlines()
+    {
+        $inlines = [];
+        $model = $this->getInstance();
+        foreach ($this->getInlines() as $link => $inline) {
+            $name = $inline->getName();
+            $models = $inline->getLinkModels([$link => $model]);
+            if (count($models) > 0) {
+                $inlines[$name] = [];
+                foreach ($models as $linkedModel) {
+                    $inlines[$name][] = Creator::createObject([
+                        'class' => $inline->className(),
+                        'link' => $link,
+                        'instance' => $linkedModel,
+                        'exclude' => array_merge($inline->exclude, [$link])
+                    ]);
+                }
+            }
+        }
+        return array_merge($inlines, $this->getInlines());
     }
 }

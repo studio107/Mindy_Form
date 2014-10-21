@@ -20,7 +20,7 @@ class ManagedTestForm extends TestForm
     public function getInlines()
     {
         return [
-            ['post' => InlineTestForm::className()]
+            ['post' => InlineTestForm::className()],
         ];
     }
 }

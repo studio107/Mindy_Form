@@ -1,0 +1,81 @@
+<?php
+/**
+ * 
+ *
+ * All rights reserved.
+ * 
+ * @author Falaleev Maxim
+ * @email max@studio107.ru
+ * @version 1.0
+ * @company Studio107
+ * @site http://studio107.ru
+ * @date 21/10/14.10.2014 19:58
+ */
+
+namespace Mindy\Form;
+
+class PrepareData
+{
+    public static function collect(array $post, array $files)
+    {
+        return static::merge($post, static::fixFiles($files), true);
+    }
+
+    /**
+     * Zend Framework (http://framework.zend.com/)
+     *
+     * @link http://github.com/zendframework/zf2 for the canonical source repository
+     * @copyright Copyright (c) 2005-2014 Zend Technologies USA Inc. (http://www.zend.com)
+     * @license http://framework.zend.com/license/new-bsd New BSD License
+     *
+     * Code from https://github.com/zendframework/zf2/blob/master/library/Zend/Stdlib/ArrayUtils.php#L245
+     *
+     * Merge two arrays together.
+     *
+     * If an integer key exists in both arrays and preserveNumericKeys is false, the value
+     * from the second array will be appended to the first array. If both values are arrays, they
+     * are merged together, else the value of the second array overwrites the one of the first array.
+     *
+     * @param  array $a
+     * @param  array $b
+     * @param  bool  $preserveNumericKeys
+     * @return array
+     */
+    public static function merge(array $a, array $b, $preserveNumericKeys = false)
+    {
+        foreach ($b as $key => $value) {
+            if (array_key_exists($key, $a)) {
+                if (is_int($key) && !$preserveNumericKeys) {
+                    $a[] = $value;
+                } elseif (is_array($value) && is_array($a[$key])) {
+                    $a[$key] = static::merge($a[$key], $value, $preserveNumericKeys);
+                } else {
+                    $a[$key] = $value;
+                }
+            } else {
+                $a[$key] = $value;
+            }
+        }
+
+        return $a;
+    }
+
+    /**
+     * Fix wrong $_FILES array
+     * @param $data
+     * @return array
+     */
+    public static function fixFiles($data)
+    {
+        $n = [];
+        foreach ($data as $baseName => $params) {
+            foreach ($params as $innerKey => $value) {
+                $inlineName = key($value);
+                $index = key($value[$inlineName]);
+                $key = key($value[$inlineName][$index]);
+                $n[$baseName][$inlineName][$index][$key][$innerKey] = $value[$inlineName][$index][$key];
+            }
+        }
+        return $n;
+    }
+}

@@ -14,7 +14,7 @@
 
 namespace Mindy\Form\Fields;
 
-use Modules\Core\CoreModule;
+use Mindy\Locale\Translate;
 
 class FileField extends Field
 {
@@ -29,12 +29,13 @@ class FileField extends Field
 
     public function render()
     {
+        $t = Translate::getInstance();
         $label = $this->renderLabel();
 
         $input = strtr($this->template, [
             '{type}' => $this->type,
-            '{id}' => $this->getId(),
-            '{name}' => $this->getName(),
+            '{id}' => $this->getHtmlId(),
+            '{name}' => $this->getHtmlName(),
             '{html}' => $this->getHtmlAttributes()
         ]);
 
@@ -50,7 +51,7 @@ class FileField extends Field
             $currentLink = strtr($this->currentTemplate, [
                 '{current}' => $value,
                 // @TODO: translate
-                '{label}' => CoreModule::t("Current file")
+                '{label}' => $t->t('form', "Current file")
             ]);
             if ($this->required) {
                 $clean = '';
@@ -60,7 +61,7 @@ class FileField extends Field
                     '{name}' => $this->getName(),
                     '{value}' => $this->cleanValue,
                     // @TODO: translate
-                    '{label}' => CoreModule::t("Clean")
+                    '{label}' => $t->t('form', "Clean")
                 ]);
             }
             $input = $currentLink . $clean . '<br/>' . $input;
@@ -68,7 +69,7 @@ class FileField extends Field
 
         $hint = $this->hint ? $this->renderHint() : '';
         $errors = $this->renderErrors();
-        return $label . $input . $hint . $errors;
+        return implode("\n", [$label, $input, $hint, $errors]);
     }
 
     public function setValue($value)

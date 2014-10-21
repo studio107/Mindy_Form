@@ -15,6 +15,7 @@
 namespace Mindy\Form\Tests;
 
 use Mindy\Form\Fields\CharField;
+use Mindy\Form\Fields\FileField;
 
 class InlineTestForm extends TestForm
 {
@@ -22,10 +23,11 @@ class InlineTestForm extends TestForm
     {
         return [
             'foo' => [
-                'class' => CharField::className()
+                'class' => CharField::className(),
+                'required' => true
             ],
             'bar' => [
-                'class' => CharField::className()
+                'class' => FileField::className()
             ]
         ];
     }

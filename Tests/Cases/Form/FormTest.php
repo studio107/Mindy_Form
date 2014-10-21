@@ -14,11 +14,17 @@
 
 namespace Mindy\Form\Tests;
 
+use Mindy\Form\BaseForm;
 use Mindy\Form\Fields\CharField;
 use Mindy\Form\Form;
 
 class FormTest extends TestCase
 {
+    public function setUp()
+    {
+        BaseForm::$ids = [];
+    }
+
     public function testFieldsWithoutPrefix()
     {
         $f = new CharField(['form' => new TestForm(), 'name' => 'foo', 'hint' => 'foo bar']);
@@ -119,16 +125,88 @@ class FormTest extends TestCase
             "<input type='text' value='' id='ManagedTestForm_name' name='ManagedTestForm[name]'/>",
             "",
             "<ul class='error' id='ManagedTestForm_name_errors' style='display:none;'></ul>",
-            "<label for='ManagedTestForm_InlineTestForm_0_foo'>Foo</label>",
-            "<input type='text' value='' id='ManagedTestForm_InlineTestForm_0_foo' name='ManagedTestForm[InlineTestForm][0][foo]'/>",
+            "<label for='ManagedTestForm_InlineTestForm_1_foo'>Foo</label>",
+            "<input type='text' value='' id='ManagedTestForm_InlineTestForm_1_foo' name='ManagedTestForm[InlineTestForm][1][foo]'/>",
             "",
-            "<ul class='error' id='ManagedTestForm_InlineTestForm_0_foo_errors' style='display:none;'></ul>",
-            "<label for='ManagedTestForm_InlineTestForm_0_bar'>Bar</label>",
-            "<input type='text' value='' id='ManagedTestForm_InlineTestForm_0_bar' name='ManagedTestForm[InlineTestForm][0][bar]'/>",
+            "<ul class='error' id='ManagedTestForm_InlineTestForm_1_foo_errors' style='display:none;'></ul>",
+            "<label for='ManagedTestForm_InlineTestForm_1_bar'>Bar</label>",
+            "<input type='file' id='ManagedTestForm_InlineTestForm_1_bar' name='ManagedTestForm[InlineTestForm][1][bar]'/>",
             "",
-            "<ul class='error' id='ManagedTestForm_InlineTestForm_0_bar_errors' style='display:none;'></ul>",
+            "<ul class='error' id='ManagedTestForm_InlineTestForm_1_bar_errors' style='display:none;'></ul>",
             "",
         ]);
         $this->assertEquals($result, $f->asBlock());
+
+        $f->setAttributes([
+            'name' => '1',
+            'InlineTestForm' => [
+                ['foo' => '1', 'bar' => '1'],
+                // This inline not created (validation error)
+                ['foo' => '', 'bar' => '1'],
+            ]
+        ]);
+        $this->assertFalse($f->isValid());
+        $inlines = $f->getInlinesCreate();
+        $this->assertEquals(2, count($inlines));
+        list($first, $last) = $inlines;
+        $this->assertEquals(['foo' => '1', 'bar' => '1'], $first->getAttributes());
+        $this->assertTrue($first->isValid());
+        $this->assertEquals(['foo' => '', 'bar' => '1'], $last->getAttributes());
+        $this->assertFalse($last->isValid());
+        $f->clearErrors();
+
+        $f->setAttributes([
+            'name' => '1',
+            'InlineTestForm' => [
+                // This inline created
+                ['foo' => '3', 'bar' => '', '_delete' => '1'],
+            ]
+        ]);
+        $this->assertTrue($f->isValid());
+        $this->assertEquals([], $f->getErrors());
+        $f->clearErrors();
+        $this->assertEquals([], $f->getErrors());
+        $inlines = $f->getInlinesDelete();
+        $this->assertEquals(1, count($inlines));
+
+        $f->setAttributes([
+            'name' => '1',
+            'InlineTestForm' => [
+                // This inline not created (ignoring)
+                ['foo' => '', 'bar' => ''],
+            ]
+        ]);
+        $this->assertTrue($f->isValid());
+        $inlines = $f->getInlinesDelete();
+        $this->assertEquals(1, count($inlines));
+    }
+
+    public function testInlinesInstances()
+    {
+    }
+
+    public function testCloneForm()
+    {
+        $f = new TestForm(['prefix' => 'foo']);
+        $f->setAttributes(['name' => 123]);
+        $this->assertEquals(1, $f->getId());
+        $this->assertEquals(['name' => 123], $f->getAttributes());
+        $this->assertEquals(1, $f->getField('name')->getId());
+        $this->assertEquals('foo_TestForm_1_name', $f->getField('name')->getHtmlId());
+        $this->assertEquals('foo[TestForm][1][name]', $f->getField('name')->getHtmlName());
+
+        $twoForm = clone $f;
+        $this->assertEquals(['name' => 123], $twoForm->getAttributes());
+        $this->assertEquals(2, $twoForm->getId());
+        $this->assertEquals(2, $twoForm->getField('name')->getId());
+        $this->assertEquals('foo_TestForm_2_name', $twoForm->getField('name')->getHtmlId());
+        $this->assertEquals('foo[TestForm][2][name]', $twoForm->getField('name')->getHtmlName());
+
+        $threeForm = clone $f;
+        $this->assertEquals(['name' => 123], $threeForm->getAttributes());
+        $this->assertEquals(3, $threeForm->getId());
+        $this->assertEquals(3, $threeForm->getField('name')->getId());
+        $this->assertEquals('foo_TestForm_3_name', $threeForm->getField('name')->getHtmlId());
+        $this->assertEquals('foo[TestForm][3][name]', $threeForm->getField('name')->getHtmlName());
     }
 }

@@ -1,9 +1,9 @@
 <?php
 /**
- * 
+ *
  *
  * All rights reserved.
- * 
+ *
  * @author Falaleev Maxim
  * @email max@studio107.ru
  * @version 1.0
@@ -16,7 +16,6 @@ namespace Mindy\Form;
 
 
 use Mindy\Base\Mindy;
-use Mindy\Form\Fields\CheckboxField;
 use Mindy\Form\Fields\DeleteInlineField;
 use Mindy\Form\Fields\HiddenField;
 use Mindy\Helper\Creator;
@@ -90,7 +89,7 @@ abstract class InlineModelForm extends ModelForm
         $fields = parent::getFieldsInit();
         $instance = $this->getInstance();
         $isNew = $instance->getIsNewRecord();
-        if(!$isNew && $this->getInstance()->pk) {
+        if (!$isNew && $this->getInstance()->pk) {
             $pkName = '_pk';
             $fields[$pkName] = Creator::createObject([
                 'class' => HiddenField::className(),
@@ -100,7 +99,7 @@ abstract class InlineModelForm extends ModelForm
                 'value' => $this->getInstance()->pk
             ]);
         }
-        if($this->isExtra === false) {
+        if ($this->isExtra === false) {
             $fields[self::DELETE_KEY] = Creator::createObject([
                 'class' => DeleteInlineField::className(),
                 'form' => $this,
@@ -116,7 +115,7 @@ abstract class InlineModelForm extends ModelForm
     public function setRenderOptions()
     {
         $field = $this->getInstance()->getField($this->link);
-        if(is_a($field, Model::$oneToOneField)) {
+        if (is_a($field, Model::$oneToOneField)) {
             $this->extra = 1;
             $this->max = 1;
             $this->showAddButton = false;

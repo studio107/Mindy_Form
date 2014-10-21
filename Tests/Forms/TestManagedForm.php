@@ -17,7 +17,7 @@ namespace Mindy\Form;
 
 abstract class TestManagedForm extends ManagedForm
 {
-    public function renderTemplate($view, array $data = [])
+    public function renderTemplateInternal($view, array $data = [])
     {
         $data = array_merge($data, ['form' => $this->getForm()]);
         ob_start();

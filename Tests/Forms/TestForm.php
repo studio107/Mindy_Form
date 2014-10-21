@@ -10,13 +10,41 @@
  * @date 22/08/14.08.2014 18:27
  */
 
-namespace Mindy\Form;
+namespace Mindy\Form\Tests;
+
+use Exception;
+use Mindy\Form\BaseForm;
+use Mindy\Form\Fields\CharField;
 
 class TestForm extends BaseForm
 {
-    public function renderTemplate($view, array $data = [])
+    public $templates = [
+        'block' => '../templates/block.php',
+        'table' => '../templates/table.php',
+        'ul' => '../templates/ul.php',
+    ];
+
+    public function getFields()
     {
-        $data = array_merge($data, ['form' => $this]);
+        return [
+            'name' => [
+                'class' => CharField::className()
+            ]
+        ];
+    }
+
+    public function getTemplateFromType($type)
+    {
+        if (array_key_exists($type, $this->templates)) {
+            $template = $this->templates[$type];
+        } else {
+            throw new Exception("Template type {$type} not found");
+        }
+        return realpath(__DIR__ . DIRECTORY_SEPARATOR . ltrim($template, DIRECTORY_SEPARATOR));
+    }
+
+    public function renderInternal($view, array $data = [])
+    {
         ob_start();
         extract($data);
         include($view);

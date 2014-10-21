@@ -8,7 +8,7 @@
          processIsolation="false"
          stopOnFailure="false"
          syntaxCheck="true"
-         bootstrap="bootstrap.php">
+         bootstrap="./Tests/bootstrap.php">
     <php>
         <ini name="memory_limit" value="-1"/>
         <ini name="display_errors" value="1"/>
@@ -17,7 +17,7 @@
 
     <testsuites>
         <testsuite>
-            <directory>Cases/</directory>
+            <directory>./Tests/Cases/Form/</directory>
         </testsuite>
     </testsuites>
 

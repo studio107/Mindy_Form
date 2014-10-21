@@ -17,7 +17,8 @@
         "mindy/orm": "dev-master",
         "mindy/helper": "dev-master",
         "mindy/utils": "dev-master",
-        "mindy/router": "dev-master"
+        "mindy/router": "dev-master",
+        "mindy/event": "dev-master"
     },
     "require-dev": {
         "satooshi/php-coveralls": "dev-master"

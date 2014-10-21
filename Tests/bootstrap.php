@@ -7,12 +7,15 @@ if(is_dir(__DIR__ . '/../vendor')) {
 }
 
 require __DIR__ . '/TestCase.php';
-require __DIR__ . '/../vendor/mindy/orm/Tests/DatabaseTestCase.php';
 
-$models = glob(realpath(__DIR__) . '/Forms/*.php');
-foreach($models as $model) {
-    include $model;
-}
+include(realpath(__DIR__) . '/Forms/TestForm.php');
+include(realpath(__DIR__) . '/Forms/InlineTestForm.php');
+include(realpath(__DIR__) . '/Forms/ManagedTestForm.php');
+
+//$models = glob(realpath(__DIR__) . '/Forms/*.php');
+//foreach($models as $model) {
+//    include $model;
+//}
 
 function d() {
     $debug = debug_backtrace();

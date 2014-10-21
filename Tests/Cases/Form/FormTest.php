@@ -125,14 +125,14 @@ class FormTest extends TestCase
             "<input type='text' value='' id='ManagedTestForm_name' name='ManagedTestForm[name]'/>",
             "",
             "<ul class='error' id='ManagedTestForm_name_errors' style='display:none;'></ul>",
-            "<label for='ManagedTestForm_InlineTestForm_1_foo'>Foo</label>",
-            "<input type='text' value='' id='ManagedTestForm_InlineTestForm_1_foo' name='ManagedTestForm[InlineTestForm][1][foo]'/>",
+            "<label for='ManagedTestForm_InlineTestForm_0_foo'>Foo</label>",
+            "<input type='text' value='' id='ManagedTestForm_InlineTestForm_0_foo' name='ManagedTestForm[InlineTestForm][0][foo]'/>",
             "",
-            "<ul class='error' id='ManagedTestForm_InlineTestForm_1_foo_errors' style='display:none;'></ul>",
-            "<label for='ManagedTestForm_InlineTestForm_1_bar'>Bar</label>",
-            "<input type='file' id='ManagedTestForm_InlineTestForm_1_bar' name='ManagedTestForm[InlineTestForm][1][bar]'/>",
+            "<ul class='error' id='ManagedTestForm_InlineTestForm_0_foo_errors' style='display:none;'></ul>",
+            "<label for='ManagedTestForm_InlineTestForm_0_bar'>Bar</label>",
+            "<input type='file' id='ManagedTestForm_InlineTestForm_0_bar' name='ManagedTestForm[InlineTestForm][0][bar]'/>",
             "",
-            "<ul class='error' id='ManagedTestForm_InlineTestForm_1_bar_errors' style='display:none;'></ul>",
+            "<ul class='error' id='ManagedTestForm_InlineTestForm_0_bar_errors' style='display:none;'></ul>",
             "",
         ]);
         $this->assertEquals($result, $f->asBlock());
@@ -189,24 +189,24 @@ class FormTest extends TestCase
     {
         $f = new TestForm(['prefix' => 'foo']);
         $f->setAttributes(['name' => 123]);
-        $this->assertEquals(1, $f->getId());
+        $this->assertEquals(0, $f->getId());
         $this->assertEquals(['name' => 123], $f->getAttributes());
-        $this->assertEquals(1, $f->getField('name')->getId());
-        $this->assertEquals('foo_TestForm_1_name', $f->getField('name')->getHtmlId());
-        $this->assertEquals('foo[TestForm][1][name]', $f->getField('name')->getHtmlName());
+        $this->assertEquals(0, $f->getField('name')->getId());
+        $this->assertEquals('foo_TestForm_0_name', $f->getField('name')->getHtmlId());
+        $this->assertEquals('foo[TestForm][0][name]', $f->getField('name')->getHtmlName());
 
         $twoForm = clone $f;
         $this->assertEquals(['name' => 123], $twoForm->getAttributes());
-        $this->assertEquals(2, $twoForm->getId());
-        $this->assertEquals(2, $twoForm->getField('name')->getId());
-        $this->assertEquals('foo_TestForm_2_name', $twoForm->getField('name')->getHtmlId());
-        $this->assertEquals('foo[TestForm][2][name]', $twoForm->getField('name')->getHtmlName());
+        $this->assertEquals(1, $twoForm->getId());
+        $this->assertEquals(1, $twoForm->getField('name')->getId());
+        $this->assertEquals('foo_TestForm_1_name', $twoForm->getField('name')->getHtmlId());
+        $this->assertEquals('foo[TestForm][1][name]', $twoForm->getField('name')->getHtmlName());
 
         $threeForm = clone $f;
         $this->assertEquals(['name' => 123], $threeForm->getAttributes());
-        $this->assertEquals(3, $threeForm->getId());
-        $this->assertEquals(3, $threeForm->getField('name')->getId());
-        $this->assertEquals('foo_TestForm_3_name', $threeForm->getField('name')->getHtmlId());
-        $this->assertEquals('foo[TestForm][3][name]', $threeForm->getField('name')->getHtmlName());
+        $this->assertEquals(2, $threeForm->getId());
+        $this->assertEquals(2, $threeForm->getField('name')->getId());
+        $this->assertEquals('foo_TestForm_2_name', $threeForm->getField('name')->getHtmlId());
+        $this->assertEquals('foo[TestForm][2][name]', $threeForm->getField('name')->getHtmlName());
     }
 }

@@ -291,7 +291,7 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
      * @param null|int $extra count of the extra inline forms for render
      * @return string
      */
-    public function render($template, array $fields = [], $extra = 3)
+    public function render($template, array $fields = [], $extra = null)
     {
         return $this->setRenderFields($fields)->renderInternal($template, [
             'form' => $this,

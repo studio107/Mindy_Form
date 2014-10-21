@@ -10,6 +10,8 @@ require __DIR__ . '/TestCase.php';
 
 include(realpath(__DIR__) . '/Forms/TestForm.php');
 include(realpath(__DIR__) . '/Forms/InlineTestForm.php');
+include(realpath(__DIR__) . '/Forms/FooTestForm.php');
+include(realpath(__DIR__) . '/Forms/ManagedTwoTestForm.php');
 include(realpath(__DIR__) . '/Forms/ManagedTestForm.php');
 
 //$models = glob(realpath(__DIR__) . '/Forms/*.php');

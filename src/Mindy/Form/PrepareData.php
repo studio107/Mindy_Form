@@ -70,10 +70,11 @@ class PrepareData
         $n = [];
         foreach ($data as $baseName => $params) {
             foreach ($params as $innerKey => $value) {
-                $inlineName = key($value);
-                $index = key($value[$inlineName]);
-                $key = key($value[$inlineName][$index]);
-                $n[$baseName][$inlineName][$index][$key][$innerKey] = $value[$inlineName][$index][$key];
+                foreach($value as $inlineName => $item) {
+                    $index = key($item);
+                    $key = key($item[$index]);
+                    $n[$baseName][$inlineName][$index][$key][$innerKey] = $item[$index][$key];
+                }
             }
         }
         return $n;

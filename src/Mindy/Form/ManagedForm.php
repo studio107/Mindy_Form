@@ -71,7 +71,8 @@ abstract class ManagedForm
             'instance' => $this->instance
         ]);
 
-        foreach ($this->getInlines() as $link => $className) {
+        foreach ($this->getInlines() as $inline) {
+            list($link, $className) = $inline;
             $this->_inlines[$link] = Creator::createObject([
                 'class' => $className,
                 'link' => $link,
@@ -81,8 +82,9 @@ abstract class ManagedForm
             }
         }
 
-        foreach ($this->getInlines() as $link => $class) {
-            $this->_inlineClasses[$class::classNameShort()] = $class;
+        foreach ($this->getInlines() as $inline) {
+            list($link, $className) = $inline;
+            $this->_inlineClasses[$className::classNameShort()] = $className;
         }
     }
 
@@ -270,13 +272,6 @@ abstract class ManagedForm
         return ModelForm::className();
     }
 
-    /**
-     * @return \Mindy\Form\InlineModelForm[]
-     */
-    public function getInlines()
-    {
-        return [];
-    }
 
     /**
      * Возвращает инициализированные inline формы

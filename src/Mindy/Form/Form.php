@@ -15,7 +15,14 @@
 namespace Mindy\Form;
 
 
+use Mindy\Utils\RenderTrait;
+
 class Form extends BaseForm
 {
+    use RenderTrait;
 
+    public function renderInternal($template, array $params)
+    {
+        return self::renderTemplate($template, $params);
+    }
 }

@@ -14,18 +14,19 @@
 
 namespace Mindy\Form\Fields;
 
-use Closure;
 use Exception;
 use Mindy\Form\BaseForm;
 use Mindy\Form\ModelForm;
-use Mindy\Form\Validator\RequiredValidator;
-use Mindy\Form\Validator\Validator;
 use Mindy\Helper\Traits\Accessors;
 use Mindy\Helper\Traits\Configurator;
+use Mindy\Validation\Interfaces\IValidatorObject;
+use Mindy\Validation\RequiredValidator;
+use Mindy\Validation\Traits\ValidateField;
 
-abstract class Field
+abstract class Field implements IValidatorObject
 {
-    use Accessors, Configurator;
+    use Accessors, Configurator, ValidateField;
+
     /**
      * @var bool Технические аттрибуты для inline моделей
      */
@@ -50,7 +51,7 @@ abstract class Field
 
     public $type = 'text';
 
-    public $html;
+    private $_html = '';
 
     public $choices = [];
     /**
@@ -60,27 +61,32 @@ abstract class Field
 
     public $label;
 
-    public $name;
-
-    public $validators = [];
+    /**
+     * @var
+     */
+    private $_name;
 
     /**
      * @var BaseForm
      */
-    public $form;
+    private $_form;
 
     public $errorClass = 'error';
 
-    public $_errors = [];
 
     private $_validatorClass = '\Mindy\Form\Validator\Validator';
+    /**
+     * @var string
+     */
+    private $_prefix;
 
     public function init()
     {
-        if($this->required) {
+        if ($this->required) {
             $this->validators[] = new RequiredValidator();
         }
-        foreach($this->validators as $validator) {
+        foreach ($this->validators as $validator) {
+            /** @var $validator \Mindy\Validation\Validator */
             if (is_subclass_of($validator, $this->_validatorClass)) {
                 $validator->setName($this->label ? $this->label : $this->name);
             }
@@ -92,14 +98,67 @@ abstract class Field
         try {
             return (string)$this->render();
         } catch (Exception $e) {
-            echo (string) $e;
+            echo (string)$e;
             die();
         }
     }
 
+    /**
+     * @param BaseForm $form
+     * @return $this
+     */
     public function setForm(BaseForm $form)
     {
-        $this->form = $form;
+        $this->_form = $form;
+        return $this;
+    }
+
+    /**
+     * @return BaseForm
+     */
+    public function getForm()
+    {
+        return $this->_form;
+    }
+
+    public function setPrefix($value)
+    {
+        $this->_prefix = $value;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPrefix()
+    {
+        if ($this->_prefix === null) {
+            return $this->form->getName();
+        } else {
+            return $this->_prefix . '[' . $this->form->getName() . '][' . $this->getId() . ']';
+        }
+    }
+
+    public function getId()
+    {
+        return $this->form->getId();
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getName()
+    {
+        return $this->_name;
+    }
+
+    /**
+     * @param $name
+     * @return $this
+     */
+    public function setName($name)
+    {
+        $this->_name = $name;
         return $this;
     }
 
@@ -107,8 +166,8 @@ abstract class Field
     {
         return strtr($this->template, [
             '{type}' => $this->type,
-            '{id}' => $this->getId(),
-            '{name}' => $this->getName(),
+            '{id}' => $this->getHtmlId(),
+            '{name}' => $this->getHtmlName(),
             '{value}' => $this->getValue(),
             '{html}' => $this->getHtmlAttributes()
         ]);
@@ -121,30 +180,30 @@ abstract class Field
 
         $hint = $this->hint ? $this->renderHint() : '';
         $errors = $this->renderErrors();
-        return $label . $input . $hint . $errors;
+        return implode("\n", [$label, $input, $hint, $errors]);
     }
 
-    public function getName()
+    public function getHtmlName()
     {
-        $prefixes = $this->form->prefix;
-        if(count($prefixes) > 0) {
-            $name = implode('_', $prefixes) . '[' . $this->form->getId() . '][' . $this->name . ']';
-        } else {
-            $name = $this->name;
-        }
-        return $name;
+        return $this->getPrefix() . '[' . $this->name . ']';
+    }
+
+    public function setHtmlAttributes($value)
+    {
+        $this->_html = $value;
+        return $this;
     }
 
     public function getHtmlAttributes()
     {
-        if (is_array($this->html)) {
+        if (is_array($this->_html)) {
             $html = '';
-            foreach ($this->html as $name => $value) {
-                $html .= " $name='$value'";
+            foreach ($this->_html as $name => $value) {
+                $html .= is_numeric($name) ? " $value" : " $name='$value'";
             }
             return $html;
         } else {
-            return $this->html;
+            return $this->_html;
         }
     }
 
@@ -156,7 +215,7 @@ abstract class Field
 
     public function getValue()
     {
-        if($this->form instanceof ModelForm) {
+        if ($this->form instanceof ModelForm) {
             $instance = $this->form->getInstance();
             if ($instance->hasField($this->name)) {
                 return $instance->getField($this->name)->getValue();
@@ -165,37 +224,32 @@ abstract class Field
         return $this->value;
     }
 
-    public function getId()
-    {
-        return $this->form->getId() . '_' . $this->name;
-    }
-
     public function renderLabel()
     {
-        if($this->label === false) {
+        if ($this->label === false) {
             return '';
         }
 
-        if($this->label) {
+        if ($this->label) {
             $label = $this->label;
         } else {
-            if($this->form instanceof ModelForm) {
+            if ($this->form instanceof ModelForm) {
                 $instance = $this->form->getInstance();
-                if($instance->hasField($this->name)) {
+                if ($instance->hasField($this->name)) {
                     $verboseName = $instance->getField($this->name)->verboseName;
-                    if($verboseName) {
+                    if ($verboseName) {
                         $label = $verboseName;
                     }
                 }
             }
 
-            if(!isset($label)) {
+            if (!isset($label)) {
                 $label = ucfirst($this->name);
             }
         }
 
         return strtr("<label for='{for}'>{label}</label>", [
-            '{for}' => $this->id,
+            '{for}' => $this->getHtmlId(),
             '{label}' => $label
         ]);
     }
@@ -212,9 +266,7 @@ abstract class Field
             $html = "style='display:none;'";
         }
 
-        $id = $this->getId() . '_errors';
-
-        return "<ul class='{$this->errorClass}' id='{$id}' {$html}>{$errors}</ul>";
+        return "<ul class='{$this->errorClass}' id='{$this->getHtmlId()}_errors' {$html}>{$errors}</ul>";
     }
 
     public function renderHint()
@@ -223,58 +275,6 @@ abstract class Field
             '{class}' => $this->hintClass,
             '{hint}' => $this->hint
         ]);
-    }
-
-    public function clearErrors()
-    {
-        $this->_errors = [];
-    }
-
-    public function isValid()
-    {
-        $this->clearErrors();
-
-        foreach ($this->validators as $validator) {
-            if ($validator instanceof Closure) {
-                /* @var $validator Closure */
-                $valid = $validator->__invoke($this->value);
-                if ($valid !== true) {
-                    if (!is_array($valid)) {
-                        $valid = [$valid];
-                    }
-
-                    $this->addErrors($valid);
-                }
-            } else if ($validator instanceof Validator) {
-                /* @var $validator \Mindy\Form\Validator\Validator */
-                $validator->clearErrors();
-                if ($validator->validate($this->value) === false) {
-                    $this->addErrors($validator->getErrors());
-                }
-            }
-        }
-
-        return $this->hasErrors() === false;
-    }
-
-    public function getErrors()
-    {
-        return $this->_errors;
-    }
-
-    public function hasErrors()
-    {
-        return !empty($this->_errors);
-    }
-
-    public function addErrors($errors)
-    {
-        $this->_errors = array_merge($this->_errors, $errors);
-    }
-
-    public function addError($error)
-    {
-        $this->_errors[] = $error;
     }
 
     /**
@@ -290,5 +290,10 @@ abstract class Field
     public function getFieldSets()
     {
         return [];
+    }
+
+    public function getHtmlId()
+    {
+        return rtrim(str_replace(['][', '[]', '[', ']'], '_', $this->getPrefix()), '_') . '_' . $this->getName();
     }
 }

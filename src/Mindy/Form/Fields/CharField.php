@@ -26,15 +26,15 @@ class CharField extends Field
         $label = $this->renderLabel();
         $input = strtr($this->template, [
             '{type}' => $this->type,
-            '{id}' => $this->getId(),
-            '{name}' => $this->getName(),
+            '{id}' => $this->getHtmlId(),
+            '{name}' => $this->getHtmlName(),
             '{value}' => $this->getValue(),
             '{html}' => $this->getHtmlAttributes()
         ]);
 
         $hint = $this->hint ? $this->renderHint() : '';
         $errors = $this->renderErrors();
-        return $label . $input . $hint . $errors;
+        return implode("\n", [$label, $input, $hint, $errors]);
     }
 
     public function getValue()

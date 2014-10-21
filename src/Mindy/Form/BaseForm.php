@@ -19,11 +19,11 @@ use ArrayIterator;
 use Countable;
 use Exception;
 use IteratorAggregate;
-use Mindy\Base\Mindy;
 use Mindy\Helper\Creator;
 use Mindy\Helper\Traits\Accessors;
 use Mindy\Helper\Traits\Configurator;
-use Mindy\Utils\RenderTrait;
+use Mindy\Validation\Interfaces\IValidateObject;
+use Mindy\Validation\Traits\ValidateObject;
 
 /**
  * Class BaseForm
@@ -32,11 +32,9 @@ use Mindy\Utils\RenderTrait;
  * @method string asUl(array $renderFields = [])
  * @method string asTable(array $renderFields = [])
  */
-abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess
+abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IValidateObject
 {
-    use Accessors, Configurator, RenderTrait;
-
-    public $fields = [];
+    use Accessors, Configurator, ValidateObject;
 
     public $templates = [
         'block' => 'core/form/block.html',
@@ -44,39 +42,109 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess
         'ul' => 'core/form/ul.html',
     ];
 
+    /**
+     * @var string
+     */
+    public $link;
+    /**
+     * @var string
+     */
     public $defaultTemplateType = 'block';
-
-    public $exclude = [];
-
-    public $prefix = [];
-
+    /**
+     * @var array
+     */
+    private $_exclude = [];
+    /**
+     * @var string
+     */
+    private $_prefix;
+    /**
+     * @var int
+     */
     private $_id;
-
+    /**
+     * @var array
+     */
     public static $ids = [];
 
-    private $_errors = [];
-
+    /**
+     * @var array
+     */
+    private $_inlines = [];
+    /**
+     * @var array
+     */
+    private $_inlineClasses = [];
+    /**
+     * @var \Mindy\Event\EventManager
+     */
+    private $_eventManager;
     /**
      * @var \Mindy\Form\Fields\Field[]
      */
     protected $_fields = [];
-
+    /**
+     * @var array
+     */
     protected $_renderFields = [];
-
-    public $cleanedData = [];
 
     public function init()
     {
         $this->initFields();
         $this->initEvents();
+        $this->initInlines();
         $this->setRenderFields(array_keys($this->getFieldsInit()));
     }
 
     public function initEvents()
     {
-        $signal = Mindy::app()->signal;
+        $signal = $this->getEventManager();
         $signal->handler($this, 'beforeValidate', [$this, 'beforeValidate']);
         $signal->handler($this, 'afterValidate', [$this, 'afterValidate']);
+    }
+
+    protected function getEventManager()
+    {
+        if ($this->_eventManager === null) {
+            if (class_exists('\Mindy\Base\Mindy')) {
+                $this->_eventManager = \Mindy\Base\Mindy::app()->getComponent('signal');
+            } else {
+                $this->_eventManager = new \Mindy\Event\EventManager();
+            }
+        }
+        return $this->_eventManager;
+    }
+
+    /**
+     * @return array
+     */
+    public function setExclude(array $value)
+    {
+        $this->_exclude = $value;
+    }
+
+    /**
+     * @return array
+     */
+    public function getExclude()
+    {
+        return $this->_exclude;
+    }
+
+    /**
+     * @return array
+     */
+    public function setPrefix($prefix)
+    {
+        $this->_prefix = $prefix;
+    }
+
+    /**
+     * @return array
+     */
+    public function getPrefix()
+    {
+        return $this->_prefix;
     }
 
     /**
@@ -123,7 +191,7 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess
 
     public function getId()
     {
-        if (!$this->_id) {
+        if ($this->_id === null) {
             $className = self::className();
             if (array_key_exists($className, self::$ids)) {
                 self::$ids[$className]++;
@@ -131,7 +199,7 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess
                 self::$ids[$className] = 0;
             }
 
-            $this->_id = self::classNameShort() . '_' . self::$ids[$className];
+            $this->_id = self::$ids[$className];
         }
 
         return $this->_id;
@@ -145,7 +213,7 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess
     {
         $fields = $this->getFields();
         foreach ($fields as $name => $config) {
-            if(in_array($name, $this->exclude)) {
+            if (in_array($name, $this->exclude)) {
                 continue;
             }
 
@@ -155,6 +223,7 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess
             $field = Creator::createObject(array_merge([
                 'name' => $name,
                 'form' => $this,
+                'prefix' => $this->getPrefix()
             ], $config));
             $this->_fields[$name] = $field;
         }
@@ -179,10 +248,10 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess
     public function __toString()
     {
         $template = $this->getTemplateFromType($this->defaultTemplateType);
-        try{
+        try {
             return (string)$this->render($template);
-        } catch(Exception $e) {
-            return (string) $e;
+        } catch (Exception $e) {
+            return (string)$e;
         }
     }
 
@@ -203,23 +272,38 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess
      */
     public function render($template, array $fields = [])
     {
-        return $this->setRenderFields($fields)->renderTemplate($template, ['form' => $this]);
+        return $this->setRenderFields($fields)->renderInternal($template, [
+            'form' => $this,
+            'inlines' => $this->getInlinesInit()
+        ]);
+    }
+
+    abstract public function renderInternal($template, array $params);
+
+    /**
+     * Возвращает инициализированные inline формы
+     * @return InlineForm[]
+     */
+    public function getInlinesInit()
+    {
+        return $this->_inlines;
     }
 
     /**
      * Set fields for render
      * @param array $fields
+     * @throws \Exception
      * @return $this
      */
     public function setRenderFields(array $fields = [])
     {
-        if(empty($fields)) {
+        if (empty($fields)) {
             $fields = array_keys($this->getFieldsInit());
         }
         $this->_renderFields = [];
         $initFields = $this->getFieldsInit();
         foreach ($fields as $name) {
-            if(in_array($name, $this->exclude)) {
+            if (in_array($name, $this->exclude)) {
                 continue;
             }
             if (array_key_exists($name, $initFields)) {
@@ -245,18 +329,6 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess
         return $this->_fields;
     }
 
-    /**
-     * Adds a new error to the specified attribute.
-     * @param string $attribute attribute name
-     * @param string $error new error message
-     */
-    public function addError($attribute, $error)
-    {
-        if ($this->hasField($attribute)) {
-            $this->_errors[$attribute][] = $error;
-        }
-    }
-
     public function hasField($attribute)
     {
         return array_key_exists($attribute, $this->_fields);
@@ -272,104 +344,14 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess
     }
 
     /**
-     * Removes errors for all attributes or a single attribute.
-     * @param string $attribute attribute name. Use null to remove errors for all attribute.
-     */
-    public function clearErrors($attribute = null)
-    {
-        if ($attribute === null) {
-            foreach ($this->getFieldsInit() as $field) {
-                $field->clearErrors();
-            }
-            $this->_errors = [];
-        } else {
-            if ($this->hasField($attribute)) {
-                $this->getField($attribute)->clearErrors();
-            }
-            unset($this->_errors[$attribute]);
-        }
-    }
-
-    /**
-     * Returns a value indicating whether there is any validation error.
-     * @param string|null $attribute attribute name. Use null to check all attributes.
-     * @return boolean whether there is any error.
-     */
-    public function hasErrors($attribute = null)
-    {
-        return $attribute === null ? !empty($this->_errors) : isset($this->_errors[$attribute]);
-    }
-
-    /**
-     * Returns the errors for all attribute or a single attribute.
-     * @param string $attribute attribute name. Use null to retrieve errors for all attributes.
-     * @property array An array of errors for all attributes. Empty array is returned if no error.
-     * The result is a two-dimensional array. See [[getErrors()]] for detailed description.
-     * @return array errors for all attributes or the specified attribute. Empty array is returned if no error.
-     * Note that when returning errors for all attributes, the result is a two-dimensional array, like the following:
-     *
-     * ~~~
-     * [
-     *     'username' => [
-     *         'Username is required.',
-     *         'Username must contain only word characters.',
-     *     ],
-     *     'email' => [
-     *         'Email address is invalid.',
-     *     ]
-     * ]
-     * ~~~
-     *
-     * @see getFirstErrors()
-     * @see getFirstError()
-     */
-    public function getErrors($attribute = null)
-    {
-        if ($attribute === null) {
-            return $this->_errors === null ? [] : $this->_errors;
-        } else {
-            return isset($this->_errors[$attribute]) ? $this->_errors[$attribute] : [];
-        }
-    }
-
-    /**
-     * @return bool
-     */
-    public function isValid()
-    {
-        $this->clearErrors();
-
-        /* @var $field \Mindy\Orm\Fields\Field */
-        $fields = $this->getFieldsInit();
-        foreach ($fields as $name => $field) {
-            if(method_exists($this, 'clean' . ucfirst($name))) {
-                $value = call_user_func([$this, 'clean' . ucfirst($name)], $field->getValue());
-                if($value) {
-                    $field->setValue($value);
-                }
-            }
-
-            if ($field->isValid() === false) {
-                foreach ($field->getErrors() as $error) {
-                    $this->addError($name, $error);
-                }
-            }
-
-            $this->cleanedData[$name] = $field->getValue();
-        }
-        return $this->hasErrors() === false;
-    }
-
-    /**
      * @param array $data
      * @return $this
      */
     public function setAttributes(array $data)
     {
         $fields = $this->getFieldsInit();
-        if(empty($data)) {
-            $this->cleanedData = $data;
-            foreach($fields as $field) {
+        if (empty($data)) {
+            foreach ($fields as $field) {
                 $field->setValue(null);
             }
         } else {
@@ -380,6 +362,14 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess
             }
         }
         return $this;
+    }
+
+    /**
+     * @return \Mindy\Form\BaseForm[]
+     */
+    public function getInlines()
+    {
+        return [];
     }
 
     /**
@@ -421,5 +411,33 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess
     public function offsetGet($offset)
     {
         return isset($this->_renderFields[$offset]) ? $this->_renderFields[$offset] : null;
+    }
+
+    private function initInlines()
+    {
+        $inlines = $this->getInlines();
+
+        foreach ($inlines as $params) {
+            if (!is_array($params)) {
+                throw new Exception("Incorrect inline configuration");
+            }
+            $link = key($params);
+            $className = $params[$link];
+            $inline = Creator::createObject([
+                'class' => $className,
+                'link' => $link,
+                'prefix' => $this->getName()
+            ]);
+            if (!in_array($link, $inline->exclude)) {
+                $inline->addExclude($link);
+            }
+            $this->_inlines[][$link] = $inline;
+            $this->_inlineClasses[$className::classNameShort()] = $className;
+        }
+    }
+
+    public function addExclude($name)
+    {
+        $this->_exclude[] = $name;
     }
 }

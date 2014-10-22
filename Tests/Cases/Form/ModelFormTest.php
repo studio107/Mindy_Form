@@ -267,4 +267,25 @@ class ModelFormTest extends TestCase
         $this->assertEquals(0, Patch::objects()->count());
         $this->assertEquals(0, $instance->patches->count());
     }
+
+    public function testPopulate()
+    {
+        $form = new GameForm();
+        $get = [
+            'GameForm' => [
+                'name' => 'test',
+                'PatchForm' => [
+                    ['name' => 'Winter update']
+                ]
+            ]
+        ];
+        $form->populate($get);
+        $this->assertTrue($form->isValid());
+        $this->assertTrue($form->save());
+
+        $instance = $form->getInstance();
+        $this->assertEquals(1, Game::objects()->count());
+        $this->assertEquals(1, Patch::objects()->count());
+        $this->assertEquals(1, $instance->patches->count());
+    }
 }

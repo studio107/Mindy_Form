@@ -306,7 +306,7 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
     public function renderInlines($extra = null)
     {
         $inlines = [];
-        foreach($this->getInlinesInit() as $params) {
+        foreach ($this->getInlinesInit() as $params) {
             $link = key($params);
             $inline = $params[$link];
             /** @var $inline BaseForm */
@@ -429,9 +429,26 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
         return $this->_fields[$attribute];
     }
 
-    public function prepare()
+    public function prepare(array $data, array $files = [])
     {
-        return PrepareData::collect($_POST, $_FILES);
+        return PrepareData::collect($data, $files);
+    }
+
+    /**
+     * @param array $data
+     * @param array $files
+     * @return $this
+     */
+    public function populate(array $data, array $files = [])
+    {
+        $tmp = empty($files) ? $data : $this->prepare($data, $files);
+        if (!isset($tmp[$this->getName()])) {
+            return $this;
+        }
+
+        $data = $tmp[$this->getName()];
+        $this->setAttributes($data);
+        return $this;
     }
 
     /**
@@ -524,7 +541,7 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
     public function getIterator()
     {
         $fields = [];
-        foreach($this->_renderFields as $key) {
+        foreach ($this->_renderFields as $key) {
             $fields[$key] = $this->_fields[$key];
         }
         return new ArrayIterator($fields);

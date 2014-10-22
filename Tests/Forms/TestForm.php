@@ -1,7 +1,7 @@
 <?php
 /**
  * All rights reserved.
- * 
+ *
  * @author Falaleev Maxim
  * @email max@studio107.ru
  * @version 1.0
@@ -40,7 +40,11 @@ class TestForm extends BaseForm
         } else {
             throw new Exception("Template type {$type} not found");
         }
-        return realpath(__DIR__ . DIRECTORY_SEPARATOR . ltrim($template, DIRECTORY_SEPARATOR));
+        $path = realpath(__DIR__ . DIRECTORY_SEPARATOR . ltrim($template, DIRECTORY_SEPARATOR));
+        if (!is_file($path)) {
+            throw new Exception("File not found: {$path}");
+        }
+        return $path;
     }
 
     public function renderInternal($view, array $data = [])

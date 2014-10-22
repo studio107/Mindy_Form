@@ -110,7 +110,7 @@ class FormTest extends TestCase
             "<ul class='error' id='TestForm_name_errors' style='display:none;'></ul>",
             ""
         ]);
-        $this->assertEquals($result, $f->renderInternal(realpath(__DIR__ . '/../../templates/block.php'), [
+        $this->assertEquals($result, $f->renderInternal(realpath(__DIR__ . '/../../Templates/block.php'), [
             'form' => $f,
             'inlines' => $f->getInlinesInit()
         ]));

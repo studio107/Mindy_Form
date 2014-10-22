@@ -209,12 +209,14 @@ class ModelFormTest extends TestCase
     {
         $model = Game::objects()->getOrCreate(['name' => 'foo']);
         $form = new GameForm(['instance' => $model]);
+        $this->assertEquals(1, count($form->getFieldsInit()));
         $form->setAttributes([
             'name' => 'test',
             'PatchForm' => [
                 ['name' => 'Winter update', '_pk' => 1]
             ]
         ]);
+        $this->assertEquals(1, count($form->getFieldsInit()));
         $this->assertEquals(['name' => 'test'], $form->getAttributes());
         $this->assertEquals(1, count($form->getInlinesCreate()));
         $this->assertEquals(0, count($form->getInlinesDelete()));

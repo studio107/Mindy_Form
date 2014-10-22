@@ -141,9 +141,10 @@ class ModelForm extends BaseForm
                 }
             }
             return $this;
+        } else {
+            $this->instance = null;
+            return $this;
         }
-
-        throw new Exception("Please use Mindy\\Orm\\Model");
     }
 
     /**
@@ -200,7 +201,7 @@ class ModelForm extends BaseForm
             $link = key($params);
             $inline = $params[$link];
 
-            $name = $inline->getName();
+            $name = $inline->classNameShort();
             $models = $inline->getLinkModels([$link => $instance]);
             if (count($models) > 0) {
                 $inlines[$name] = [];
@@ -208,7 +209,6 @@ class ModelForm extends BaseForm
                     $new = clone $inline;
                     $new->setInstance($linkedModel);
                     $new->exclude = array_merge($inline->exclude, [$link]);
-
                     $inlines[$name][] = $new;
                 }
             }
@@ -218,13 +218,18 @@ class ModelForm extends BaseForm
                 $extra = 1;
             }
 
-            $forms = [];
             for ($i = 0; $extra > $i; $i++) {
-                $forms[] = clone $inline;
+                $newClean = clone $inline;
+                $newClean->cleanAttributes();
+                $newClean->setInstance(null);
+                $inlines[$name][] = $newClean;
             }
-
-            $inlines[$inline->getName()] = $forms;
         }
         return $inlines;
+    }
+
+    public function getLinkModels(array $attributes)
+    {
+        return $this->getModel()->objects()->filter($attributes)->all();
     }
 }

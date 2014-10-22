@@ -320,7 +320,7 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
                 $forms[] = clone $inline;
             }
 
-            $inlines[$inline->getName()] = $forms;
+            $inlines[$inline->classNameShort()] = $forms;
         }
         return $inlines;
     }
@@ -337,16 +337,11 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
 
     /**
      * Возвращает инициализированные inline формы
-     * @return InlineForm[]
+     * @return BaseForm[]|ModelForm[]
      */
     public function getInlinesInit()
     {
         return $this->_inlines;
-    }
-
-    public function getLinkModels(array $attributes)
-    {
-        return $this->getModel()->objects()->filter($attributes)->all();
     }
 
     /**
@@ -443,11 +438,11 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
     public function populate(array $data, array $files = [])
     {
         $tmp = empty($files) ? $data : $this->prepare($data, $files);
-        if (!isset($tmp[$this->getName()])) {
+        if (!isset($tmp[$this->classNameShort()])) {
             return $this;
         }
 
-        $data = $tmp[$this->getName()];
+        $data = $tmp[$this->classNameShort()];
         $this->setAttributes($data);
         return $this;
     }
@@ -590,7 +585,7 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
             $inline = Creator::createObject([
                 'class' => $className,
                 'link' => $link,
-                'prefix' => $this->getName()
+                'prefix' => $this->classNameShort()
             ]);
             if (!in_array($link, $inline->exclude)) {
                 $inline->addExclude($link);
@@ -603,6 +598,15 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
     public function addExclude($name)
     {
         $this->_exclude[] = $name;
+    }
+
+    public function cleanAttributes()
+    {
+        $fields = $this->getFieldsInit();
+        foreach ($fields as $field) {
+            $field->setValue(null);
+        }
+        return $this;
     }
 
     /**

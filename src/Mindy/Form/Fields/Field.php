@@ -210,10 +210,12 @@ abstract class Field implements IValidateField
 
     public function getValue()
     {
-        if ($this->form instanceof ModelForm) {
-            $instance = $this->form->getInstance();
-            if ($instance->hasField($this->name)) {
-                return $instance->getField($this->name)->getValue();
+        if($this->value === null) {
+            if ($this->form instanceof ModelForm) {
+                $instance = $this->form->getInstance();
+                if ($instance->hasField($this->name)) {
+                    return $instance->getField($this->name)->getValue();
+                }
             }
         }
         return $this->value;

@@ -19,9 +19,9 @@ use Mindy\Form\Fields\CharField;
 class TestForm extends BaseForm
 {
     public $templates = [
-        'block' => '../templates/block.php',
-        'table' => '../templates/table.php',
-        'ul' => '../templates/ul.php',
+        'block' => '../Templates/block.php',
+        'table' => '../Templates/table.php',
+        'ul' => '../Templates/ul.php',
     ];
 
     public function getFields()

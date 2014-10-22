@@ -23,6 +23,7 @@ use Mindy\Helper\Arr;
 use Mindy\Helper\Creator;
 use Mindy\Helper\Traits\Accessors;
 use Mindy\Helper\Traits\Configurator;
+use Mindy\Utils\RenderTrait;
 use Mindy\Validation\Interfaces\IValidateObject;
 use Mindy\Validation\Traits\ValidateObject;
 
@@ -35,7 +36,7 @@ use Mindy\Validation\Traits\ValidateObject;
  */
 abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IValidateObject
 {
-    use Accessors, Configurator, ValidateObject;
+    use Accessors, Configurator, ValidateObject, RenderTrait;
 
     public $templates = [
         'block' => 'core/form/block.html',
@@ -331,7 +332,7 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
      */
     public function renderInternal($template, array $params)
     {
-
+        return self::renderTemplate($template, $params);
     }
 
     /**

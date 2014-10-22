@@ -38,7 +38,7 @@ class LicenseField extends CheckboxField
         }
         $label = $this->label ? $this->label : ucfirst($this->name);
         return strtr("<label for='{for}'{html}>{label}</label>", [
-            '{for}' => $this->id,
+            '{for}' => $this->getHtmlId(),
             '{label}' => $label,
             '{html}' => $this->getHtmlLabelAttributes()
         ]);

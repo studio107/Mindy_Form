@@ -18,7 +18,7 @@ class TinymceField extends TextAreaField
 {
     public function render()
     {
-        $id = $this->getId();
+        $id = $this->getHtmlId();
         $js = "<script type='text/javascript'>
         tinyMCE.init({
             mode: 'exact',

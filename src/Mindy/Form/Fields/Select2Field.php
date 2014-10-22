@@ -18,5 +18,4 @@ namespace Mindy\Form\Fields;
 class Select2Field extends DropDownField
 {
     public $options = [];
-
 }

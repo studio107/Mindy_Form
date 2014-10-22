@@ -29,17 +29,20 @@ class CheckboxField extends CharField
         }
         $input = strtr($this->template, [
             '{type}' => $this->type,
-            '{id}' => $this->getId(),
-            '{name}' => $this->getName(),
+            '{id}' => $this->getHtmlId(),
+            '{name}' => $this->getHtmlName(),
             '{value}' => 1,
             '{html}' => $this->getHtmlAttributes()
         ]);
 
         $hint = $this->hint ? $this->renderHint() : '';
         $errors = $this->renderErrors();
-        $checkbox = $input . $label . $hint . $errors;
-
-        $name = $this->getName();
-        return "<input type='hidden' value='' name='" . $name . "' />" . $checkbox;
+        return implode("\n", [
+            "<input type='hidden' value='' name='" . $this->getHtmlName() . "' />",
+            $label,
+            $input,
+            $hint,
+            $errors
+        ]);
     }
 }

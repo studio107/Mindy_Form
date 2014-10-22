@@ -14,8 +14,7 @@
 
 namespace Mindy\Form\Fields;
 
-
-use Mindy\Form\Validator\EmailValidator;
+use Mindy\Validation\EmailValidator;
 
 class EmailField extends CharField
 {

@@ -71,9 +71,13 @@ class PrepareData
         foreach ($data as $baseName => $params) {
             foreach ($params as $innerKey => $value) {
                 foreach($value as $inlineName => $item) {
-                    $index = key($item);
-                    $key = key($item[$index]);
-                    $n[$baseName][$inlineName][$index][$key][$innerKey] = $item[$index][$key];
+                    if(is_array($item)) {
+                        $index = key($item);
+                        $key = key($item[$index]);
+                        $n[$baseName][$inlineName][$index][$key][$innerKey] = $item[$index][$key];
+                    } else {
+                        $n[$baseName][$inlineName][$innerKey] = $item;
+                    }
                 }
             }
         }

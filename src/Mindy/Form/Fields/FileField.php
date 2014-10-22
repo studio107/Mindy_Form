@@ -57,8 +57,8 @@ class FileField extends Field
                 $clean = '';
             } else {
                 $clean = strtr($this->cleanTemplate, [
-                    '{id}' => $this->getId(),
-                    '{name}' => $this->getName(),
+                    '{id}' => $this->getHtmlId(),
+                    '{name}' => $this->getHtmlName(),
                     '{value}' => $this->cleanValue,
                     // @TODO: translate
                     '{label}' => $t->t('form', "Clean")

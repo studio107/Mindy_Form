@@ -18,19 +18,8 @@ class DateTimeField extends CharField
 {
     public function render()
     {
-        return parent::render() . $this->getStatic();
-    }
-
-    public function getStatic()
-    {
-        $id = $this->getId();
-        $js = "
-            <script>
-                $('#$id').pickmeup({
-                    format  : 'Y-m-d H:M'
-                });
-            </script>
-        ";
-        return $js;
+        $id = $this->getHtmlId();
+        $js = "<script type='text/javascript'>$('#$id').pickmeup({format  : 'Y-m-d H:M'});</script>";
+        return parent::render() . $js;
     }
 }

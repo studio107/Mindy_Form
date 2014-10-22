@@ -40,9 +40,10 @@ class TestForm extends BaseForm
         } else {
             throw new Exception("Template type {$type} not found");
         }
-        $path = realpath(__DIR__ . DIRECTORY_SEPARATOR . ltrim($template, DIRECTORY_SEPARATOR));
+        $rawPath = __DIR__ . DIRECTORY_SEPARATOR . ltrim($template, DIRECTORY_SEPARATOR);
+        $path = realpath($rawPath);
         if (!is_file($path)) {
-            throw new Exception("File not found: {$path}");
+            throw new Exception("File not found: {$rawPath}");
         }
         return $path;
     }

@@ -52,7 +52,8 @@ class FormTest extends TestCase
 
     public function testFieldsWithPrefix()
     {
-        $f = new CharField(['form' => new TestForm(), 'name' => 'foo', 'hint' => 'foo bar', 'prefix' => 'test']);
+        $f = new CharField(['form' => new TestForm(), 'name' => 'foo', 'hint' => 'foo bar']);
+        $f->setPrefix('test');
         $this->assertEquals('test[TestForm][0]', $f->getPrefix());
         $this->assertEquals('test[TestForm][0][foo]', $f->getHtmlName());
         $this->assertEquals('test_TestForm_0_foo', $f->getHtmlId());
@@ -98,9 +99,9 @@ class FormTest extends TestCase
         $this->assertEquals([], $f->getInlines());
         $this->assertEquals('block', $f->defaultTemplateType);
 
-        $this->assertEquals(realpath(__DIR__ . '/../../templates/block.php'), $f->getTemplateFromType('block'));
-        $this->assertEquals(realpath(__DIR__ . '/../../templates/table.php'), $f->getTemplateFromType('table'));
-        $this->assertEquals(realpath(__DIR__ . '/../../templates/ul.php'), $f->getTemplateFromType('ul'));
+        $this->assertEquals(realpath(__DIR__ . '/../../Templates/block.php'), $f->getTemplateFromType('block'));
+        $this->assertEquals(realpath(__DIR__ . '/../../Templates/table.php'), $f->getTemplateFromType('table'));
+        $this->assertEquals(realpath(__DIR__ . '/../../Templates/ul.php'), $f->getTemplateFromType('ul'));
 
         $result = implode("\n", [
             "<label for='TestForm_name'>Name</label>",
@@ -125,6 +126,7 @@ class FormTest extends TestCase
             "<input type='text' value='' id='ManagedTestForm_name' name='ManagedTestForm[name]'/>",
             "",
             "<ul class='error' id='ManagedTestForm_name_errors' style='display:none;'></ul>",
+            "<h2>InlineTestForm</h2>",
             "<label for='ManagedTestForm_InlineTestForm_0_foo'>Foo</label>",
             "<input type='text' value='' id='ManagedTestForm_InlineTestForm_0_foo' name='ManagedTestForm[InlineTestForm][0][foo]'/>",
             "",

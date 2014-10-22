@@ -132,11 +132,11 @@ abstract class Field implements IValidateField
      */
     public function getPrefix()
     {
-        $prefix = $this->getForm()->getPrefix();
+        $prefix = $this->_prefix ? $this->_prefix : $this->getForm()->getPrefix();
         if ($prefix) {
             return $prefix . '[' . $this->form->getName() . '][' . $this->getId() . ']';
         } else {
-            return $this->form->getName();
+            return $this->getForm()->getName();
         }
     }
 

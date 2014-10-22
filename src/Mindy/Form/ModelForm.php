@@ -31,14 +31,8 @@ class ModelForm extends BaseForm
     {
         parent::initFields();
         $instance = $this->getInstance();
-        $meta = $instance->getMeta();
         foreach ($instance->getFieldsInit() as $name => $field) {
-            if (
-                $field->editable === false ||
-                is_a($field, Model::$autoField) ||
-                in_array($name, $this->exclude) ||
-                $meta->isBackwardField($name)
-            ) {
+            if ($field->editable === false || is_a($field, Model::$autoField) || in_array($name, $this->exclude)) {
                 continue;
             }
 

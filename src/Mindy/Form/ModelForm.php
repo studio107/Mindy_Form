@@ -1,7 +1,6 @@
 <?php
+
 /**
- *
- *
  * All rights reserved.
  *
  * @author Falaleev Maxim
@@ -15,7 +14,6 @@
 namespace Mindy\Form;
 
 use Exception;
-use Mindy\Helper\Creator;
 use Mindy\Orm\Fields\FileField;
 use Mindy\Orm\Model;
 
@@ -33,8 +31,14 @@ class ModelForm extends BaseForm
     {
         parent::initFields();
         $instance = $this->getInstance();
+        $meta = $instance->getMeta();
         foreach ($instance->getFieldsInit() as $name => $field) {
-            if (is_a($field, Model::$autoField) || in_array($name, $this->exclude) || $instance->getMeta()->isBackwardField($name)) {
+            if (
+                $field->editable === false ||
+                is_a($field, Model::$autoField) ||
+                in_array($name, $this->exclude) ||
+                $meta->isBackwardField($name)
+            ) {
                 continue;
             }
 
@@ -161,9 +165,25 @@ class ModelForm extends BaseForm
         return $this->instance;
     }
 
+    public function delete()
+    {
+        return $this->getInstance()->delete();
+    }
+
     public function save()
     {
-        return $this->getInstance()->save();
+        $instance = $this->getInstance();
+        $saved = $instance->save();
+        foreach ($this->getInlinesCreate() as $inline) {
+            $inline->setAttributes([
+                $inline->link => $instance
+            ]);
+            $inline->save();
+        }
+        foreach ($this->getInlinesDelete() as $inline) {
+            $inline->delete();
+        }
+        return $saved;
     }
 
     /**
@@ -174,25 +194,43 @@ class ModelForm extends BaseForm
         throw new Exception("Not implemented");
     }
 
-    public function renderInlines()
+    /**
+     * @param null|int $extra count of the extra inline forms for render
+     * @return array of inline forms
+     */
+    public function renderInlines($extra = null)
     {
+        $instance = $this->getInstance();
         $inlines = [];
-        $model = $this->getInstance();
-        foreach ($this->getInlines() as $link => $inline) {
+        foreach ($this->getInlinesInit() as $params) {
+            $link = key($params);
+            $inline = $params[$link];
+
             $name = $inline->getName();
-            $models = $inline->getLinkModels([$link => $model]);
+            $models = $inline->getLinkModels([$link => $instance]);
             if (count($models) > 0) {
                 $inlines[$name] = [];
                 foreach ($models as $linkedModel) {
-                    $inlines[$name][] = Creator::createObject([
-                        'class' => $inline->className(),
-                        'link' => $link,
-                        'instance' => $linkedModel,
-                        'exclude' => array_merge($inline->exclude, [$link])
-                    ]);
+                    $new = clone $inline;
+                    $new->setInstance($linkedModel);
+                    $new->exclude = array_merge($inline->exclude, [$link]);
+
+                    $inlines[$name][] = $new;
                 }
             }
+
+            /** @var $inline BaseForm */
+            if ($extra === null) {
+                $extra = 1;
+            }
+
+            $forms = [];
+            for ($i = 0; $extra > $i; $i++) {
+                $forms[] = clone $inline;
+            }
+
+            $inlines[$inline->getName()] = $forms;
         }
-        return array_merge($inlines, $this->getInlines());
+        return $inlines;
     }
 }

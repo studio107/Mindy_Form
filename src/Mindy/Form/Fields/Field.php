@@ -51,7 +51,7 @@ abstract class Field implements IValidateField
 
     public $type = 'text';
 
-    private $_html = '';
+    public $html = '';
 
     public $choices = [];
     /**
@@ -132,10 +132,11 @@ abstract class Field implements IValidateField
      */
     public function getPrefix()
     {
-        if ($this->_prefix === null) {
-            return $this->form->getName();
+        $prefix = $this->getForm()->getPrefix();
+        if ($prefix) {
+            return $prefix . '[' . $this->form->getName() . '][' . $this->getId() . ']';
         } else {
-            return $this->_prefix . '[' . $this->form->getName() . '][' . $this->getId() . ']';
+            return $this->form->getName();
         }
     }
 
@@ -188,22 +189,16 @@ abstract class Field implements IValidateField
         return $this->getPrefix() . '[' . $this->name . ']';
     }
 
-    public function setHtmlAttributes($value)
-    {
-        $this->_html = $value;
-        return $this;
-    }
-
     public function getHtmlAttributes()
     {
-        if (is_array($this->_html)) {
+        if (is_array($this->html)) {
             $html = '';
-            foreach ($this->_html as $name => $value) {
+            foreach ($this->html as $name => $value) {
                 $html .= is_numeric($name) ? " $value" : " $name='$value'";
             }
             return $html;
         } else {
-            return $this->_html;
+            return $this->html;
         }
     }
 

@@ -306,7 +306,7 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
     public function renderInlines($extra = null)
     {
         $inlines = [];
-        foreach($this->_inlines as $params) {
+        foreach($this->getInlinesInit() as $params) {
             $link = key($params);
             $inline = $params[$link];
             /** @var $inline BaseForm */
@@ -472,17 +472,18 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
                         $inline = clone $sourceInline;
                         $inline->setAttributes($item);
 
-                        if (isset($item['_delete'])) {
+                        if (isset($item['_pk'])) {
+                            /** @var $inline ModelForm */
+                            $modelClass = $inline->getModel();
+                            $model = is_string($modelClass) ? new $modelClass : $modelClass;
+                            if ($instance = $model->objects()->filter(['pk' => $item['_pk']])->get()) {
+                                $inline->setInstance($instance);
+                            }
+                        }
+
+                        if (array_key_exists('_delete', $item)) {
                             $this->_inlinesDelete[] = $inline;
                         } else {
-                            if (isset($item['_pk'])) {
-                                /** @var $inline ModelForm */
-                                $modelClass = $inline->getModel();
-                                $model = is_string($modelClass) ? new $modelClass : $modelClass;
-                                if ($instance = $model->objects()->filter(['pk' => $item['_pk']])->get()) {
-                                    $inline->setInstance($instance);
-                                }
-                            }
                             $this->_inlinesCreate[] = $inline;
                         }
                     }

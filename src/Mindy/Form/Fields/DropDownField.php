@@ -39,18 +39,17 @@ class DropDownField extends Field
         $label = $this->renderLabel();
         $input = strtr($this->template, [
             '{type}' => $this->type,
-            '{id}' => $this->getId(),
+            '{id}' => $this->getHtmlId(),
             '{value}' => $this->getValue(),
-            '{name}' => $this->multiple ? $this->getName() . '[]' : $this->getName(),
+            '{name}' => $this->multiple ? $this->getHtmlName() . '[]' : $this->getHtmlName(),
             '{html}' => $this->getHtmlAttributes()
         ]);
 
         $hint = $this->hint ? $this->renderHint() : '';
         $errors = $this->renderErrors();
-        $out =  $label . $input . $hint . $errors;
 
-        $name = implode('_', $this->form->prefix) . "[" . $this->form->getId() . "][" . $this->name . "]";
-        return "<input type='hidden' value='' name='{$name}' />" . $out;
+        $name = $this->getHtmlName();
+        return implode("\n", ["<input type='hidden' value='' name='{$name}' />", $label, $input, $hint, $errors]);
     }
 
     public function getValue()

@@ -1,6 +1,6 @@
 <?php
 
-if(is_dir(__DIR__ . '/../vendor')) {
+if (is_dir(__DIR__ . '/../vendor')) {
     include(__DIR__ . '/../vendor/autoload.php');
 } else {
     require __DIR__ . '/../src.php';
@@ -8,18 +8,19 @@ if(is_dir(__DIR__ . '/../vendor')) {
 
 require __DIR__ . '/TestCase.php';
 
-include(realpath(__DIR__) . '/Forms/TestForm.php');
-include(realpath(__DIR__) . '/Forms/InlineTestForm.php');
-include(realpath(__DIR__) . '/Forms/FooTestForm.php');
-include(realpath(__DIR__) . '/Forms/ManagedTwoTestForm.php');
-include(realpath(__DIR__) . '/Forms/ManagedTestForm.php');
+include(realpath(__DIR__ . '/Forms/TestForm.php'));
+include(realpath(__DIR__ . '/Forms/InlineTestForm.php'));
+include(realpath(__DIR__ . '/Forms/FooTestForm.php'));
+include(realpath(__DIR__ . '/Forms/ManagedTwoTestForm.php'));
+include(realpath(__DIR__ . '/Forms/ManagedTestForm.php'));
 
 //$models = glob(realpath(__DIR__) . '/Forms/*.php');
 //foreach($models as $model) {
 //    include $model;
 //}
 
-function d() {
+function d()
+{
     $debug = debug_backtrace();
     $args = func_get_args();
     $data = array(
@@ -29,7 +30,7 @@ function d() {
             'line' => $debug[0]['line'],
         )
     );
-    if(class_exists('Mindy\Helper\Dumper')) {
+    if (class_exists('Mindy\Helper\Dumper')) {
         Mindy\Helper\Dumper::dump($data, 10);
     } else {
         var_dump($data);

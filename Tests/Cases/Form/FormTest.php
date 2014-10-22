@@ -40,13 +40,13 @@ class FormTest extends TestCase
         $f->setValue('bar');
         $this->assertEquals("<input type='text' value='bar' id='TestForm_foo' name='TestForm[foo]'/>", $f->renderInput());
 
-        $f->setHtmlAttributes(['data-id' => 1]);
+        $f->html = ['data-id' => 1];
         $this->assertEquals(" data-id='1'", $f->getHtmlAttributes());
 
-        $f->setHtmlAttributes(['data-id' => 1, 'readonly']);
+        $f->html = ['data-id' => 1, 'readonly'];
         $this->assertEquals(" data-id='1' readonly", $f->getHtmlAttributes());
 
-        $f->setHtmlAttributes(" data-id='1' readonly");
+        $f->html = " data-id='1' readonly";
         $this->assertEquals(" data-id='1' readonly", $f->getHtmlAttributes());
     }
 
@@ -65,13 +65,13 @@ class FormTest extends TestCase
         $f->setValue('bar');
         $this->assertEquals("<input type='text' value='bar' id='test_TestForm_0_foo' name='test[TestForm][0][foo]'/>", $f->renderInput());
 
-        $f->setHtmlAttributes(['data-id' => 1]);
+        $f->html = ['data-id' => 1];
         $this->assertEquals(" data-id='1'", $f->getHtmlAttributes());
 
-        $f->setHtmlAttributes(['data-id' => 1, 'readonly']);
+        $f->html = ['data-id' => 1, 'readonly'];
         $this->assertEquals(" data-id='1' readonly", $f->getHtmlAttributes());
 
-        $f->setHtmlAttributes(" data-id='1' readonly");
+        $f->html = " data-id='1' readonly";
         $this->assertEquals(" data-id='1' readonly", $f->getHtmlAttributes());
     }
 
@@ -179,10 +179,6 @@ class FormTest extends TestCase
         $this->assertTrue($f->isValid());
         $inlines = $f->getInlinesDelete();
         $this->assertEquals(1, count($inlines));
-    }
-
-    public function testInlinesInstances()
-    {
     }
 
     public function testCloneForm()

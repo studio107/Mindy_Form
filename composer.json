@@ -18,6 +18,10 @@
         "mindy/event": "dev-master"
     },
     "require-dev": {
+        "mindy/cache": "dev-master",
+        "mindy/query": "dev-master",
+        "mindy/logger": "dev-master",
+        "mindy/orm": "dev-master",
         "satooshi/php-coveralls": "dev-master"
     },
     "authors": [{

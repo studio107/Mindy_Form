@@ -438,11 +438,11 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
     public function populate(array $data, array $files = [])
     {
         $tmp = empty($files) ? $data : $this->prepare($data, $files);
-        if (!isset($tmp[$this->classNameShort()])) {
+        if (!isset($tmp[$this->getName()])) {
             return $this;
         }
 
-        $data = $tmp[$this->classNameShort()];
+        $data = $tmp[$this->getName()];
         $this->setAttributes($data);
         return $this;
     }

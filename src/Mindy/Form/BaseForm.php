@@ -19,6 +19,7 @@ use ArrayIterator;
 use Countable;
 use Exception;
 use IteratorAggregate;
+use Mindy\Form\Fields\Field;
 use Mindy\Helper\Arr;
 use Mindy\Helper\Creator;
 use Mindy\Helper\Traits\Accessors;
@@ -238,15 +239,20 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
                 continue;
             }
 
-            if (!is_array($config)) {
-                $config = ['class' => $config];
+            if (is_object($config)) {
+                $this->_fields[$name] = $config;
+            } else {
+                if (!is_array($config)) {
+                    $config = ['class' => $config];
+                }
+
+                $field = Creator::createObject(array_merge([
+                    'name' => $name,
+                    'form' => $this,
+                    'prefix' => $this->getPrefix()
+                ], $config));
+                $this->_fields[$name] = $field;
             }
-            $field = Creator::createObject(array_merge([
-                'name' => $name,
-                'form' => $this,
-                'prefix' => $this->getPrefix()
-            ], $config));
-            $this->_fields[$name] = $field;
         }
     }
 

@@ -72,17 +72,8 @@ class ModelForm extends BaseForm
             }
 
             if ($field->isValid() === false) {
-                $errors = $field->getErrors();
-                if (empty($errors)) {
-                    if ($field->isValid() === false) {
-                        foreach ($field->getErrors() as $error) {
-                            $this->addError($name, $error);
-                        }
-                    }
-                } else {
-                    foreach ($errors as $error) {
-                        $this->addError($name, $error);
-                    }
+                foreach ($field->getErrors() as $error) {
+                    $this->addError($name, $error);
                 }
             }
 

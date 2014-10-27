@@ -155,7 +155,7 @@ class DropDownField extends Field
             $out .= strtr("<option value='{value}'{selected}>{name}</option>", [
                 '{value}' => $value,
                 '{name}' => $name,
-                '{selected}' => in_array($value, $selected) || ($value != 0 && array_key_exists($value, $selected)) ? " selected='selected'" : ""
+                '{selected}' => in_array($value, $selected) ? " selected='selected'" : ""
             ]);
         };
         return $out;

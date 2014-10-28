@@ -192,7 +192,7 @@ class ModelForm extends BaseForm
             $link = key($params);
             $inline = $params[$link];
 
-            $name = $inline->classNameShort();
+            $name = $inline->getName();
             $models = $inline->getLinkModels([$link => $instance]);
             if (count($models) > 0) {
                 $inlines[$name] = [];

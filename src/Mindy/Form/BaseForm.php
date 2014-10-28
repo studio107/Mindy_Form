@@ -326,7 +326,7 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
                 $forms[] = clone $inline;
             }
 
-            $inlines[$inline->classNameShort()] = $forms;
+            $inlines[$inline->getName()] = $forms;
         }
         return $inlines;
     }

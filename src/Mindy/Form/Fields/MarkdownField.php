@@ -15,16 +15,20 @@
 namespace Mindy\Form\Fields;
 
 
+use Mindy\Utils\RenderTrait;
+
 class MarkdownField extends TextAreaField
 {
+    use RenderTrait;
+
+    public $html = [
+        'rows' => 10
+    ];
+
     public function render()
     {
-        $id = $this->getId();
-        return <<<JS
-<div id="$id"></div>
-<script type="text/javascript">
-var editor = new Pen(document.getElementById('$id'));
-</script>
-JS;
+        return self::renderInternal(__DIR__ . '/markdown_template.php', [
+            'this' => $this,
+        ]);
     }
 }

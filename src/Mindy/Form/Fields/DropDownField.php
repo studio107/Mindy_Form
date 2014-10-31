@@ -16,7 +16,6 @@ namespace Mindy\Form\Fields;
 
 
 use Closure;
-use Exception;
 use Mindy\Form\ModelForm;
 use Mindy\Orm\Model;
 
@@ -58,50 +57,57 @@ class DropDownField extends Field
         $data = [];
         $selected = [];
 
-        if(!empty($this->choices)) {
+        if (!empty($this->choices)) {
             $choices = $this->choices;
         } else {
             $choices = $this->form->getInstance()->getField($this->name)->choices;
         }
 
-        if(!empty($choices)) {
-            if($choices instanceof Closure) {
+        if (!empty($choices)) {
+            if ($choices instanceof Closure) {
                 $data = $choices->__invoke();
             } else {
                 $data = $choices;
             }
-            if($this->form instanceof ModelForm) {
+            if ($this->form instanceof ModelForm) {
                 $model = $this->form->getInstance();
                 $field = $model->getField($this->name);
-                if($field->null) {
+                if ($field->null) {
                     $data = ['' => ''] + $data;
                 }
+
+                if (is_a($field, $model::$foreignField)) {
+                    $related = $model->{$this->name};
+                    if ($related) {
+                        $selected[] = $related->pk;
+                    }
+                }
             }
-            return $this->valueToHtml($data, [$this->value instanceof Model ? $this->value->pk : $this->value]);
+            return $this->valueToHtml($data, $selected);
         }
 
-        if($this->form instanceof ModelForm && $this->form->getInstance()->hasField($this->name)) {
+        if ($this->form instanceof ModelForm && $this->form->getInstance()->hasField($this->name)) {
             $model = $this->form->getInstance();
             $field = $model->getField($this->name);
 
-            if(is_a($field, $model::$manyToManyField)) {
+            if (is_a($field, $model::$manyToManyField)) {
                 $this->multiple = true;
 
                 $modelClass = $field->modelClass;
                 $models = $modelClass::objects()->all();
 
                 $selectedTmp = $field->getManager()->all();
-                foreach($selectedTmp as $model) {
+                foreach ($selectedTmp as $model) {
                     $selected[] = $model->pk;
                 }
 
                 $this->html['multiple'] = 'multiple';
-                if(count($models) > 1) {
+                if (count($models) > 1) {
                     $data[''] = '';
                 }
 
                 foreach ($models as $model) {
-                    $data[$model->pk] = (string) $model;
+                    $data[$model->pk] = (string)$model;
                 }
             } elseif (is_a($field, $model::$hasManyField)) {
                 $this->multiple = true;
@@ -110,29 +116,29 @@ class DropDownField extends Field
                 $models = $modelClass::objects()->all();
 
                 $this->html['multiple'] = 'multiple';
-                if(count($models) > 1) {
+                if (count($models) > 1) {
                     $data[''] = '';
                 }
 
                 foreach ($models as $model) {
-                    $data[$model->pk] = (string) $model;
+                    $data[$model->pk] = (string)$model;
                 }
             } elseif (is_a($field, $model::$foreignField)) {
                 $modelClass = $field->modelClass;
                 $qs = $modelClass::objects();
-                if(get_class($model) == $modelClass && $model->getIsNewRecord() === false) {
+                if (get_class($model) == $modelClass && $model->getIsNewRecord() === false) {
                     $qs = $qs->exclude(['pk' => $model->pk]);
                 }
                 /* @var $modelClass \Mindy\Orm\Model */
-                if(!$this->required) {
+                if (!$this->required) {
                     $data[''] = $this->empty;
                 }
                 $related = $model->{$this->name};
-                if($related) {
+                if ($related) {
                     $selected[] = $related->pk;
                 }
-                foreach($qs->all() as $model) {
-                    $data[$model->pk] = (string) $model;
+                foreach ($qs->all() as $model) {
+                    $data[$model->pk] = (string)$model;
                 }
             } else {
                 $data = parent::getValue();

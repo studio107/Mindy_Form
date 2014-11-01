@@ -14,21 +14,39 @@
 
 namespace Mindy\Form\Fields;
 
-
-use Mindy\Utils\RenderTrait;
+use Mindy\Locale\Translate;
 
 class MarkdownField extends TextAreaField
 {
-    use RenderTrait;
-
     public $html = [
         'rows' => 10
     ];
 
     public function render()
     {
-        return self::renderInternal(__DIR__ . '/markdown_template.php', [
-            'this' => $this,
-        ]);
+        $t = Translate::getInstance();
+        $out = parent::render();
+        $html = <<<HTML
+<dl class="tabs" data-tab>
+    <dd class="active"><a href="#editor">{$t->t('form', 'Edit')}</a></dd>
+    <dd><a href="#preview" onclick="preview()">{$t->t('form', 'Preview')}</a></dd>
+</dl>
+<div class="tabs-content">
+    <div class="content active" id="editor">{$out}</div>
+    <div class="content" id="preview"></div>
+</div>
+HTML;
+
+        $js = <<<JS
+<script type="text/javascript">
+    var md = new Remarkable('full');
+    var preview = function() {
+        var source = $('#{$this->getHtmlId()}').val();
+        console.log(source);
+        $('#preview').html(md.render(source));
+    };
+</script>
+JS;
+        return $html . $js;
     }
 }

@@ -185,7 +185,7 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
     public function __get($name)
     {
         if (array_key_exists($name, $this->_fields)) {
-            return $this->_fields[$name]->getValue();
+            return $this->_fields[$name];
         } else {
             return $this->__getInternal($name);
         }

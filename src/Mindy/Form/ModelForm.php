@@ -36,7 +36,7 @@ class ModelForm extends BaseForm
                 continue;
             }
 
-            $modelField = $field->getFormField($this);
+            $modelField = $field->setModel($instance)->getFormField($this);
             if ($modelField && !isset($this->_fields[$name])) {
                 $this->_fields[$name] = $modelField;
 
@@ -164,7 +164,9 @@ class ModelForm extends BaseForm
             $inline->setAttributes([
                 $inline->link => $instance
             ]);
-            $inline->save();
+            if ($inline->isValid()) {
+                $inline->save();
+            }
         }
         foreach ($this->getInlinesDelete() as $inline) {
             $inline->delete();

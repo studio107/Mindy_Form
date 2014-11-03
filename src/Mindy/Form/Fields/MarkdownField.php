@@ -22,13 +22,46 @@ class MarkdownField extends TextAreaField
         'rows' => 10
     ];
 
+    protected function getRenderedLabel()
+    {
+        if ($this->label === false) {
+            return '';
+        }
+
+        if ($this->label) {
+            $label = $this->label;
+        } else {
+            if ($this->form instanceof ModelForm) {
+                $instance = $this->form->getInstance();
+                if ($instance->hasField($this->name)) {
+                    $verboseName = $instance->getField($this->name)->verboseName;
+                    if ($verboseName) {
+                        $label = $verboseName;
+                    }
+                }
+            }
+
+            if (!isset($label)) {
+                $label = ucfirst($this->name);
+            }
+        }
+        return $label;
+    }
+
     public function render()
     {
         $t = Translate::getInstance();
-        $out = parent::render();
+
+        $label = $this->getRenderedLabel();
+        $input = $this->renderInput();
+
+        $hint = $this->hint ? $this->renderHint() : '';
+        $errors = $this->renderErrors();
+        $out = implode("\n", [$input, $hint, $errors]);
+
         $html = <<<HTML
 <dl class="tabs" data-tab>
-    <dd class="active"><a href="#editor">{$t->t('form', 'Edit')}</a></dd>
+    <dd class="active"><a href="#editor" onclick="$('#{$this->getHtmlId()}').focus()">{$label}</a></dd>
     <dd><a href="#preview" onclick="preview()">{$t->t('form', 'Preview')}</a></dd>
 </dl>
 <div class="tabs-content">

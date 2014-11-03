@@ -72,7 +72,7 @@ class DropDownField extends Field
             if ($this->form instanceof ModelForm) {
                 $model = $this->form->getInstance();
                 $field = $model->getField($this->name);
-                if ($field->null) {
+                if ($field->null && !$this->multiple) {
                     $data = ['' => ''] + $data;
                 }
 
@@ -81,7 +81,20 @@ class DropDownField extends Field
                     if ($related) {
                         $selected[] = $related->pk;
                     }
+                } else if (is_a($field, $model::$manyToManyField)) {
+                    $this->multiple = true;
+
+                    $modelClass = $field->modelClass;
+                    $models = $modelClass::objects()->all();
+
+                    $selectedTmp = $field->getManager()->all();
+                    foreach ($selectedTmp as $model) {
+                        $selected[] = $model->pk;
+                    }
                 }
+            }
+            if($this->multiple) {
+                $this->html['multiple'] = 'multiple';
             }
             return $this->valueToHtml($data, $selected);
         }

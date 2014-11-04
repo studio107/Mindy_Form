@@ -134,9 +134,9 @@ abstract class Field implements IValidateField
     {
         $prefix = $this->_prefix ? $this->_prefix : $this->getForm()->getPrefix();
         if ($prefix) {
-            return $prefix . '[' . $this->form->getName() . '][' . $this->getId() . ']';
+            return $prefix . '[' . $this->form->classNameShort() . '][' . $this->getId() . ']';
         } else {
-            return $this->getForm()->getName();
+            return $this->getForm()->classNameShort();
         }
     }
 
@@ -210,14 +210,14 @@ abstract class Field implements IValidateField
 
     public function getValue()
     {
-        if($this->value === null) {
-            if ($this->form instanceof ModelForm) {
-                $instance = $this->form->getInstance();
-                if ($instance->hasField($this->name)) {
-                    return $instance->getField($this->name)->getValue();
-                }
-            }
-        }
+//        if ($this->value === null) {
+//            if ($this->form instanceof ModelForm) {
+//                $instance = $this->form->getInstance();
+//                if ($instance->hasField($this->name)) {
+//                    return $instance->getField($this->name)->getValue();
+//                }
+//            }
+//        }
         return $this->value;
     }
 

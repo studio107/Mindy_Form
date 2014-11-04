@@ -19,7 +19,6 @@ use ArrayIterator;
 use Countable;
 use Exception;
 use IteratorAggregate;
-use Mindy\Form\Fields\Field;
 use Mindy\Helper\Arr;
 use Mindy\Helper\Creator;
 use Mindy\Helper\Traits\Accessors;
@@ -116,14 +115,15 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
 
     protected function getEventManager()
     {
-        if ($this->_eventManager === null) {
+        static $eventManager;
+        if ($eventManager === null) {
             if (class_exists('\Mindy\Base\Mindy')) {
-                $this->_eventManager = \Mindy\Base\Mindy::app()->getComponent('signal');
+                $eventManager = \Mindy\Base\Mindy::app()->getComponent('signal');
             } else {
-                $this->_eventManager = new \Mindy\Event\EventManager();
+                $eventManager = new \Mindy\Event\EventManager();
             }
         }
-        return $this->_eventManager;
+        return $eventManager;
     }
 
     /**
@@ -233,6 +233,7 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
      */
     public function initFields()
     {
+        $prefix = $this->getPrefix();
         $fields = $this->getFields();
         foreach ($fields as $name => $config) {
             if (in_array($name, $this->exclude)) {
@@ -249,7 +250,7 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
                 $field = Creator::createObject(array_merge([
                     'name' => $name,
                     'form' => $this,
-                    'prefix' => $this->getPrefix()
+                    'prefix' => $prefix
                 ], $config));
                 $this->_fields[$name] = $field;
             }
@@ -482,6 +483,9 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
                 /** @var $inline BaseForm */
                 if (isset($data[$sourceInline->classNameShort()])) {
                     foreach ($data[$sourceInline->classNameShort()] as $item) {
+                        if (!isset($item['_changed']) or empty($item['_changed'])) {
+                            continue;
+                        }
 
                         $tmp = Arr::cleanArrays($item);
                         if (empty($tmp)) {
@@ -489,15 +493,18 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
                         }
 
                         $inline = clone $sourceInline;
-                        $inline->setAttributes($item);
 
                         if (isset($item['_pk'])) {
                             /** @var $inline ModelForm */
                             $modelClass = $inline->getModel();
                             $model = is_string($modelClass) ? new $modelClass : $modelClass;
-                            if ($instance = $model->objects()->filter(['pk' => $item['_pk']])->get()) {
+                            $instance = $model->objects()->filter(['pk' => $item['_pk']])->get();
+                            if ($instance !== null) {
                                 $inline->setInstance($instance);
+                                $inline->setAttributes($item);
                             }
+                        } else {
+                            $inline->setAttributes($item);
                         }
 
                         if (array_key_exists('_delete', $item)) {
@@ -633,6 +640,11 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
     public function getInlinesCreate()
     {
         return $this->_inlinesCreate;
+    }
+
+    public function cleanInlinesCreate()
+    {
+        $this->_inlinesCreate = [];
     }
 
     /**

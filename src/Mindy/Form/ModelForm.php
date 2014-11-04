@@ -14,6 +14,8 @@
 namespace Mindy\Form;
 
 use Exception;
+use Mindy\Form\Fields\HiddenField;
+use Mindy\Helper\Creator;
 use Mindy\Orm\Fields\FileField;
 use Mindy\Orm\Model;
 
@@ -22,6 +24,10 @@ class ModelForm extends BaseForm
     public $ormClass = '\Mindy\Orm\Model';
 
     protected $instance;
+    /**
+     * @var bool
+     */
+    private $_saveInlineFailed = false;
 
     /**
      * Initialize fields
@@ -46,6 +52,30 @@ class ModelForm extends BaseForm
                 }
                 $this->_fields[$name]->setValue($value);
             }
+        }
+
+        // if prefix available - inline form
+        $prefix = $this->getPrefix();
+        if ($prefix) {
+            $this->_fields['_pk'] = Creator::createObject(array_merge([
+                'class' => HiddenField::className(),
+                'name' => '_pk',
+                'form' => $this,
+                'value' => $this->getInstance()->pk,
+                'prefix' => $prefix,
+                'html' => [
+                    'class' => '_pk'
+                ]
+            ]));
+            $this->_fields['_changed'] = Creator::createObject(array_merge([
+                'class' => HiddenField::className(),
+                'name' => '_changed',
+                'form' => $this,
+                'prefix' => $prefix,
+                'html' => [
+                    'class' => '_changed'
+                ]
+            ]));
         }
     }
 
@@ -117,6 +147,9 @@ class ModelForm extends BaseForm
     {
         if (is_a($model, $this->ormClass)) {
             $this->instance = $model;
+            if ($this->getPrefix()) {
+                $this->getField('_pk')->setValue($model->pk);
+            }
             /* @var $model \Mindy\Orm\Model */
             foreach ($model->getFieldsInit() as $name => $field) {
                 if (is_a($field, $model::$autoField)) {
@@ -166,8 +199,17 @@ class ModelForm extends BaseForm
             ]);
             if ($inline->isValid()) {
                 $inline->save();
+            } else {
+                if ($this->_saveInlineFailed === false) {
+                    $this->_saveInlineFailed = true;
+                }
             }
         }
+
+        if ($this->_saveInlineFailed === false) {
+            $this->cleanInlinesCreate();
+        }
+
         foreach ($this->getInlinesDelete() as $inline) {
             $inline->delete();
         }
@@ -190,6 +232,16 @@ class ModelForm extends BaseForm
     {
         $instance = $this->getInstance();
         $inlines = [];
+        if ($this->_saveInlineFailed) {
+            foreach ($this->getInlinesCreate() as $createInline) {
+                $name = $createInline->getName();
+                if (!isset($inlines[$name])) {
+                    $inlines[$name] = [];
+                }
+
+                $inlines[$name][] = $createInline;
+            }
+        }
         foreach ($this->getInlinesInit() as $params) {
             $link = key($params);
             $inline = $params[$link];
@@ -197,9 +249,13 @@ class ModelForm extends BaseForm
             $name = $inline->getName();
             $models = $inline->getLinkModels([$link => $instance]);
             if (count($models) > 0) {
-                $inlines[$name] = [];
+                if (!isset($inlines[$name])) {
+                    $inlines[$name] = [];
+                }
+
                 foreach ($models as $linkedModel) {
                     $new = clone $inline;
+                    $new->cleanAttributes();
                     $new->setInstance($linkedModel);
                     $new->exclude = array_merge($inline->exclude, [$link]);
                     $inlines[$name][] = $new;
@@ -207,7 +263,7 @@ class ModelForm extends BaseForm
             }
 
             /** @var $inline BaseForm */
-            if ($extra === null) {
+            if ($extra === null && count($models) === 0) {
                 $extra = 1;
             }
 

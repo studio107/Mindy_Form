@@ -21,7 +21,7 @@ class FileField extends Field
     public $type = 'file';
     public $cleanValue = '';
 
-    public $currentTemplate = '<p>{label}:<br/><a class="current-file" href="{current}" target="_blank">{current}</a></p>';
+    public $currentTemplate = '<p class="current-file-container">{label}:<br/><a class="current-file" href="{current}" target="_blank">{current}</a></p>';
     public $cleanTemplate = '<label for="{id}-clean" class="clean-label"><input type="checkbox" id="{id}-clean" name="{name}" value="{value}"> {label}</label>';
     public $template = "<input type='{type}' id='{id}' name='{name}'{html}/>";
 
@@ -64,7 +64,7 @@ class FileField extends Field
                     '{label}' => $t->t('form', "Clean")
                 ]);
             }
-            $input = $currentLink . $clean . '<br/>' . $input;
+            $input = $currentLink . $clean . $input;
         }
 
         $hint = $this->hint ? $this->renderHint() : '';

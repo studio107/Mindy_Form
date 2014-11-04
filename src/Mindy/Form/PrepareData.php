@@ -1,9 +1,9 @@
 <?php
 /**
- * 
+ *
  *
  * All rights reserved.
- * 
+ *
  * @author Falaleev Maxim
  * @email max@studio107.ru
  * @version 1.0
@@ -38,7 +38,7 @@ class PrepareData
      *
      * @param  array $a
      * @param  array $b
-     * @param  bool  $preserveNumericKeys
+     * @param  bool $preserveNumericKeys
      * @return array
      */
     public static function merge(array $a, array $b, $preserveNumericKeys = false)
@@ -70,11 +70,19 @@ class PrepareData
         $n = [];
         foreach ($data as $baseName => $params) {
             foreach ($params as $innerKey => $value) {
-                foreach($value as $inlineName => $item) {
-                    if(is_array($item)) {
-                        $index = key($item);
-                        $key = key($item[$index]);
-                        $n[$baseName][$inlineName][$index][$key][$innerKey] = $item[$index][$key];
+                foreach ($value as $inlineName => $item) {
+                    if (is_array($item)) {
+                        /**
+                         * @TODO I HATE THIS FUCKING PHP LOGIC.
+                         *
+                         * $index = key($item);
+                         * $key = key($item[$index]);
+                         * $n[$baseName][$inlineName][$index][$key][$innerKey] = $item[$index][$key];
+                         */
+                        foreach($item as $index => $t) {
+                            $key = key($t);
+                            $n[$baseName][$inlineName][$index][$key][$innerKey] = $t[$key];
+                        }
                     } else {
                         $n[$baseName][$inlineName][$innerKey] = $item;
                     }

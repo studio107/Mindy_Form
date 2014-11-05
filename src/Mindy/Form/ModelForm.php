@@ -43,8 +43,11 @@ class ModelForm extends BaseForm
             }
 
             $modelField = $field->setModel($instance)->getFormField($this);
-            if ($modelField && !isset($this->_fields[$name])) {
-                $this->_fields[$name] = $modelField;
+
+            if ($modelField) {
+                if(!isset($this->_fields[$name])) {
+                    $this->_fields[$name] = $modelField;
+                }
 
                 $value = $instance->{$name};
                 if ($value instanceof FileField) {

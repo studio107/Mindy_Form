@@ -15,11 +15,12 @@
 namespace Mindy\Form\Fields;
 
 use Mindy\Locale\Translate;
+use Mindy\Orm\Fields\FileField as ModelFileField;
 
 class FileField extends Field
 {
     public $type = 'file';
-    public $cleanValue = '';
+    public $cleanValue = true;
 
     public $currentTemplate = '<p class="current-file-container">{label}:<br/><a class="current-file" href="{current}" target="_blank">{current}</a></p>';
     public $cleanTemplate = '<label for="{id}-clean" class="clean-label"><input type="checkbox" id="{id}-clean" name="{name}" value="{value}"> {label}</label>';
@@ -43,14 +44,10 @@ class FileField extends Field
         if (is_array($value)) {
             $value = $this->getOldValue();
         }
-        /**
-         * @TODO: refactor
-         */
 
         if ($value) {
             $currentLink = strtr($this->currentTemplate, [
                 '{current}' => $value,
-                // @TODO: translate
                 '{label}' => $t->t('form', "Current file")
             ]);
             if ($this->required) {
@@ -60,7 +57,6 @@ class FileField extends Field
                     '{id}' => $this->getHtmlId(),
                     '{name}' => $this->getHtmlName(),
                     '{value}' => $this->cleanValue,
-                    // @TODO: translate
                     '{label}' => $t->t('form', "Clean")
                 ]);
             }
@@ -74,16 +70,11 @@ class FileField extends Field
 
     public function setValue($value)
     {
-        if (is_object($value)) {
-            $this->setOldValue();
-            $this->value = $value->getUrl();
-        } elseif ($value == $this->cleanValue || is_null($value)) {
-            $this->setOldValue();
-            $this->value = null;
-        } elseif (is_string($value) || is_array($value)) {
-            $this->setOldValue();
-            $this->value = $value;
+        if ($value instanceof ModelFileField) {
+            $value = $value->getUrl();
         }
+        $this->setOldValue();
+        $this->value = $value;
         return $this;
     }
 

@@ -17,5 +17,5 @@ namespace Mindy\Form\Fields;
 
 class DeleteInlineField extends CheckboxField
 {
-    public $isDelete = true;
+    public $delete = true;
 }

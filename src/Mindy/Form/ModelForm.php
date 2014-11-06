@@ -14,8 +14,10 @@
 namespace Mindy\Form;
 
 use Exception;
+use Mindy\Form\Fields\DeleteInlineField;
 use Mindy\Form\Fields\HiddenField;
 use Mindy\Helper\Creator;
+use Mindy\Locale\Translate;
 use Mindy\Orm\Fields\FileField;
 use Mindy\Orm\Model;
 
@@ -44,17 +46,15 @@ class ModelForm extends BaseForm
 
             $modelField = $field->setModel($instance)->getFormField($this);
 
-            if ($modelField) {
-                if(!isset($this->_fields[$name])) {
-                    $this->_fields[$name] = $modelField;
-                }
-
-                $value = $instance->{$name};
-                if ($value instanceof FileField) {
-                    $value = $value->getValue();
-                }
-                $this->_fields[$name]->setValue($value);
+            if ($modelField && !isset($this->_fields[$name])) {
+                $this->_fields[$name] = $modelField;
             }
+
+            $value = $instance->{$name};
+            if ($value instanceof FileField) {
+                $value = $value->getUrl();
+            }
+            $this->_fields[$name]->setValue($value);
         }
 
         // if prefix available - inline form
@@ -77,6 +77,17 @@ class ModelForm extends BaseForm
                 'prefix' => $prefix,
                 'html' => [
                     'class' => '_changed'
+                ]
+            ]));
+            $this->_fields['_delete'] = Creator::createObject(array_merge([
+                'class' => DeleteInlineField::className(),
+                'name' => '_delete',
+                'form' => $this,
+                'label' => Translate::getInstance()->t('form', 'Delete'),
+                'value' => $this->getInstance()->pk,
+                'prefix' => $prefix,
+                'html' => [
+                    'class' => '_delete'
                 ]
             ]));
         }
@@ -127,7 +138,18 @@ class ModelForm extends BaseForm
             }
         }
 
-        return $this->hasErrors() === false;
+        foreach ($this->getInlinesCreate() as $inline) {
+            $inline->setAttributes([
+                $inline->link => $instance
+            ]);
+            if ($inline->isValid() === false) {
+                if ($this->_saveInlineFailed === false) {
+                    $this->_saveInlineFailed = true;
+                }
+            }
+        }
+
+        return $this->hasErrors() === false && $this->_saveInlineFailed === false;
     }
 
     /**
@@ -162,7 +184,7 @@ class ModelForm extends BaseForm
                 if ($this->hasField($name)) {
                     $value = $model->{$name};
                     if ($value instanceof FileField) {
-                        $value = $value->getValue();
+                        $value = $value->getUrl();
                     }
                     $this->getField($name)->setValue($value);
                 }
@@ -196,26 +218,19 @@ class ModelForm extends BaseForm
     {
         $instance = $this->getInstance();
         $saved = $instance->save();
-        foreach ($this->getInlinesCreate() as $inline) {
+
+//        d($this->getInlinesCreate());
+        foreach ($this->getInlinesCreate() as $i => $inline) {
             $inline->setAttributes([
                 $inline->link => $instance
             ]);
-            if ($inline->isValid()) {
-                $inline->save();
-            } else {
-                if ($this->_saveInlineFailed === false) {
-                    $this->_saveInlineFailed = true;
-                }
-            }
-        }
-
-        if ($this->_saveInlineFailed === false) {
-            $this->cleanInlinesCreate();
+            $inline->save();
         }
 
         foreach ($this->getInlinesDelete() as $inline) {
             $inline->delete();
         }
+
         return $saved;
     }
 
@@ -231,10 +246,15 @@ class ModelForm extends BaseForm
      * @param null|int $extra count of the extra inline forms for render
      * @return array of inline forms
      */
-    public function renderInlines($extra = null)
+    public function renderInlines($extra = 1)
     {
+        if ($extra <= 0) {
+            $extra = 1;
+        }
+
         $instance = $this->getInstance();
         $inlines = [];
+        $excludeModels = [];
         if ($this->_saveInlineFailed) {
             foreach ($this->getInlinesCreate() as $createInline) {
                 $name = $createInline->getName();
@@ -242,6 +262,10 @@ class ModelForm extends BaseForm
                     $inlines[$name] = [];
                 }
 
+                $createInstance = $createInline->getInstance();
+                if ($createInstance->getIsNewRecord() === false) {
+                    $excludeModels[] = $createInstance->pk;
+                }
                 $inlines[$name][] = $createInline;
             }
         }
@@ -250,7 +274,11 @@ class ModelForm extends BaseForm
             $inline = $params[$link];
 
             $name = $inline->getName();
-            $models = $inline->getLinkModels([$link => $instance]);
+            $qs = $inline->getLinkModels([$link => $instance]);
+            if (count($excludeModels) > 0) {
+                $qs->exclude(['pk__in' => $excludeModels]);
+            }
+            $models = $qs->all();
             if (count($models) > 0) {
                 if (!isset($inlines[$name])) {
                     $inlines[$name] = [];
@@ -266,10 +294,6 @@ class ModelForm extends BaseForm
             }
 
             /** @var $inline BaseForm */
-            if ($extra === null && count($models) === 0) {
-                $extra = 1;
-            }
-
             for ($i = 0; $extra > $i; $i++) {
                 $newClean = clone $inline;
                 $newClean->cleanAttributes();
@@ -280,8 +304,12 @@ class ModelForm extends BaseForm
         return $inlines;
     }
 
+    /**
+     * @param array $attributes
+     * @return \Mindy\Orm\Manager|\Mindy\Orm\QuerySet
+     */
     public function getLinkModels(array $attributes)
     {
-        return $this->getModel()->objects()->filter($attributes)->all();
+        return $this->getModel()->objects()->filter($attributes);
     }
 }

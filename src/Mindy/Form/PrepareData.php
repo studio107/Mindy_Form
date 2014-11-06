@@ -18,7 +18,7 @@ class PrepareData
 {
     public static function collect(array $post, array $files)
     {
-        return static::merge($post, static::fixFiles($files), true);
+        return static::merge(static::fixFiles($files), $post, true);
     }
 
     /**

@@ -311,14 +311,14 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
      * @param null|int $extra count of the extra inline forms for render
      * @return array of inline forms
      */
-    public function renderInlines($extra = null)
+    public function renderInlines($extra = 1)
     {
         $inlines = [];
         foreach ($this->getInlinesInit() as $params) {
             $link = key($params);
             $inline = $params[$link];
             /** @var $inline BaseForm */
-            if ($extra === null) {
+            if ($extra <= 0) {
                 $extra = 1;
             }
 
@@ -405,7 +405,7 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
      */
     public function isValid()
     {
-        $isValid = $this->isValidInternal();
+        /*
         if (count($this->_inlines)) {
             foreach ($this->getInlinesCreate() as $i => $inline) {
                 if ($inline->isValid() === false) {
@@ -421,6 +421,8 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
         } else {
             return $isValid;
         }
+        */
+        return $this->isValidInternal();
     }
 
     /**
@@ -473,6 +475,7 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
             }
         }
 
+        // TODO move to ModelForm
         $sourceInlines = $this->getInlinesInit();
         if (count($sourceInlines) > 0) {
             $this->_inlinesCreate = [];
@@ -483,6 +486,7 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
                 /** @var $inline BaseForm */
                 if (isset($data[$sourceInline->classNameShort()])) {
                     foreach ($data[$sourceInline->classNameShort()] as $item) {
+                        /*
                         if (!isset($item['_changed']) or empty($item['_changed'])) {
                             continue;
                         }
@@ -491,10 +495,10 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
                         if (empty($tmp)) {
                             continue;
                         }
+                        */
 
                         $inline = clone $sourceInline;
-
-                        if (isset($item['_pk'])) {
+                        if (isset($item['_pk']) && !empty($item['_pk'])) {
                             /** @var $inline ModelForm */
                             $modelClass = $inline->getModel();
                             $model = is_string($modelClass) ? new $modelClass : $modelClass;
@@ -507,7 +511,7 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
                             $inline->setAttributes($item);
                         }
 
-                        if (array_key_exists('_delete', $item)) {
+                        if (isset($item['_delete']) && !empty($item['_delete'])) {
                             $this->_inlinesDelete[] = $inline;
                         } else {
                             $this->_inlinesCreate[] = $inline;

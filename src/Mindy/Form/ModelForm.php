@@ -278,7 +278,7 @@ class ModelForm extends BaseForm
             if (count($excludeModels) > 0) {
                 $qs->exclude(['pk__in' => $excludeModels]);
             }
-            $models = $qs->all();
+            $models = $qs ? $qs->all() : [];
             if (count($models) > 0) {
                 if (!isset($inlines[$name])) {
                     $inlines[$name] = [];

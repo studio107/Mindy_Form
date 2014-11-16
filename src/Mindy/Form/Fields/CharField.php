@@ -23,14 +23,7 @@ class CharField extends Field
     public function render()
     {
         $label = $this->renderLabel();
-        $input = strtr($this->template, [
-            '{type}' => $this->type,
-            '{id}' => $this->getHtmlId(),
-            '{name}' => $this->getHtmlName(),
-            '{value}' => $this->getValue(),
-            '{html}' => $this->getHtmlAttributes()
-        ]);
-
+        $input = $this->renderInput();
         $hint = $this->hint ? $this->renderHint() : '';
         $errors = $this->renderErrors();
         return implode("\n", [$label, $input, $hint, $errors]);

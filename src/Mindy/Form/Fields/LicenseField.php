@@ -1,9 +1,9 @@
 <?php
 /**
- * 
+ *
  *
  * All rights reserved.
- * 
+ *
  * @author Falaleev Maxim
  * @email max@studio107.ru
  * @version 1.0
@@ -14,11 +14,22 @@
 
 namespace Mindy\Form\Fields;
 
+use Mindy\Utils\RenderTrait;
 
 class LicenseField extends CheckboxField
 {
+    use RenderTrait;
+
+    /**
+     * @var array
+     */
     public $htmlLabel = [];
+    /**
+     * @var string
+     */
     public $errorMessage = 'You must agree terms';
+
+    public $licenseTemplate = '';
 
     public function init()
     {
@@ -31,29 +42,13 @@ class LicenseField extends CheckboxField
         parent::init();
     }
 
-    public function renderLabel()
+    public function render()
     {
-        if($this->label === false) {
-            return '';
-        }
-        $label = $this->label ? $this->label : ucfirst($this->name);
-        return strtr("<label for='{for}'{html}>{label}</label>", [
-            '{for}' => $this->getHtmlId(),
-            '{label}' => $label,
-            '{html}' => $this->getHtmlLabelAttributes()
-        ]);
-    }
-
-    public function getHtmlLabelAttributes()
-    {
-        if (is_array($this->htmlLabel)) {
-            $html = '';
-            foreach ($this->htmlLabel as $name => $value) {
-                $html .= " $name='$value'";
-            }
-            return $html;
+        if(!empty($this->licenseTemplate)) {
+            $tpl = self::renderTemplate($this->licenseTemplate);
+            return $tpl . parent::render();
         } else {
-            return $this->htmlLabel;
+            return parent::render();
         }
     }
 }

@@ -27,9 +27,6 @@ class RadioField extends CharField
             $inputs = [];
             $i = 0;
             foreach ($this->choices as $value => $labelStr) {
-                if ($this->value == $value) {
-                    $this->html['checked'] = 'checked';
-                }
                 $label = strtr("<label for='{for}'>{label}</label>", [
                     '{for}' => $this->getHtmlId() . '_' . $i,
                     '{label}' => $labelStr
@@ -38,14 +35,14 @@ class RadioField extends CharField
                     '{type}' => $this->type,
                     '{id}' => $this->getHtmlId() . '_' . $i,
                     '{name}' => $this->getHtmlName(),
-                    '{value}' => 1,
+                    '{value}' => $value,
                     '{html}' => $this->getHtmlAttributes()
                 ]);
                 $i++;
                 $hint = $this->hint ? $this->renderHint() : '';
                 $errors = $this->renderErrors();
                 $inputs[] = implode("\n", [
-                    "<input type='hidden' value='' name='" . $this->getHtmlName() . "' />",
+                    "<input type='hidden' value='" . $value . "' name='" . $this->getHtmlName() . "' />",
                     $input, $label, $hint, $errors
                 ]);
             }

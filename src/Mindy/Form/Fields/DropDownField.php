@@ -60,7 +60,7 @@ class DropDownField extends Field
         if (!empty($this->choices)) {
             $choices = $this->choices;
         } else {
-            $choices = $this->form->getInstance()->getField($this->name)->choices;
+            $choices = $this->form->getModel()->getField($this->name)->choices;
         }
 
         if (!empty($choices)) {
@@ -99,8 +99,8 @@ class DropDownField extends Field
             return $this->valueToHtml($data, $selected);
         }
 
-        if ($this->form instanceof ModelForm && $this->form->getInstance()->hasField($this->name)) {
-            $model = $this->form->getInstance();
+        if ($this->form instanceof ModelForm && $this->form->getModel()->hasField($this->name)) {
+            $model = $this->form->getModel();
             $field = $model->getField($this->name);
 
             if (is_a($field, $model::$manyToManyField)) {

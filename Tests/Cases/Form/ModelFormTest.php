@@ -338,4 +338,59 @@ class ModelFormTest extends TestCase
         $this->assertEquals(1, Patch::objects()->count());
         $this->assertEquals(1, $instance->patches->count());
     }
+
+    /**
+     * https://github.com/studio107/Mindy_Form/issues/7
+     */
+    public function testIssue7()
+    {
+        $this->assertEquals(0, Game::objects()->count());
+        $this->assertEquals(0, Patch::objects()->count());
+
+        $model = Game::objects()->getOrCreate(['name' => 'foo']);
+
+        $this->assertEquals(1, Game::objects()->count());
+        $this->assertEquals(0, Patch::objects()->count());
+
+        $form = new GameForm([
+            'instance' => $model
+        ]);
+        $get = [
+            'GameForm' => [
+                'name' => 'test',
+                'PatchForm' => [
+                    ['name' => '1'],
+                    ['name' => '2'],
+                    ['name' => '3'],
+                    ['name' => '4'],
+                ]
+            ]
+        ];
+        $form->populate($get);
+
+        $inlinesCreate = $form->getInlinesCreate();
+        $this->assertEquals(4, count($inlinesCreate));
+
+        $valid = $form->isValidInlines();
+        $this->assertEquals([], $form->getErrors());
+        $this->assertTrue($valid);
+
+        $valid = $form->isValid();
+        $this->assertEquals([], $form->getErrors());
+        $this->assertTrue($valid);
+
+        $inlinesCreate = $form->getInlinesCreate();
+        $this->assertEquals(4, count($inlinesCreate));
+
+        $this->assertTrue($form->save());
+
+        $instance = $form->getInstance();
+        $this->assertEquals(1, Game::objects()->count());
+
+        $patches = Patch::objects()->all();
+        $this->assertEquals(1, $patches[0]->pk);
+
+        $this->assertEquals(4, Patch::objects()->count());
+        $this->assertEquals(4, $instance->patches->count());
+    }
 }

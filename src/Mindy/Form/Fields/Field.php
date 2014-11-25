@@ -231,7 +231,7 @@ abstract class Field implements IValidateField
             $label = $this->label;
         } else {
             if ($this->form instanceof ModelForm) {
-                $instance = $this->form->getInstance();
+                $instance = $this->form->getModel();
                 if ($instance->hasField($this->name)) {
                     $verboseName = $instance->getField($this->name)->verboseName;
                     if ($verboseName) {

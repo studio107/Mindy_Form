@@ -493,7 +493,7 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
         // TODO move to ModelForm
         $sourceInlines = $this->getInlinesInit();
         if (count($sourceInlines) > 0) {
-            $this->_inlinesCreate = [];
+            $this->cleanInlinesCreate();
             foreach ($sourceInlines as $params) {
                 $link = key($params);
                 $sourceInline = $params[$link];
@@ -626,11 +626,17 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
         }
     }
 
+    /**
+     * @param $name
+     */
     public function addExclude($name)
     {
         $this->_exclude[] = $name;
     }
 
+    /**
+     * @return $this
+     */
     public function cleanAttributes()
     {
         $fields = $this->getFieldsInit();
@@ -641,6 +647,7 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
     }
 
     /**
+     * Return form attributes
      * @return array
      */
     public function getAttributes()
@@ -653,20 +660,24 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
     }
 
     /**
-     * @return BaseForm[]
+     * @return ModelForm[]|BaseForm[]
      */
     public function getInlinesCreate()
     {
         return $this->_inlinesCreate;
     }
 
+    /**
+     * Clear inlines create variable
+     * @void
+     */
     public function cleanInlinesCreate()
     {
         $this->_inlinesCreate = [];
     }
 
     /**
-     * @return BaseForm[]
+     * @return ModelForm[]|BaseForm[]
      */
     public function getInlinesDelete()
     {

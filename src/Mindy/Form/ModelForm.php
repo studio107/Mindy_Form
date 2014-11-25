@@ -29,7 +29,7 @@ class ModelForm extends BaseForm
     /**
      * @var \Mindy\Orm\Model
      */
-    protected $instance;
+    protected $_instance;
 
     /**
      * Initialize fields
@@ -42,18 +42,18 @@ class ModelForm extends BaseForm
         // if prefix available - inline form
         $prefix = $this->getPrefix();
 
-        $instance = $this->getInstance();
-        foreach ($instance->getFieldsInit() as $name => $field) {
+        $model = $this->getModel();
+        foreach ($model->getFieldsInit() as $name => $field) {
             if ($field->editable === false || is_a($field, Model::$autoField) || in_array($name, $this->exclude)) {
                 continue;
             }
 
-            $modelField = $field->setModel($instance)->getFormField($this);
+            $modelField = $field->setModel($model)->getFormField($this);
             if ($modelField && !isset($this->_fields[$name])) {
                 $this->_fields[$name] = $modelField;
             }
 
-            $value = $instance->{$name};
+            $value = $model->{$name};
             if ($value instanceof FileField) {
                 $value = $value->getUrl();
             }
@@ -61,11 +61,12 @@ class ModelForm extends BaseForm
         }
 
         if ($prefix) {
+            $instance = $this->getInstance();
             $this->_fields['_pk'] = Creator::createObject(array_merge([
                 'class' => HiddenField::className(),
                 'name' => '_pk',
                 'form' => $this,
-                'value' => $this->getInstance()->pk,
+                'value' => $instance ? $instance->pk : null,
                 'prefix' => $prefix,
                 'html' => [
                     'class' => '_pk'
@@ -85,7 +86,7 @@ class ModelForm extends BaseForm
                 'name' => '_delete',
                 'form' => $this,
                 'label' => Translate::getInstance()->t('form', 'Delete'),
-                'value' => $this->getInstance()->pk,
+                'value' => $instance ? $instance->pk : null,
                 'prefix' => $prefix,
                 'html' => [
                     'class' => '_delete'
@@ -149,7 +150,12 @@ class ModelForm extends BaseForm
     public function setAttributes(array $data)
     {
         parent::setAttributes($data);
-        $this->getInstance()->setAttributes($data);
+        $instance = $this->getInstance();
+        if ($instance === null) {
+            $instance = $this->getModel();
+            $this->_instance = $instance;
+        }
+        $instance->setAttributes($data);
         return $this;
     }
 
@@ -158,45 +164,43 @@ class ModelForm extends BaseForm
      * @return $this
      * @throws \Exception
      */
-    public function setInstance($model)
+    public function setInstance(\Mindy\Orm\Model $model)
     {
-        if (is_a($model, $this->ormClass)) {
-            $this->instance = $model;
-            if ($this->getPrefix()) {
-                $this->getField('_pk')->setValue($model->pk);
-            }
-            /* @var $model \Mindy\Orm\Model */
-            foreach ($model->getFieldsInit() as $name => $field) {
-                if (is_a($field, $model::$autoField)) {
-                    continue;
-                }
-
-                if ($this->hasField($name)) {
-                    $value = $model->{$name};
-                    if ($value instanceof FileField) {
-                        $value = $value->getUrl();
-                    }
-                    $this->getField($name)->setValue($value);
-                }
-            }
-            return $this;
-        } else {
-            $this->instance = null;
-            return $this;
+        $this->_instance = $model;
+        if ($this->getPrefix()) {
+            $this->getField('_pk')->setValue($model->pk);
         }
+        /* @var $model \Mindy\Orm\Model */
+        foreach ($model->getFieldsInit() as $name => $field) {
+            if (is_a($field, $model::$autoField)) {
+                continue;
+            }
+
+            if ($this->hasField($name)) {
+                $value = $model->{$name};
+                if ($value instanceof FileField) {
+                    $value = $value->getUrl();
+                }
+                $this->getField($name)->setValue($value);
+            }
+        }
+        return $this;
     }
 
     /**
-     * @return \Mindy\Orm\Model|\Mindy\Orm\TreeModel|\Mindy\Orm\IFormModel
+     * Clear instance variable
+     */
+    public function clearInstance()
+    {
+        $this->_instance = null;
+    }
+
+    /**
+     * @return \Mindy\Orm\Model|\Mindy\Orm\TreeModel|null
      */
     public function getInstance()
     {
-        if ($this->instance === null) {
-            $modelClass = $this->getModel();
-            $this->instance = is_string($modelClass) ? new $modelClass : $modelClass;
-        }
-
-        return $this->instance;
+        return $this->_instance;
     }
 
     public function delete()
@@ -296,7 +300,7 @@ class ModelForm extends BaseForm
             for ($i = 0; $extra > $i; $i++) {
                 $newClean = clone $inline;
                 $newClean->cleanAttributes();
-                $newClean->setInstance(null);
+                $newClean->clearInstance();
                 $inlines[$name][] = $newClean;
             }
         }

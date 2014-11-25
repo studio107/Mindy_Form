@@ -37,7 +37,31 @@ class ModelForm extends BaseForm
      */
     public function initFields()
     {
-        parent::initFields();
+        $instance = $this->getInstance();
+
+        $prefix = $this->getPrefix();
+        $fields = $this->getFields();
+        foreach ($fields as $name => $config) {
+            if (in_array($name, $this->exclude)) {
+                continue;
+            }
+
+            if (is_object($config)) {
+                $this->_fields[$name] = $config;
+            } else {
+                if (!is_array($config)) {
+                    $config = ['class' => $config];
+                }
+
+                $field = Creator::createObject(array_merge([
+                    'name' => $name,
+                    'form' => $this,
+                    'prefix' => $prefix,
+                    'value' => $instance ? $instance->getField($name)->getValue() : null
+                ], $config));
+                $this->_fields[$name] = $field;
+            }
+        }
 
         // if prefix available - inline form
         $prefix = $this->getPrefix();
@@ -53,15 +77,16 @@ class ModelForm extends BaseForm
                 $this->_fields[$name] = $modelField;
             }
 
-            $value = $model->{$name};
-            if ($value instanceof FileField) {
-                $value = $value->getUrl();
+            if ($instance) {
+                $value = $instance->{$name};
+                if ($value instanceof FileField) {
+                    $value = $value->getUrl();
+                }
+                $this->_fields[$name]->setValue($value);
             }
-            $this->_fields[$name]->setValue($value);
         }
 
         if ($prefix) {
-            $instance = $this->getInstance();
             $this->_fields['_pk'] = Creator::createObject(array_merge([
                 'class' => HiddenField::className(),
                 'name' => '_pk',
@@ -167,24 +192,6 @@ class ModelForm extends BaseForm
     public function setInstance(\Mindy\Orm\Model $model)
     {
         $this->_instance = $model;
-        if ($this->getPrefix()) {
-            $this->getField('_pk')->setValue($model->pk);
-        }
-        /* @var $model \Mindy\Orm\Model */
-        foreach ($model->getFieldsInit() as $name => $field) {
-            if (is_a($field, $model::$autoField)) {
-                continue;
-            }
-
-            if ($this->hasField($name)) {
-                $value = $model->{$name};
-                if ($value instanceof FileField) {
-                    $value = $value->getUrl();
-                }
-                $this->getField($name)->setValue($value);
-            }
-        }
-        return $this;
     }
 
     /**

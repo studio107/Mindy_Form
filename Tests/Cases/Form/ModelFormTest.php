@@ -393,4 +393,25 @@ class ModelFormTest extends TestCase
         $this->assertEquals(4, Patch::objects()->count());
         $this->assertEquals(4, $instance->patches->count());
     }
+
+    public function testSetInstance()
+    {
+        $this->assertEquals(0, Game::objects()->count());
+        $this->assertEquals(0, Patch::objects()->count());
+
+        $model = Game::objects()->getOrCreate(['name' => 'foo']);
+
+        $this->assertEquals(1, Game::objects()->count());
+        $this->assertEquals(0, Patch::objects()->count());
+
+        $form = new GameForm();
+        $this->assertNull($form->getInstance());
+        $this->assertEquals(null, $form->getField('name')->getValue());
+
+        $form = new GameForm([
+            'instance' => $model
+        ]);
+        $this->assertNotNull($form->getInstance());
+        $this->assertEquals('foo', $form->getField('name')->getValue());
+    }
 }

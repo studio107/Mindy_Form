@@ -19,7 +19,9 @@ use Mindy\Form\Fields\HiddenField;
 use Mindy\Helper\Creator;
 use Mindy\Locale\Translate;
 use Mindy\Orm\Fields\FileField;
+use Mindy\Orm\Manager;
 use Mindy\Orm\Model;
+use Mindy\Orm\QuerySet;
 
 class ModelForm extends BaseForm
 {
@@ -219,7 +221,6 @@ class ModelForm extends BaseForm
         $instance = $this->getInstance();
         $saved = $instance->save();
 
-//        d($this->getInlinesCreate());
         foreach ($this->getInlinesCreate() as $i => $inline) {
             $inline->setAttributes([
                 $inline->link => $instance
@@ -275,10 +276,11 @@ class ModelForm extends BaseForm
 
             $name = $inline->getName();
             $qs = $inline->getLinkModels([$link => $instance]);
-            if (count($excludeModels) > 0) {
-                $qs->exclude(['pk__in' => $excludeModels]);
+            if (count($excludeModels) > 0 && ($qs instanceof QuerySet || $qs instanceof Manager)) {
+                $models = $qs->exclude(['pk__in' => $excludeModels])->all();
+            } else {
+                $models = [];
             }
-            $models = $qs ? $qs->all() : [];
             if (count($models) > 0) {
                 if (!isset($inlines[$name])) {
                     $inlines[$name] = [];

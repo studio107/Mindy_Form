@@ -121,6 +121,7 @@ class ModelForm extends BaseForm
     }
 
     /**
+     * @param array $ignore
      * @return bool
      */
     public function isValid(array $ignore = [])
@@ -149,22 +150,6 @@ class ModelForm extends BaseForm
             $this->cleanedData[$name] = $field->getValue();
         }
 
-        /*
-        if (!$instance->isValid()) {
-            foreach ($instance->getErrors() as $key => $errors) {
-                // @TODO: duplication errors (email validation, for example)
-                if (!$this->hasErrors($key)) {
-                    foreach ($errors as $error) {
-                        if (array_key_exists($key, $fields)) {
-                            $this->addError($key, $error);
-                            $fields[$key]->addError($error);
-                        }
-                    }
-                }
-            }
-        }
-        */
-
         return $this->hasErrors() === false && $this->isValidInlines();
     }
 
@@ -189,7 +174,7 @@ class ModelForm extends BaseForm
      * @return $this
      * @throws \Exception
      */
-    public function setInstance(\Mindy\Orm\Model $model)
+    protected function setInstance(\Mindy\Orm\Model $model)
     {
         $this->_instance = $model;
     }

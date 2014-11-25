@@ -520,7 +520,6 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
                 }
             }
         }
-
         return $this;
     }
 

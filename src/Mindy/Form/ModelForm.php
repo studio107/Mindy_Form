@@ -141,9 +141,6 @@ class ModelForm extends BaseForm
         }
 
         foreach ($this->getInlinesCreate() as $inline) {
-            $inline->setAttributes([
-                $inline->link => $instance
-            ]);
             if ($inline->isValid() === false) {
                 if ($this->_saveInlineFailed === false) {
                     $this->_saveInlineFailed = true;
@@ -221,18 +218,23 @@ class ModelForm extends BaseForm
         $instance = $this->getInstance();
         $saved = $instance->save();
 
-        foreach ($this->getInlinesCreate() as $i => $inline) {
+        $inlineCreate = $this->getInlinesCreate();
+        $inlineSaved = count($inlineCreate) === 0;
+        foreach ($inlineCreate as $inline) {
             $inline->setAttributes([
                 $inline->link => $instance
             ]);
-            $inline->save();
+
+            if (($inline->isValid() && $inline->save()) === false) {
+                $inlineSaved = false;
+            }
         }
 
         foreach ($this->getInlinesDelete() as $inline) {
             $inline->delete();
         }
 
-        return $saved;
+        return $saved && $inlineSaved;
     }
 
     /**
@@ -270,14 +272,18 @@ class ModelForm extends BaseForm
                 $inlines[$name][] = $createInline;
             }
         }
+
         foreach ($this->getInlinesInit() as $params) {
             $link = key($params);
             $inline = $params[$link];
 
             $name = $inline->getName();
             $qs = $inline->getLinkModels([$link => $instance]);
-            if (count($excludeModels) > 0 && ($qs instanceof QuerySet || $qs instanceof Manager)) {
-                $models = $qs->exclude(['pk__in' => $excludeModels])->all();
+            if ($qs instanceof QuerySet || $qs instanceof Manager) {
+                if (count($excludeModels) > 0) {
+                    $qs->exclude(['pk__in' => $excludeModels]);
+                }
+                $models = $qs->all();
             } else {
                 $models = [];
             }

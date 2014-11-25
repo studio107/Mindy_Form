@@ -19,7 +19,6 @@ use ArrayIterator;
 use Countable;
 use Exception;
 use IteratorAggregate;
-use Mindy\Helper\Arr;
 use Mindy\Helper\Creator;
 use Mindy\Helper\Traits\Accessors;
 use Mindy\Helper\Traits\Configurator;
@@ -405,42 +404,36 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
     }
 
     /**
+     * @param array $ignore
      * @return bool
      */
-    public function isValid()
+    public function isValid(array $ignore = [])
     {
-//        if (count($this->_inlines)) {
-//            foreach ($this->getInlinesCreate() as $i => $inline) {
-//                if ($inline->isValid() === false) {
-//                    $isValid = false;
-//                    $this->addErrors([
-//                        $inline->classNameShort() => [
-//                            $i => $inline->getErrors()
-//                        ]
-//                    ]);
-//                }
-//            }
-//            return $isValid;
-//        } else {
-//            return $isValid;
-//        }
-        return $this->isValidInternal() && $this->isValidInlines();
+        if ($this->getPrefix()) {
+            $ignore[] = $this->link;
+        }
+        return $this->isValidInternal($ignore) && $this->isValidInlines();
     }
 
     public function isValidInlines()
     {
         $inlinesCreate = $this->getInlinesCreate();
-        $isValid = count($inlinesCreate) === 0;
+        $isValid = true;
         foreach ($inlinesCreate as $i => $inline) {
-            if ($inline->isValid() === false) {
+            $ignore = $inline->getPrefix() ? [$inline->link] : [];
+            if ($inline->isValid($ignore) === false) {
                 $this->addErrors([
                     $inline->classNameShort() => [
                         $i => $inline->getErrors()
                     ]
                 ]);
+
+                if ($isValid === true) {
+                    $isValid = false;
+                }
+
                 if ($this->_saveInlineFailed === false) {
                     $this->_saveInlineFailed = true;
-                    $isValid = false;
                 }
             }
         }

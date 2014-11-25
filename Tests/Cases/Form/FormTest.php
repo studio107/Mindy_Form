@@ -147,8 +147,8 @@ class FormTest extends TestCase
                 ['foo' => '', 'bar' => '1'],
             ]
         ]);
-        $this->assertFalse($f->isValidInlines());
-        $this->assertFalse($f->isValid());
+
+        /** @var \Mindy\Form\Tests\InlineTestForm[] $inlines */
         $inlines = $f->getInlinesCreate();
         $this->assertEquals(2, count($inlines));
         list($first, $last) = $inlines;
@@ -156,6 +156,10 @@ class FormTest extends TestCase
         $this->assertTrue($first->isValid());
         $this->assertEquals(['foo' => '', 'bar' => '1'], $last->getAttributes());
         $this->assertFalse($last->isValid());
+
+        $this->assertFalse($f->isValidInlines());
+        $this->assertFalse($f->isValid());
+
         $f->clearErrors();
 
         $f->setAttributes([

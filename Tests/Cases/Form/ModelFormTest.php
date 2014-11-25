@@ -58,6 +58,7 @@ class Patch extends Model
             ],
             'file' => [
                 'class' => FileField::className(),
+                'null' => true
             ]
         ];
     }
@@ -221,7 +222,9 @@ class ModelFormTest extends TestCase
         $this->assertEquals(['name' => 'test'], $form->getAttributes());
         $this->assertEquals(1, count($form->getInlinesCreate()));
         $this->assertEquals(0, count($form->getInlinesDelete()));
-        $this->assertTrue($form->isValid());
+        $form->isValid();
+        // $this->assertTrue($form->isValid());
+        $this->assertEquals([], $form->getErrors());
         $this->assertEquals([], $form->getErrors());
         $this->assertTrue($form->save());
 
@@ -231,20 +234,38 @@ class ModelFormTest extends TestCase
 
     public function testUpdateInline()
     {
+        $this->assertEquals(0, Game::objects()->count());
+        $this->assertEquals(0, Patch::objects()->count());
+
         $model = Game::objects()->getOrCreate(['name' => 'foo']);
+
+        $this->assertEquals(1, Game::objects()->count());
+        $this->assertEquals(0, Patch::objects()->count());
+
         $form = new GameForm(['instance' => $model]);
         $this->assertEquals(1, count($form->getFieldsInit()));
         $form->setAttributes([
             'name' => 'test',
             'PatchForm' => [
-                ['name' => 'Winter update', '_pk' => 1]
+                ['name' => 'Winter update']
             ]
         ]);
         $this->assertEquals(1, count($form->getFieldsInit()));
         $this->assertEquals(['name' => 'test'], $form->getAttributes());
-        $this->assertEquals(1, count($form->getInlinesCreate()));
+
+        $createInlines = $form->getInlinesCreate();
+        $this->assertEquals(1, count($createInlines));
+
+        $patchForm = $createInlines[0];
+        $valid = $patchForm->isValid();
+        $this->assertEquals([], $patchForm->getErrors());
+        $this->assertTrue($valid);
+
         $this->assertEquals(0, count($form->getInlinesDelete()));
-        $this->assertTrue($form->isValid());
+
+        $valid = $form->isValid();
+        $this->assertEquals([], $form->getErrors());
+        $this->assertTrue($valid);
         $this->assertEquals([], $form->getErrors());
         $this->assertTrue($form->save());
 
@@ -295,8 +316,22 @@ class ModelFormTest extends TestCase
             ]
         ];
         $form->populate($get);
-        $this->assertTrue($form->isValid());
-        $this->assertTrue($form->save());
+
+        $patchForm = $form->getInlinesCreate()[0];
+        $this->assertEquals('GameForm', $patchForm->getPrefix());
+        $gameField = $patchForm->getField('game');
+        // This field ignored then validation
+        $this->assertFalse($gameField->isValid());
+
+        $valid = $form->isValidInlines();
+        $this->assertEquals([], $form->getErrors());
+        $this->assertTrue($valid);
+        $valid = $form->isValid();
+        $this->assertEquals([], $form->getErrors());
+        $this->assertTrue($valid);
+
+        $valid = $form->save();
+        $this->assertTrue($valid);
 
         $instance = $form->getInstance();
         $this->assertEquals(1, Game::objects()->count());

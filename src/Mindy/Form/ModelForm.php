@@ -26,7 +26,9 @@ use Mindy\Orm\QuerySet;
 class ModelForm extends BaseForm
 {
     public $ormClass = '\Mindy\Orm\Model';
-
+    /**
+     * @var \Mindy\Orm\Model
+     */
     protected $instance;
 
     /**
@@ -36,6 +38,10 @@ class ModelForm extends BaseForm
     public function initFields()
     {
         parent::initFields();
+
+        // if prefix available - inline form
+        $prefix = $this->getPrefix();
+
         $instance = $this->getInstance();
         foreach ($instance->getFieldsInit() as $name => $field) {
             if ($field->editable === false || is_a($field, Model::$autoField) || in_array($name, $this->exclude)) {
@@ -43,7 +49,6 @@ class ModelForm extends BaseForm
             }
 
             $modelField = $field->setModel($instance)->getFormField($this);
-
             if ($modelField && !isset($this->_fields[$name])) {
                 $this->_fields[$name] = $modelField;
             }
@@ -55,8 +60,6 @@ class ModelForm extends BaseForm
             $this->_fields[$name]->setValue($value);
         }
 
-        // if prefix available - inline form
-        $prefix = $this->getPrefix();
         if ($prefix) {
             $this->_fields['_pk'] = Creator::createObject(array_merge([
                 'class' => HiddenField::className(),
@@ -94,23 +97,21 @@ class ModelForm extends BaseForm
     /**
      * @return bool
      */
-    public function isValid()
+    public function isValid(array $ignore = [])
     {
-        $instance = $this->getInstance();
-
         $this->clearErrors();
-        $instance->clearErrors();
 
         /* @var $field \Mindy\Form\Fields\Field */
         $fields = $this->getFieldsInit();
 
         foreach ($fields as $name => $field) {
+            if (in_array($name, $ignore)) {
+                continue;
+            }
+
             if (method_exists($this, 'clean' . ucfirst($name))) {
                 $value = call_user_func([$this, 'clean' . ucfirst($name)], $field->getValue());
-                if ($value) {
-                    $this->cleanedData[$name] = $value;
-                    $field->setValue($value);
-                }
+                $field->setValue($value);
             }
 
             if ($field->isValid() === false) {
@@ -122,6 +123,7 @@ class ModelForm extends BaseForm
             $this->cleanedData[$name] = $field->getValue();
         }
 
+        /*
         if (!$instance->isValid()) {
             foreach ($instance->getErrors() as $key => $errors) {
                 // @TODO: duplication errors (email validation, for example)
@@ -135,10 +137,9 @@ class ModelForm extends BaseForm
                 }
             }
         }
+        */
 
-        $this->isValidInlines();
-
-        return $this->hasErrors() === false && $this->_saveInlineFailed === false;
+        return $this->hasErrors() === false && $this->isValidInlines();
     }
 
     /**
@@ -209,7 +210,7 @@ class ModelForm extends BaseForm
         $saved = $instance->save();
 
         $inlineCreate = $this->getInlinesCreate();
-        $inlineSaved = count($inlineCreate) === 0;
+        $inlineSaved = true;
         foreach ($inlineCreate as $inline) {
             $inline->setAttributes([
                 $inline->link => $instance

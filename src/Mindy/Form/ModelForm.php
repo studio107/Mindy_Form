@@ -124,7 +124,7 @@ class ModelForm extends BaseForm
      * @param array $ignore
      * @return bool
      */
-    public function isValid(array $ignore = [])
+    public function isValid()
     {
         $this->clearErrors();
 

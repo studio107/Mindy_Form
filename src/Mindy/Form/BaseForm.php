@@ -407,8 +407,9 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
      * @param array $ignore
      * @return bool
      */
-    public function isValid(array $ignore = [])
+    public function isValid()
     {
+        $ignore = [];
         if ($this->getPrefix()) {
             $ignore[] = $this->link;
         }
@@ -421,7 +422,7 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
         $isValid = true;
         foreach ($inlinesCreate as $i => $inline) {
             $ignore = $inline->getPrefix() ? [$inline->link] : [];
-            if ($inline->isValid($ignore) === false) {
+            if ($inline->isValidInternal($ignore) === false) {
                 $this->addErrors([
                     $inline->classNameShort() => [
                         $i => $inline->getErrors()

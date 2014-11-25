@@ -90,6 +90,10 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
      */
     protected $_renderFields = [];
     /**
+     * @var bool
+     */
+    protected $_saveInlineFailed = false;
+    /**
      * @var array BaseForm[]
      */
     private $_inlinesCreate = [];
@@ -405,24 +409,42 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
      */
     public function isValid()
     {
-        /*
-        if (count($this->_inlines)) {
-            foreach ($this->getInlinesCreate() as $i => $inline) {
-                if ($inline->isValid() === false) {
+//        if (count($this->_inlines)) {
+//            foreach ($this->getInlinesCreate() as $i => $inline) {
+//                if ($inline->isValid() === false) {
+//                    $isValid = false;
+//                    $this->addErrors([
+//                        $inline->classNameShort() => [
+//                            $i => $inline->getErrors()
+//                        ]
+//                    ]);
+//                }
+//            }
+//            return $isValid;
+//        } else {
+//            return $isValid;
+//        }
+        return $this->isValidInternal() && $this->isValidInlines();
+    }
+
+    public function isValidInlines()
+    {
+        $inlinesCreate = $this->getInlinesCreate();
+        $isValid = count($inlinesCreate) === 0;
+        foreach ($inlinesCreate as $i => $inline) {
+            if ($inline->isValid() === false) {
+                $this->addErrors([
+                    $inline->classNameShort() => [
+                        $i => $inline->getErrors()
+                    ]
+                ]);
+                if ($this->_saveInlineFailed === false) {
+                    $this->_saveInlineFailed = true;
                     $isValid = false;
-                    $this->addErrors([
-                        $inline->classNameShort() => [
-                            $i => $inline->getErrors()
-                        ]
-                    ]);
                 }
             }
-            return $isValid;
-        } else {
-            return $isValid;
         }
-        */
-        return $this->isValidInternal();
+        return $isValid;
     }
 
     /**

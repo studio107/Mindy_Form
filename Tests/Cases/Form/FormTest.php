@@ -147,6 +147,7 @@ class FormTest extends TestCase
                 ['foo' => '', 'bar' => '1'],
             ]
         ]);
+        $this->assertFalse($f->isValidInlines());
         $this->assertFalse($f->isValid());
         $inlines = $f->getInlinesCreate();
         $this->assertEquals(2, count($inlines));
@@ -178,7 +179,7 @@ class FormTest extends TestCase
                 ['foo' => '', 'bar' => ''],
             ]
         ]);
-        $this->assertTrue($f->isValid());
+        $this->assertFalse($f->isValid());
         $inlines = $f->getInlinesDelete();
         $this->assertEquals(1, count($inlines));
     }

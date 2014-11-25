@@ -182,6 +182,19 @@ class ModelFormTest extends TestCase
             "",
             "<ul class='error' id='GameForm_PatchForm_0_file_errors' style='display:none;'></ul>",
             "",
+            "<input type='hidden' value='' id='GameForm_PatchForm_0__pk' name='GameForm[PatchForm][0][_pk]' class='_pk'/>",
+            "",
+            "<ul class='error' id='GameForm_PatchForm_0__pk_errors' style='display:none;'></ul>",
+            "",
+            "<input type='hidden' value='' id='GameForm_PatchForm_0__changed' name='GameForm[PatchForm][0][_changed]' class='_changed'/>",
+            "",
+            "<ul class='error' id='GameForm_PatchForm_0__changed_errors' style='display:none;'></ul>",
+            "<input type='hidden' value='' name='GameForm[PatchForm][0][_delete]' />",
+            "<input type='checkbox' id='GameForm_PatchForm_0__delete' value='1' name='GameForm[PatchForm][0][_delete]' class='_delete'/>",
+            "<label for='GameForm_PatchForm_0__delete'>Delete</label>",
+            "",
+            "<ul class='error' id='GameForm_PatchForm_0__delete_errors' style='display:none;'></ul>",
+            "",
         ]), $form->asBlock());
 
         $form->setAttributes([
@@ -209,6 +222,7 @@ class ModelFormTest extends TestCase
         $this->assertEquals(1, count($form->getInlinesCreate()));
         $this->assertEquals(0, count($form->getInlinesDelete()));
         $this->assertTrue($form->isValid());
+        $this->assertEquals([], $form->getErrors());
         $this->assertTrue($form->save());
 
         $instance = $form->getInstance();
@@ -231,6 +245,7 @@ class ModelFormTest extends TestCase
         $this->assertEquals(1, count($form->getInlinesCreate()));
         $this->assertEquals(0, count($form->getInlinesDelete()));
         $this->assertTrue($form->isValid());
+        $this->assertEquals([], $form->getErrors());
         $this->assertTrue($form->save());
 
         $patch = Patch::objects()->get();

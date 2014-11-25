@@ -28,10 +28,6 @@ class ModelForm extends BaseForm
     public $ormClass = '\Mindy\Orm\Model';
 
     protected $instance;
-    /**
-     * @var bool
-     */
-    private $_saveInlineFailed = false;
 
     /**
      * Initialize fields
@@ -140,13 +136,7 @@ class ModelForm extends BaseForm
             }
         }
 
-        foreach ($this->getInlinesCreate() as $inline) {
-            if ($inline->isValid() === false) {
-                if ($this->_saveInlineFailed === false) {
-                    $this->_saveInlineFailed = true;
-                }
-            }
-        }
+        $this->isValidInlines();
 
         return $this->hasErrors() === false && $this->_saveInlineFailed === false;
     }

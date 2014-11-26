@@ -57,7 +57,6 @@ class ModelForm extends BaseForm
                     'name' => $name,
                     'form' => $this,
                     'prefix' => $prefix,
-                    'value' => $instance ? $instance->getField($name)->getValue() : null
                 ], $config));
                 $this->_fields[$name] = $field;
             }

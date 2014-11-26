@@ -37,7 +37,6 @@ class ModelForm extends BaseForm
      */
     public function initFields()
     {
-        parent::initFields();
         $instance = $this->getInstance();
         foreach ($instance->getFieldsInit() as $name => $field) {
             if ($field->editable === false || is_a($field, Model::$autoField) || in_array($name, $this->exclude)) {
@@ -45,8 +44,7 @@ class ModelForm extends BaseForm
             }
 
             $modelField = $field->setModel($instance)->getFormField($this);
-
-            if ($modelField && !isset($this->_fields[$name])) {
+            if ($modelField) {
                 $this->_fields[$name] = $modelField;
             }
 
@@ -56,6 +54,8 @@ class ModelForm extends BaseForm
             }
             $this->_fields[$name]->setValue($value);
         }
+
+        parent::initFields();
 
         // if prefix available - inline form
         $prefix = $this->getPrefix();

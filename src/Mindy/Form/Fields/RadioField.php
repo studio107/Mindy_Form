@@ -41,10 +41,7 @@ class RadioField extends CharField
                 $i++;
                 $hint = $this->hint ? $this->renderHint() : '';
                 $errors = $this->renderErrors();
-                $inputs[] = implode("\n", [
-                    "<input type='hidden' value='" . $value . "' name='" . $this->getHtmlName() . "' />",
-                    $input, $label, $hint, $errors
-                ]);
+                $inputs[] = implode("\n", [$input, $label, $hint, $errors]);
             }
             return implode("\n", $inputs);
         } else {

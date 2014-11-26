@@ -131,10 +131,6 @@ class ModelForm extends BaseForm
         $fields = $this->getFieldsInit();
 
         foreach ($fields as $name => $field) {
-            if (in_array($name, $ignore)) {
-                continue;
-            }
-
             if (method_exists($this, 'clean' . ucfirst($name))) {
                 $value = call_user_func([$this, 'clean' . ucfirst($name)], $field->getValue());
                 $field->setValue($value);

@@ -71,7 +71,6 @@ class Select2Field extends DropDownField
                 }'),
             ],
             'escapeMarkup' => new JavaScriptExpression('function (m) {
-                console.log(m);
                 return m;
             }')
         ];

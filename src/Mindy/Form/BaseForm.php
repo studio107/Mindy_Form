@@ -19,7 +19,6 @@ use ArrayIterator;
 use Countable;
 use Exception;
 use IteratorAggregate;
-use Mindy\Helper\Arr;
 use Mindy\Helper\Creator;
 use Mindy\Helper\Traits\Accessors;
 use Mindy\Helper\Traits\Configurator;
@@ -89,6 +88,10 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
      * @var array
      */
     protected $_renderFields = [];
+    /**
+     * @var bool
+     */
+    protected $_saveInlineFailed = false;
     /**
      * @var array BaseForm[]
      */
@@ -401,28 +404,41 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
     }
 
     /**
+     * @param array $ignore
      * @return bool
      */
     public function isValid()
     {
-        /*
-        if (count($this->_inlines)) {
-            foreach ($this->getInlinesCreate() as $i => $inline) {
-                if ($inline->isValid() === false) {
+        $ignore = [];
+        if ($this->getPrefix()) {
+            $ignore[] = $this->link;
+        }
+        return $this->isValidInternal($ignore) && $this->isValidInlines();
+    }
+
+    public function isValidInlines()
+    {
+        $inlinesCreate = $this->getInlinesCreate();
+        $isValid = true;
+        foreach ($inlinesCreate as $i => $inline) {
+            $ignore = $inline->getPrefix() ? [$inline->link] : [];
+            if ($inline->isValidInternal($ignore) === false) {
+                $this->addErrors([
+                    $inline->classNameShort() => [
+                        $i => $inline->getErrors()
+                    ]
+                ]);
+
+                if ($isValid === true) {
                     $isValid = false;
-                    $this->addErrors([
-                        $inline->classNameShort() => [
-                            $i => $inline->getErrors()
-                        ]
-                    ]);
+                }
+
+                if ($this->_saveInlineFailed === false) {
+                    $this->_saveInlineFailed = true;
                 }
             }
-            return $isValid;
-        } else {
-            return $isValid;
         }
-        */
-        return $this->isValidInternal();
+        return $isValid;
     }
 
     /**
@@ -478,7 +494,7 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
         // TODO move to ModelForm
         $sourceInlines = $this->getInlinesInit();
         if (count($sourceInlines) > 0) {
-            $this->_inlinesCreate = [];
+            $this->cleanInlinesCreate();
             foreach ($sourceInlines as $params) {
                 $link = key($params);
                 $sourceInline = $params[$link];
@@ -520,7 +536,6 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
                 }
             }
         }
-
         return $this;
     }
 
@@ -612,11 +627,17 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
         }
     }
 
+    /**
+     * @param $name
+     */
     public function addExclude($name)
     {
         $this->_exclude[] = $name;
     }
 
+    /**
+     * @return $this
+     */
     public function cleanAttributes()
     {
         $fields = $this->getFieldsInit();
@@ -627,6 +648,7 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
     }
 
     /**
+     * Return form attributes
      * @return array
      */
     public function getAttributes()
@@ -639,20 +661,24 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
     }
 
     /**
-     * @return BaseForm[]
+     * @return ModelForm[]|BaseForm[]
      */
     public function getInlinesCreate()
     {
         return $this->_inlinesCreate;
     }
 
+    /**
+     * Clear inlines create variable
+     * @void
+     */
     public function cleanInlinesCreate()
     {
         $this->_inlinesCreate = [];
     }
 
     /**
-     * @return BaseForm[]
+     * @return ModelForm[]|BaseForm[]
      */
     public function getInlinesDelete()
     {

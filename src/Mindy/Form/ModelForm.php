@@ -19,17 +19,17 @@ use Mindy\Form\Fields\HiddenField;
 use Mindy\Helper\Creator;
 use Mindy\Locale\Translate;
 use Mindy\Orm\Fields\FileField;
+use Mindy\Orm\Manager;
 use Mindy\Orm\Model;
+use Mindy\Orm\QuerySet;
 
 class ModelForm extends BaseForm
 {
     public $ormClass = '\Mindy\Orm\Model';
-
-    protected $instance;
     /**
-     * @var bool
+     * @var \Mindy\Orm\Model
      */
-    private $_saveInlineFailed = false;
+    protected $_instance;
 
     /**
      * Initialize fields
@@ -38,21 +38,25 @@ class ModelForm extends BaseForm
     public function initFields()
     {
         $instance = $this->getInstance();
-        foreach ($instance->getFieldsInit() as $name => $field) {
+
+        $model = $this->getModel();
+        foreach ($model->getFieldsInit() as $name => $field) {
             if ($field->editable === false || is_a($field, Model::$autoField) || in_array($name, $this->exclude)) {
                 continue;
             }
 
-            $modelField = $field->setModel($instance)->getFormField($this);
-            if ($modelField) {
+            $modelField = $field->setModel($model)->getFormField($this);
+            if ($modelField && !isset($this->_fields[$name])) {
                 $this->_fields[$name] = $modelField;
             }
 
-            $value = $instance->{$name};
-            if ($value instanceof FileField) {
-                $value = $value->getUrl();
+            if ($instance) {
+                $value = $instance->{$name};
+                if ($value instanceof FileField) {
+                    $value = $value->getUrl();
+                }
+                $this->_fields[$name]->setValue($value);
             }
-            $this->_fields[$name]->setValue($value);
         }
 
         parent::initFields();
@@ -64,7 +68,7 @@ class ModelForm extends BaseForm
                 'class' => HiddenField::className(),
                 'name' => '_pk',
                 'form' => $this,
-                'value' => $this->getInstance()->pk,
+                'value' => $instance ? $instance->pk : null,
                 'prefix' => $prefix,
                 'html' => [
                     'class' => '_pk'
@@ -84,7 +88,7 @@ class ModelForm extends BaseForm
                 'name' => '_delete',
                 'form' => $this,
                 'label' => Translate::getInstance()->t('form', 'Delete'),
-                'value' => $this->getInstance()->pk,
+                'value' => $instance ? $instance->pk : null,
                 'prefix' => $prefix,
                 'html' => [
                     'class' => '_delete'
@@ -94,14 +98,12 @@ class ModelForm extends BaseForm
     }
 
     /**
+     * @param array $ignore
      * @return bool
      */
     public function isValid()
     {
-        $instance = $this->getInstance();
-
         $this->clearErrors();
-        $instance->clearErrors();
 
         /* @var $field \Mindy\Form\Fields\Field */
         $fields = $this->getFieldsInit();
@@ -109,10 +111,7 @@ class ModelForm extends BaseForm
         foreach ($fields as $name => $field) {
             if (method_exists($this, 'clean' . ucfirst($name))) {
                 $value = call_user_func([$this, 'clean' . ucfirst($name)], $field->getValue());
-                if ($value) {
-                    $this->cleanedData[$name] = $value;
-                    $field->setValue($value);
-                }
+                $field->setValue($value);
             }
 
             if ($field->isValid() === false) {
@@ -124,32 +123,7 @@ class ModelForm extends BaseForm
             $this->cleanedData[$name] = $field->getValue();
         }
 
-        if (!$instance->isValid()) {
-            foreach ($instance->getErrors() as $key => $errors) {
-                // @TODO: duplication errors (email validation, for example)
-                if (!$this->hasErrors($key)) {
-                    foreach ($errors as $error) {
-                        if (array_key_exists($key, $fields)) {
-                            $this->addError($key, $error);
-                            $fields[$key]->addError($error);
-                        }
-                    }
-                }
-            }
-        }
-
-        foreach ($this->getInlinesCreate() as $inline) {
-            $inline->setAttributes([
-                $inline->link => $instance
-            ]);
-            if ($inline->isValid() === false) {
-                if ($this->_saveInlineFailed === false) {
-                    $this->_saveInlineFailed = true;
-                }
-            }
-        }
-
-        return $this->hasErrors() === false && $this->_saveInlineFailed === false;
+        return $this->hasErrors() === false && $this->isValidInlines();
     }
 
     /**
@@ -159,7 +133,12 @@ class ModelForm extends BaseForm
     public function setAttributes(array $data)
     {
         parent::setAttributes($data);
-        $this->getInstance()->setAttributes($data);
+        $instance = $this->getInstance();
+        if ($instance === null) {
+            $instance = $this->getModel();
+            $this->_instance = $instance;
+        }
+        $instance->setAttributes($data);
         return $this;
     }
 
@@ -168,45 +147,25 @@ class ModelForm extends BaseForm
      * @return $this
      * @throws \Exception
      */
-    public function setInstance($model)
+    protected function setInstance(\Mindy\Orm\Model $model)
     {
-        if (is_a($model, $this->ormClass)) {
-            $this->instance = $model;
-            if ($this->getPrefix()) {
-                $this->getField('_pk')->setValue($model->pk);
-            }
-            /* @var $model \Mindy\Orm\Model */
-            foreach ($model->getFieldsInit() as $name => $field) {
-                if (is_a($field, $model::$autoField)) {
-                    continue;
-                }
-
-                if ($this->hasField($name)) {
-                    $value = $model->{$name};
-                    if ($value instanceof FileField) {
-                        $value = $value->getUrl();
-                    }
-                    $this->getField($name)->setValue($value);
-                }
-            }
-            return $this;
-        } else {
-            $this->instance = null;
-            return $this;
-        }
+        $this->_instance = $model;
     }
 
     /**
-     * @return \Mindy\Orm\Model|\Mindy\Orm\TreeModel|\Mindy\Orm\IFormModel
+     * Clear instance variable
+     */
+    public function clearInstance()
+    {
+        $this->_instance = null;
+    }
+
+    /**
+     * @return \Mindy\Orm\Model|\Mindy\Orm\TreeModel|null
      */
     public function getInstance()
     {
-        if ($this->instance === null) {
-            $modelClass = $this->getModel();
-            $this->instance = is_string($modelClass) ? new $modelClass : $modelClass;
-        }
-
-        return $this->instance;
+        return $this->_instance;
     }
 
     public function delete()
@@ -219,19 +178,23 @@ class ModelForm extends BaseForm
         $instance = $this->getInstance();
         $saved = $instance->save();
 
-//        d($this->getInlinesCreate());
-        foreach ($this->getInlinesCreate() as $i => $inline) {
+        $inlineCreate = $this->getInlinesCreate();
+        $inlineSaved = true;
+        foreach ($inlineCreate as $inline) {
             $inline->setAttributes([
                 $inline->link => $instance
             ]);
-            $inline->save();
+
+            if (($inline->isValid() && $inline->save()) === false) {
+                $inlineSaved = false;
+            }
         }
 
         foreach ($this->getInlinesDelete() as $inline) {
             $inline->delete();
         }
 
-        return $saved;
+        return $saved && $inlineSaved;
     }
 
     /**
@@ -269,16 +232,21 @@ class ModelForm extends BaseForm
                 $inlines[$name][] = $createInline;
             }
         }
+
         foreach ($this->getInlinesInit() as $params) {
             $link = key($params);
             $inline = $params[$link];
 
             $name = $inline->getName();
             $qs = $inline->getLinkModels([$link => $instance]);
-            if (count($excludeModels) > 0) {
-                $qs->exclude(['pk__in' => $excludeModels]);
+            if ($qs instanceof QuerySet || $qs instanceof Manager) {
+                if (count($excludeModels) > 0) {
+                    $qs->exclude(['pk__in' => $excludeModels]);
+                }
+                $models = $qs->all();
+            } else {
+                $models = [];
             }
-            $models = $qs ? $qs->all() : [];
             if (count($models) > 0) {
                 if (!isset($inlines[$name])) {
                     $inlines[$name] = [];
@@ -297,7 +265,7 @@ class ModelForm extends BaseForm
             for ($i = 0; $extra > $i; $i++) {
                 $newClean = clone $inline;
                 $newClean->cleanAttributes();
-                $newClean->setInstance(null);
+                $newClean->clearInstance();
                 $inlines[$name][] = $newClean;
             }
         }

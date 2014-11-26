@@ -17,6 +17,7 @@ namespace Mindy\Form\Fields;
 
 use Mindy\Helper\JavaScript;
 use Mindy\Helper\JavaScriptExpression;
+use Mindy\Locale\Translate;
 use Mindy\Orm\Fields\ForeignField;
 use Mindy\Orm\Fields\HasManyField;
 use Mindy\Orm\Fields\ManyToManyField;
@@ -28,6 +29,8 @@ class Select2Field extends DropDownField
     public $pageSize = 10;
 
     public $modelField = 'name';
+
+    public $placeholder = 'Please select value';
 
     public function render()
     {
@@ -47,7 +50,7 @@ class Select2Field extends DropDownField
             'blurOnChange' => true,
             'openOnEnter' => false,
             'multiple' => $multiple,
-            'placeholder' => "Search for a repository",
+            'placeholder' => Translate::getInstance()->t('form', $this->placeholder),
             'minimumInputLength' => 2,
             'ajax' => [
                 'url' => "",
@@ -76,11 +79,13 @@ class Select2Field extends DropDownField
         ];
 
         $data = [];
-        if ($instance = $this->getForm()->getInstance()) {
+        if (($instance = $this->getForm()->getInstance()) !== null) {
             $field = $instance->getField($this->name);
             if ($field instanceof ForeignField) {
                 $item = $field->getManager()->get();
-                $data = ['id' => $item->pk, 'text' => (string)$item];
+                if ($item) {
+                    $data = ['id' => $item->pk, 'text' => (string)$item];
+                }
             } else {
                 foreach ($field->getManager()->all() as $item) {
                     $data[] = ['id' => $item->pk, 'text' => (string)$item];
@@ -93,10 +98,10 @@ class Select2Field extends DropDownField
             "<input type='hidden' id='{$this->getHtmlId()}' name='{$name}' value='' />",
             $hint,
             $errors,
-            '<script type="text/javascript">
-                $("#' . $this->getHtmlId() . '").select2(' . JavaScript::encode($options) . ');
-                $("#' . $this->getHtmlId() . '").select2("data", ' . JavaScript::encode($data) . ');
-            </script>'
+            '<script type="text/javascript">',
+            '$("#' . $this->getHtmlId() . '").select2(' . JavaScript::encode($options) . ');',
+            empty($data) ? '' : '$("#' . $this->getHtmlId() . '").select2("data", ' . JavaScript::encode($data) . ');',
+            '</script>'
         ]);
 
         return $out;

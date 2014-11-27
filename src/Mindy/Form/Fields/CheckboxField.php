@@ -51,17 +51,30 @@ class CheckboxField extends CharField
         if (!empty($this->choices)) {
             $inputs = [];
             $i = 0;
+            $values = $this->value;
+            if (!is_array($values)) {
+                $values = [];
+            }
             foreach ($this->choices as $value => $labelStr) {
                 $label = strtr("<label for='{for}'>{label}</label>", [
                     '{for}' => $this->getHtmlId() . '_' . $i,
                     '{label}' => $labelStr
                 ]);
+
+                $html = $this->getHtmlAttributes();
+                if (in_array($value, $values)) {
+                    if($html) {
+                        $html .= ' ';
+                    }
+                    $html .= 'checked="checked"';
+                }
+
                 $input = strtr($this->template, [
                     '{type}' => $this->type,
                     '{id}' => $this->getHtmlId() . '_' . $i,
                     '{name}' => $this->getHtmlName(),
                     '{value}' => $value,
-                    '{html}' => $this->getHtmlAttributes()
+                    '{html}' => $html
                 ]);
                 $i++;
                 $contained = strtr($this->container, [

@@ -19,9 +19,34 @@ class CheckboxField extends CharField
 {
     public $template = "<input type='{type}' id='{id}' value='{value}' name='{name}'{html}/>";
 
+    /**
+     * Template for container choices
+     * ex: "<span>{input}</span>"
+     * @var string
+     */
+    public $container = '{input}';
+
     public $type = "checkbox";
 
     public function render()
+    {
+        $label = $this->renderLabel();
+        $input = $this->renderInput();
+        $hint = $this->hint ? $this->renderHint() : '';
+        $errors = $this->renderErrors();
+
+        return implode("\n", [
+            "<input type='hidden' value='' name='" . $this->getHtmlName() . "' />",
+            $label, $input, $hint, $errors
+        ]);
+    }
+
+    public function getHtmlName()
+    {
+        return $this->getPrefix() . '[' . $this->name . ']' . ($this->choices ? '[]' : '');
+    }
+
+    public function renderInput()
     {
         if (!empty($this->choices)) {
             $inputs = [];
@@ -34,21 +59,18 @@ class CheckboxField extends CharField
                 $input = strtr($this->template, [
                     '{type}' => $this->type,
                     '{id}' => $this->getHtmlId() . '_' . $i,
-                    '{name}' => $this->getHtmlName() . '[]',
+                    '{name}' => $this->getHtmlName(),
                     '{value}' => $value,
                     '{html}' => $this->getHtmlAttributes()
                 ]);
                 $i++;
-                $inputs[] = implode("\n", [$input, $label]);
+                $contained = strtr($this->container, [
+                    '{input}' => implode("\n", [$input, $label])
+                ]);
+                $inputs[] = $contained;
             }
-            return implode("\n", [
-                "<input type='hidden' value='' name='" . $this->getHtmlName() . '[]' . "' />",
-                implode("\n", $inputs),
-                $this->hint ? $this->renderHint() : '',
-                $this->renderErrors(),
-            ]);
-        } else {
-            $label = $this->renderLabel();
+            return implode("\n", $inputs);
+        }else{
             if($this->value) {
                 $this->html['checked'] = 'checked';
             }
@@ -60,12 +82,7 @@ class CheckboxField extends CharField
                 '{html}' => $this->getHtmlAttributes()
             ]);
 
-            $hint = $this->hint ? $this->renderHint() : '';
-            $errors = $this->renderErrors();
-            return implode("\n", [
-                "<input type='hidden' value='' name='" . $this->getHtmlName() . "' />",
-                $input, $label, $hint, $errors
-            ]);
+            return $input;
         }
     }
 }

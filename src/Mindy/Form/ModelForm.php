@@ -254,9 +254,9 @@ class ModelForm extends BaseForm
 
                 foreach ($models as $linkedModel) {
                     $new = clone $inline;
+                    $new->addExclude($link);
                     $new->cleanAttributes();
                     $new->setInstance($linkedModel);
-                    $new->exclude = array_merge($inline->exclude, [$link]);
                     $inlines[$name][] = $new;
                 }
             }
@@ -264,11 +264,13 @@ class ModelForm extends BaseForm
             /** @var $inline BaseForm */
             for ($i = 0; $extra > $i; $i++) {
                 $newClean = clone $inline;
+                $newClean->addExclude($link);
                 $newClean->cleanAttributes();
                 $newClean->clearInstance();
                 $inlines[$name][] = $newClean;
             }
         }
+
         return $inlines;
     }
 

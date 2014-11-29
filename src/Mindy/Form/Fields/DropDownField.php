@@ -103,6 +103,8 @@ class DropDownField extends Field
 
         if ($this->form instanceof ModelForm && $this->form->getModel()->hasField($this->name)) {
             $model = $this->form->getModel();
+            $instance = $this->form->getInstance();
+            $modelOrInstance = $instance ? $instance : $model;
             $field = $model->getField($this->name);
 
             if (is_a($field, $model::$manyToManyField)) {
@@ -148,7 +150,7 @@ class DropDownField extends Field
                 if (!$this->required) {
                     $data[''] = $this->empty;
                 }
-                $related = $model->{$this->name};
+                $related = $modelOrInstance->{$this->name};
                 if ($related) {
                     $selected[] = $related->pk;
                 }

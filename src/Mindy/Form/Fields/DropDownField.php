@@ -91,6 +91,8 @@ class DropDownField extends Field
                     foreach ($selectedTmp as $model) {
                         $selected[] = $model->pk;
                     }
+                } else {
+                    $selected[] = $model->{$this->name};
                 }
             }
             if($this->multiple) {
@@ -110,8 +112,8 @@ class DropDownField extends Field
                 $models = $modelClass::objects()->all();
 
                 $selectedTmp = $field->getManager()->all();
-                foreach ($selectedTmp as $model) {
-                    $selected[] = $model->pk;
+                foreach ($selectedTmp as $item) {
+                    $selected[] = $item->pk;
                 }
 
                 $this->html['multiple'] = 'multiple';
@@ -119,8 +121,8 @@ class DropDownField extends Field
                     $data[''] = '';
                 }
 
-                foreach ($models as $model) {
-                    $data[$model->pk] = (string)$model;
+                foreach ($models as $item) {
+                    $data[$item->pk] = (string)$item;
                 }
             } elseif (is_a($field, $model::$hasManyField)) {
                 $this->multiple = true;
@@ -133,8 +135,8 @@ class DropDownField extends Field
                     $data[''] = '';
                 }
 
-                foreach ($models as $model) {
-                    $data[$model->pk] = (string)$model;
+                foreach ($models as $item) {
+                    $data[$item->pk] = (string)$item;
                 }
             } elseif (is_a($field, $model::$foreignField)) {
                 $modelClass = $field->modelClass;
@@ -150,8 +152,8 @@ class DropDownField extends Field
                 if ($related) {
                     $selected[] = $related->pk;
                 }
-                foreach ($qs->all() as $model) {
-                    $data[$model->pk] = (string)$model;
+                foreach ($qs->all() as $item) {
+                    $data[$item->pk] = (string)$item;
                 }
             } else {
                 $data = parent::getValue();

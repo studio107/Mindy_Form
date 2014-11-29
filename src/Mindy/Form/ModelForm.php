@@ -85,6 +85,14 @@ class ModelForm extends BaseForm
                 'form' => $this,
                 'prefix' => $prefix
             ], $config));
+
+            if ($instance) {
+                $value = $instance->{$name};
+                if ($value instanceof FileField) {
+                    $value = $value->getUrl();
+                }
+                $this->_fields[$name]->setValue($value);
+            }
         }
 
         if ($prefix) {

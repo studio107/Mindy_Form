@@ -16,10 +16,4 @@ namespace Mindy\Form\Fields;
 
 class DateTimeField extends CharField
 {
-    public function render()
-    {
-        $id = $this->getHtmlId();
-        $js = "<script type='text/javascript'>$('#$id').pickmeup({format  : 'Y-m-d H:M'});</script>";
-        return parent::render() . $js;
-    }
 }

@@ -14,7 +14,6 @@
 
 namespace Mindy\Form\Fields;
 
-
 class TextAreaField extends Field
 {
     public $template = "<textarea id='{id}' name='{name}'{html}>{value}</textarea>";

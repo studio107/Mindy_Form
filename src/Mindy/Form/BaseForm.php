@@ -243,20 +243,15 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
                 continue;
             }
 
-            if (is_object($config)) {
-                $this->_fields[$name] = $config;
-            } else {
-                if (!is_array($config)) {
-                    $config = ['class' => $config];
-                }
-
-                $field = Creator::createObject(array_merge([
-                    'name' => $name,
-                    'form' => $this,
-                    'prefix' => $prefix
-                ], $config));
-                $this->_fields[$name] = $field;
+            if (!is_array($config)) {
+                $config = ['class' => $config];
             }
+
+            $this->_fields[$name] = Creator::createObject(array_merge([
+                'name' => $name,
+                'form' => $this,
+                'prefix' => $prefix
+            ], $config));
         }
     }
 

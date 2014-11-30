@@ -289,6 +289,7 @@ class ModelForm extends BaseForm
                     $new->addExclude($link);
                     $new->cleanAttributes();
                     $new->setInstance($linkedModel);
+                    $new->populateFromInstance($linkedModel);
                     $inlines[$name][] = $new;
                 }
             }
@@ -304,6 +305,23 @@ class ModelForm extends BaseForm
         }
 
         return $inlines;
+    }
+
+    protected function populateFromInstance(\Mindy\Orm\Model $model)
+    {
+        foreach ($this->getFieldsInit() as $name => $field) {
+            if ($model->hasField($name)) {
+                $value = $model->{$name};
+                if ($value instanceof FileField) {
+                    $value = $value->getUrl();
+                }
+                $this->_fields[$name]->setValue($value);
+            }
+        }
+
+        if ($this->getPrefix()) {
+            $this->getField('_pk')->setValue($model->pk);
+        }
     }
 
     /**

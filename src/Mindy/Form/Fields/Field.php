@@ -291,6 +291,11 @@ abstract class Field implements IValidateField
 
     public function getHtmlId()
     {
-        return rtrim(str_replace(['][', '[]', '[', ']'], '_', $this->getPrefix()), '_') . '_' . $this->getName();
+        return $this->getHtmlPrefix() . $this->getName();
+    }
+
+    public function getHtmlPrefix()
+    {
+        return rtrim(str_replace(['][', '[]', '[', ']'], '_', $this->getPrefix()), '_') . '_';
     }
 }

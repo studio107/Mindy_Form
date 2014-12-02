@@ -71,6 +71,8 @@ class DropDownField extends Field
             }
             if ($this->form instanceof ModelForm) {
                 $model = $this->form->getInstance();
+                $model = $model ? $model : $this->form->getModel();
+
                 $field = $model->getField($this->name);
                 if ($field->null && !$this->multiple) {
                     $data = ['' => ''] + $data;

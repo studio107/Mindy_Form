@@ -53,7 +53,7 @@ class ModelForm extends BaseForm
                     'name' => $name,
                     'form' => $this,
                     'prefix' => $prefix
-                ], $fields[$name]));
+                ], is_array($fields[$name]) ? $fields[$name] : ['class' => $fields[$name]]));
             } else {
                 $modelField = $field->setModel($instance ? $instance : $model)->getFormField($this);
                 if ($modelField) {
@@ -84,7 +84,7 @@ class ModelForm extends BaseForm
                 'name' => $name,
                 'form' => $this,
                 'prefix' => $prefix
-            ], $config));
+            ], is_array($config) ? $config : ['class' => $config]));
 
             if ($instance) {
                 $value = $instance->{$name};
@@ -230,6 +230,7 @@ class ModelForm extends BaseForm
     }
 
     /**
+     * @throws \Exception
      * @return \Mindy\Orm\Model
      */
     public function getModel()

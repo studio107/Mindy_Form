@@ -104,29 +104,20 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
     public function init()
     {
         $this->initFields();
-        $this->initEvents();
         $this->initInlines();
         $this->setRenderFields(array_keys($this->getFieldsInit()));
     }
 
-    public function initEvents()
-    {
-        $signal = $this->getEventManager();
-        $signal->handler($this, 'beforeValidate', [$this, 'beforeValidate']);
-        $signal->handler($this, 'afterValidate', [$this, 'afterValidate']);
-    }
-
     protected function getEventManager()
     {
-        static $eventManager;
-        if ($eventManager === null) {
+        if ($this->_eventManager === null) {
             if (class_exists('\Mindy\Base\Mindy')) {
-                $eventManager = \Mindy\Base\Mindy::app()->getComponent('signal');
+                $this->_eventManager = \Mindy\Base\Mindy::app()->getComponent('signal');
             } else {
-                $eventManager = new \Mindy\Event\EventManager();
+                $this->_eventManager = new \Mindy\Event\EventManager();
             }
         }
-        return $eventManager;
+        return $this->_eventManager;
     }
 
     /**

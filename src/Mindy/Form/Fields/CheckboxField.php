@@ -37,7 +37,7 @@ class CheckboxField extends CharField
 
         return implode("\n", [
             "<input type='hidden' value='' name='" . $this->getHtmlName() . "' />",
-            $label, $input, $hint, $errors
+            $input, $label, $hint, $errors
         ]);
     }
 

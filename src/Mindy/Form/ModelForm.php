@@ -283,7 +283,12 @@ class ModelForm extends BaseForm
             $inline = $params[$link];
 
             $name = $inline->getName();
-            $qs = $inline->getLinkModels([$link => $instance]);
+            if ($instance->getIsNewRecord() === false) {
+                $qs = $inline->getLinkModels([$link => $instance]);
+            } else {
+                $qs = null;
+            }
+
             if ($qs instanceof QuerySet || $qs instanceof Manager) {
                 if (count($excludeModels) > 0) {
                     $qs->exclude(['pk__in' => $excludeModels]);

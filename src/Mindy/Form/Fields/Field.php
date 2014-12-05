@@ -31,49 +31,69 @@ abstract class Field implements IValidateField
      * @var bool Технические аттрибуты для inline моделей
      */
     public $hidden = false;
-
     /**
      * @var bool Технические аттрибуты для inline моделей
      */
     public $delete = false;
-
+    /**
+     * @var mixed
+     */
     public $value;
-
+    /**
+     * @var bool
+     */
     public $required = false;
-
+    /**
+     * @var TODO
+     */
     public $widget;
-
+    /**
+     * @var string
+     */
     public $inputType;
-
+    /**
+     * @var string
+     */
     public $template = "<input type='{type}' id='{id}' name='{name}'{html}/>";
-
+    /**
+     * @var string
+     */
     public $hint;
-
+    /**
+     * @var string
+     */
     public $type = 'text';
-
+    /**
+     * @var string
+     */
     public $html = '';
-
+    /**
+     * @var array
+     */
     public $choices = [];
     /**
      * @var string html class for render hint
      */
     public $hintClass = 'form-hint-text';
-
+    /**
+     * @var
+     */
     public $label;
-
+    /**
+     * @var string
+     */
+    public $errorClass = 'error';
     /**
      * @var
      */
     private $_name;
-
     /**
      * @var BaseForm
      */
     private $_form;
-
-    public $errorClass = 'error';
-
-
+    /**
+     * @var string
+     */
     private $_validatorClass = '\Mindy\Form\Validator\Validator';
     /**
      * @var string

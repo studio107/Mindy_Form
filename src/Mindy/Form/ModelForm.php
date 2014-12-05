@@ -30,6 +30,10 @@ class ModelForm extends BaseForm
      * @var \Mindy\Orm\Model
      */
     protected $_instance;
+    /**
+     * @var \Mindy\Orm\Model
+     */
+    private $_model;
 
     /**
      * Initialize fields
@@ -235,7 +239,15 @@ class ModelForm extends BaseForm
      */
     public function getModel()
     {
-        throw new Exception("Not implemented");
+        if ($this->_model === null) {
+            throw new Exception("Not implemented");
+        }
+        return $this->_model;
+    }
+
+    public function setModel(Model $model)
+    {
+        $this->_model = $model;
     }
 
     /**

@@ -51,13 +51,18 @@ class MapField extends CharField
                     controls: ['zoomControl', 'searchControl']
                 });
 
+                var center = yandexMap.getCenter();
+
                 mapCollection.add(new ymaps.GeoObject({
                     geometry: {
                         type: 'Point',
-                        coordinates: yandexMap.getCenter()
+                        coordinates: center
                     }
                 }));
                 yandexMap.geoObjects.add(mapCollection);
+
+                $('#" . $htmlPrefix . $this->lat . "').val(center[0].toPrecision(6));
+                $('#" . $htmlPrefix . $this->lng . "').val(center[1].toPrecision(6));
 
                 yandexMap.events.add('click', function (e) {
                     var coords = e.get('coords');

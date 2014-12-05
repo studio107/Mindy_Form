@@ -16,17 +16,48 @@ namespace Mindy\Form\Fields;
 
 use Mindy\Locale\Translate;
 use Mindy\Orm\Fields\FileField as ModelFileField;
+use Mindy\Validation\FileValidator;
 
 class FileField extends Field
 {
+    /**
+     * @var string
+     */
     public $type = 'file';
+    /**
+     * @var bool
+     */
     public $cleanValue = true;
-
+    /**
+     * @var string
+     */
     public $currentTemplate = '<p class="current-file-container">{label}:<br/><a class="current-file" href="{current}" target="_blank">{current}</a></p>';
+    /**
+     * @var string
+     */
     public $cleanTemplate = '<label for="{id}-clean" class="clean-label"><input type="checkbox" id="{id}-clean" name="{name}" value="{value}"> {label}</label>';
+    /**
+     * @var string
+     */
     public $template = "<input type='{type}' id='{id}' name='{name}'{html}/>";
-
+    /**
+     * @var null
+     */
     public $oldValue = null;
+    /**
+     * List of allowed file types
+     * @var array|null
+     */
+    public $types = null;
+
+    public function __construct(array $options = [])
+    {
+        parent::__construct($options);
+
+        $this->validators = array_merge([
+            new FileValidator($this->required, $this->types)
+        ], $this->validators);
+    }
 
     public function render()
     {

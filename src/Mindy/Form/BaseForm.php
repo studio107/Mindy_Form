@@ -155,8 +155,24 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
     /**
      * @param $owner BaseForm
      */
+    public static function beforeValidateExternal($owner)
+    {
+        $owner->beforeValidate($owner);
+    }
+
+    /**
+     * @param $owner BaseForm
+     */
     public function beforeValidate($owner)
     {
+    }
+
+    /**
+     * @param $owner BaseForm
+     */
+    public static function afterValidateExternal($owner)
+    {
+        $owner->afterValidate($owner);
     }
 
     /**

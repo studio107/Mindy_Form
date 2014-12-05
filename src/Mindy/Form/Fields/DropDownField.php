@@ -121,9 +121,6 @@ class DropDownField extends Field
                 }
 
                 $this->html['multiple'] = 'multiple';
-                if (count($models) > 1) {
-                    $data[''] = '';
-                }
 
                 foreach ($models as $item) {
                     $data[$item->pk] = (string)$item;
@@ -135,9 +132,6 @@ class DropDownField extends Field
                 $models = $modelClass::objects()->all();
 
                 $this->html['multiple'] = 'multiple';
-                if (count($models) > 1) {
-                    $data[''] = '';
-                }
 
                 foreach ($models as $item) {
                     $data[$item->pk] = (string)$item;

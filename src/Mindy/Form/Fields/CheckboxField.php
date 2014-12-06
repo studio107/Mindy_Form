@@ -60,7 +60,19 @@ class CheckboxField extends CharField
             $i = 0;
             $values = $this->value;
             if (!is_array($values)) {
-                $values = [];
+                if (is_string($values)) {
+                    /*
+                     * Try decode json
+                     */
+                    $data = json_decode($values);
+                    if (json_last_error() == JSON_ERROR_NONE && is_array($data)) {
+                        $values = $data;
+                    } else {
+                        $values = [];
+                    }
+                } else {
+                    $values = [];
+                }
             }
             foreach ($this->choices as $value => $labelStr) {
                 $label = strtr("<label for='{for}'>{label}</label>", [

@@ -35,10 +35,17 @@ class CheckboxField extends CharField
         $hint = $this->hint ? $this->renderHint() : '';
         $errors = $this->renderErrors();
 
-        return implode("\n", [
-            "<input type='hidden' value='' name='" . $this->getHtmlName() . "' />",
-            $input, $label, $hint, $errors
-        ]);
+        if (empty($this->choices)) {
+            return implode("\n", [
+                "<input type='hidden' value='' name='" . $this->getHtmlName() . "' />",
+                $input, $label, $hint, $errors
+            ]);
+        } else {
+            return implode("\n", [
+                "<input type='hidden' value='' name='" . $this->getHtmlName() . "' />",
+                $label, $input, $hint, $errors
+            ]);
+        }
     }
 
     public function getHtmlName()

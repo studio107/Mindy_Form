@@ -79,7 +79,7 @@ class MapField extends CharField
                     }));
                     yandexMap.geoObjects.add(mapCollection);
                 });
-            };
+            }
 
             ymaps.ready(yandexMapInit);
         </script>

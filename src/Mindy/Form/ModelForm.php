@@ -90,7 +90,7 @@ class ModelForm extends BaseForm
                 'prefix' => $prefix
             ], is_array($config) ? $config : ['class' => $config]));
 
-            if ($instance) {
+            if ($instance && $instance->hasField($name)) {
                 $value = $instance->{$name};
                 if ($value instanceof FileField) {
                     $value = $value->getUrl();

@@ -56,7 +56,8 @@ class ModelForm extends BaseForm
                 $this->_fields[$name] = Creator::createObject(array_merge([
                     'name' => $name,
                     'form' => $this,
-                    'prefix' => $prefix
+                    'prefix' => $prefix,
+                    'choices' => $field->choices
                 ], is_array($fields[$name]) ? $fields[$name] : ['class' => $fields[$name]]));
             } else {
                 $modelField = $field->setModel($instance ? $instance : $model)->getFormField($this);

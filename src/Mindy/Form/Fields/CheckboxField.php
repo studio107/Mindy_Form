@@ -42,7 +42,7 @@ class CheckboxField extends CharField
             ]);
         } else {
             return implode("\n", [
-                "<input type='hidden' value='' name='" . $this->getHtmlName() . "' />",
+                "<input type='hidden' value='' name='" . parent::getHtmlName() . "' />",
                 $label, $input, $hint, $errors
             ]);
         }
@@ -66,7 +66,7 @@ class CheckboxField extends CharField
                 ]);
 
                 $html = $this->getHtmlAttributes();
-                if (in_array($value, $values)) {
+                if (is_array($values) && in_array($value, $values)) {
                     if ($html) {
                         $html .= ' ';
                     }

@@ -36,9 +36,9 @@ class CheckboxField extends CharField
         $errors = $this->renderErrors();
 
         if (empty($this->choices)) {
-            return $errors . implode("\n", [
+            return implode("\n", [
                 "<input type='hidden' value='' name='" . $this->getHtmlName() . "' />",
-                $input, $label, $hint
+                $input, $label, $hint, $errors
             ]);
         } else {
             return implode("\n", [

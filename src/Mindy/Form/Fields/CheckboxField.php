@@ -59,6 +59,15 @@ class CheckboxField extends CharField
             $inputs = [];
             $i = 0;
             $values = $this->value;
+
+            if (!is_array($values)) {
+                if ($values) {
+                    $values = [$values];
+                } else {
+                    $values = [];
+                }
+            }
+
             foreach ($this->choices as $value => $labelStr) {
                 $label = strtr("<label for='{for}'>{label}</label>", [
                     '{for}' => $this->getHtmlId() . '_' . $i,

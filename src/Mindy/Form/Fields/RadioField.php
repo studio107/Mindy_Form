@@ -42,7 +42,7 @@ class RadioField extends CharField
                 $hint = $this->hint ? $this->renderHint() : '';
                 $inputs[] = implode("\n", [$input, $label, $hint]);
             }
-            return $this->renderErrors() . implode("\n", $inputs);
+            return implode("\n", $inputs) . $this->renderErrors();
         } else {
             if ($this->value) {
                 $this->html['checked'] = 'checked';

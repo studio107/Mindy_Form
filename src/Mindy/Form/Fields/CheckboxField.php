@@ -1,9 +1,9 @@
 <?php
 /**
- * 
+ *
  *
  * All rights reserved.
- * 
+ *
  * @author Falaleev Maxim
  * @email max@studio107.ru
  * @version 1.0
@@ -36,9 +36,9 @@ class CheckboxField extends CharField
         $errors = $this->renderErrors();
 
         if (empty($this->choices)) {
-            return implode("\n", [
+            return $errors . implode("\n", [
                 "<input type='hidden' value='' name='" . $this->getHtmlName() . "' />",
-                $input, $label, $hint, $errors
+                $input, $label, $hint
             ]);
         } else {
             return implode("\n", [
@@ -82,7 +82,7 @@ class CheckboxField extends CharField
 
                 $html = $this->getHtmlAttributes();
                 if (in_array($value, $values)) {
-                    if($html) {
+                    if ($html) {
                         $html .= ' ';
                     }
                     $html .= 'checked="checked"';
@@ -102,8 +102,8 @@ class CheckboxField extends CharField
                 $inputs[] = $contained;
             }
             return implode("\n", $inputs);
-        }else{
-            if($this->value) {
+        } else {
+            if ($this->value) {
                 $this->html['checked'] = 'checked';
             }
             $input = strtr($this->template, [

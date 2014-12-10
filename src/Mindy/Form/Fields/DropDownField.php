@@ -16,6 +16,7 @@ namespace Mindy\Form\Fields;
 
 
 use Closure;
+use Mindy\Form\Form;
 use Mindy\Form\ModelForm;
 use Mindy\Orm\Model;
 
@@ -107,7 +108,16 @@ class DropDownField extends Field
                 } else {
                     $selected[] = $model->{$this->name};
                 }
+            } elseif ($this->form instanceof Form) {
+                if (!is_array($this->value)) {
+                    if ($this->value) {
+                        $selected = [$this->value];
+                    }
+                } else {
+                    $selected = $this->value;
+                };
             }
+
             if($this->multiple) {
                 $this->html['multiple'] = 'multiple';
             }

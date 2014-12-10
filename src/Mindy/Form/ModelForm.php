@@ -30,6 +30,10 @@ class ModelForm extends BaseForm
      * @var \Mindy\Orm\Model
      */
     protected $_instance;
+    /**
+     * @var \Mindy\Orm\Model
+     */
+    private $_model;
 
     /**
      * Initialize fields
@@ -52,8 +56,9 @@ class ModelForm extends BaseForm
                 $this->_fields[$name] = Creator::createObject(array_merge([
                     'name' => $name,
                     'form' => $this,
-                    'prefix' => $prefix
-                ], $fields[$name]));
+                    'prefix' => $prefix,
+                    'choices' => $field->choices
+                ], is_array($fields[$name]) ? $fields[$name] : ['class' => $fields[$name]]));
             } else {
                 $modelField = $field->setModel($instance ? $instance : $model)->getFormField($this);
                 if ($modelField) {
@@ -84,9 +89,9 @@ class ModelForm extends BaseForm
                 'name' => $name,
                 'form' => $this,
                 'prefix' => $prefix
-            ], $config));
+            ], is_array($config) ? $config : ['class' => $config]));
 
-            if ($instance) {
+            if ($instance && $instance->hasField($name)) {
                 $value = $instance->{$name};
                 if ($value instanceof FileField) {
                     $value = $value->getUrl();
@@ -230,11 +235,20 @@ class ModelForm extends BaseForm
     }
 
     /**
+     * @throws \Exception
      * @return \Mindy\Orm\Model
      */
     public function getModel()
     {
-        throw new Exception("Not implemented");
+        if ($this->_model === null) {
+            throw new Exception("Not implemented");
+        }
+        return $this->_model;
+    }
+
+    public function setModel(Model $model)
+    {
+        $this->_model = $model;
     }
 
     /**
@@ -270,7 +284,12 @@ class ModelForm extends BaseForm
             $inline = $params[$link];
 
             $name = $inline->getName();
-            $qs = $inline->getLinkModels([$link => $instance]);
+            if ($instance->getIsNewRecord() === false) {
+                $qs = $inline->getLinkModels([$link => $instance]);
+            } else {
+                $qs = null;
+            }
+
             if ($qs instanceof QuerySet || $qs instanceof Manager) {
                 if (count($excludeModels) > 0) {
                     $qs->exclude(['pk__in' => $excludeModels]);

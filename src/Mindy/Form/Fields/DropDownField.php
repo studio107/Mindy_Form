@@ -82,6 +82,8 @@ class DropDownField extends Field
             }
             if ($this->form instanceof ModelForm) {
                 $model = $this->form->getInstance();
+                $model = $model ? $model : $this->form->getModel();
+
                 $field = $model->getField($this->name);
                 if ($field->null && !$this->multiple) {
                     $data = ['' => ''] + $data;
@@ -130,9 +132,6 @@ class DropDownField extends Field
                 }
 
                 $this->html['multiple'] = 'multiple';
-                if (count($models) > 1) {
-                    $data[''] = '';
-                }
 
                 foreach ($models as $item) {
                     $data[$item->pk] = (string)$item;
@@ -144,9 +143,6 @@ class DropDownField extends Field
                 $models = $modelClass::objects()->all();
 
                 $this->html['multiple'] = 'multiple';
-                if (count($models) > 1) {
-                    $data[''] = '';
-                }
 
                 foreach ($models as $item) {
                     $data[$item->pk] = (string)$item;

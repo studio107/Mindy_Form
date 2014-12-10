@@ -1,9 +1,9 @@
 <?php
 /**
- * 
+ *
  *
  * All rights reserved.
- * 
+ *
  * @author Falaleev Maxim
  * @email max@studio107.ru
  * @version 1.0
@@ -35,10 +35,17 @@ class CheckboxField extends CharField
         $hint = $this->hint ? $this->renderHint() : '';
         $errors = $this->renderErrors();
 
-        return implode("\n", [
-            "<input type='hidden' value='' name='" . $this->getHtmlName() . "' />",
-            $label, $input, $hint, $errors
-        ]);
+        if (empty($this->choices)) {
+            return implode("\n", [
+                "<input type='hidden' value='' name='" . $this->getHtmlName() . "' />",
+                $input, $label, $hint, $errors
+            ]);
+        } else {
+            return implode("\n", [
+                "<input type='hidden' value='' name='" . parent::getHtmlName() . "' />",
+                $label, $input, $hint, $errors
+            ]);
+        }
     }
 
     public function getHtmlName()
@@ -52,9 +59,15 @@ class CheckboxField extends CharField
             $inputs = [];
             $i = 0;
             $values = $this->value;
+
             if (!is_array($values)) {
-                $values = [];
+                if ($values) {
+                    $values = [$values];
+                } else {
+                    $values = [];
+                }
             }
+
             foreach ($this->choices as $value => $labelStr) {
                 $label = strtr("<label for='{for}'>{label}</label>", [
                     '{for}' => $this->getHtmlId() . '_' . $i,
@@ -62,8 +75,8 @@ class CheckboxField extends CharField
                 ]);
 
                 $html = $this->getHtmlAttributes();
-                if (in_array($value, $values)) {
-                    if($html) {
+                if (is_array($values) && in_array($value, $values)) {
+                    if ($html) {
                         $html .= ' ';
                     }
                     $html .= 'checked="checked"';
@@ -83,8 +96,8 @@ class CheckboxField extends CharField
                 $inputs[] = $contained;
             }
             return implode("\n", $inputs);
-        }else{
-            if($this->value) {
+        } else {
+            if ($this->value) {
                 $this->html['checked'] = 'checked';
             }
             $input = strtr($this->template, [

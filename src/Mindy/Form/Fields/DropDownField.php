@@ -21,28 +21,28 @@ use Mindy\Orm\Model;
 
 class DropDownField extends Field
 {
+    /**
+     * @var array
+     */
     public $choices = [];
-
     /**
      * Span tag needed because: http://stackoverflow.com/questions/23920990/firefox-30-is-not-hiding-select-box-arrows-anymore
      * @var string
      */
-    public $template = "<span class='select-holder'><select id='{id}' name='{name}' {html}>{value}</select></span>";
-
+    public $template = "<span class='select-holder'><select id='{id}' name='{name}' {html}>{input}</select></span>";
+    /**
+     * @var bool
+     */
     public $multiple = false;
-
+    /**
+     * @var string
+     */
     public $empty = '';
 
     public function render()
     {
         $label = $this->renderLabel();
-        $input = strtr($this->template, [
-            '{type}' => $this->type,
-            '{id}' => $this->getHtmlId(),
-            '{value}' => $this->getValue(),
-            '{name}' => $this->multiple ? $this->getHtmlName() . '[]' : $this->getHtmlName(),
-            '{html}' => $this->getHtmlAttributes()
-        ]);
+        $input = $this->renderInput();
 
         $hint = $this->hint ? $this->renderHint() : '';
         $errors = $this->renderErrors();
@@ -51,7 +51,18 @@ class DropDownField extends Field
         return implode("\n", ["<input type='hidden' value='' name='{$name}' />", $label, $input, $hint, $errors]);
     }
 
-    public function getValue()
+    public function renderInput()
+    {
+        return strtr($this->template, [
+            '{type}' => $this->type,
+            '{id}' => $this->getHtmlId(),
+            '{input}' => $this->getInputHtml(),
+            '{name}' => $this->multiple ? $this->getHtmlName() . '[]' : $this->getHtmlName(),
+            '{html}' => $this->getHtmlAttributes()
+        ]);
+    }
+
+    protected function getInputHtml()
     {
         $out = '';
         $data = [];

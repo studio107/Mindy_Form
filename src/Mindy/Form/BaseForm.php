@@ -54,7 +54,11 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
     /**
      * @var array
      */
-    private $_exclude = [];
+    public $exclude = [];
+    /**
+     * @var array
+     */
+    private $_extraExclude = [];
     /**
      * @var string
      */
@@ -121,11 +125,21 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
     }
 
     /**
+     * @param array $value
      * @return array
      */
     public function setExclude(array $value)
     {
-        $this->_exclude = $value;
+        $this->exclude = $value;
+    }
+
+    /**
+     * @param array $value
+     * @return array
+     */
+    public function setExtraExclude(array $value)
+    {
+        $this->_extraExclude = $value;
     }
 
     /**
@@ -133,10 +147,11 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
      */
     public function getExclude()
     {
-        return $this->_exclude;
+        return array_merge($this->_extraExclude, $this->exclude);
     }
 
     /**
+     * @param $prefix
      * @return array
      */
     public function setPrefix($prefix)
@@ -230,7 +245,7 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
         $prefix = $this->getPrefix();
         $fields = $this->getFields();
         foreach ($fields as $name => $config) {
-            if (in_array($name, $this->exclude)) {
+            if (in_array($name, $this->getExclude())) {
                 continue;
             }
 
@@ -354,7 +369,7 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
         $this->_renderFields = [];
         $initFields = $this->getFieldsInit();
         foreach ($fields as $name) {
-            if (in_array($name, $this->exclude)) {
+            if (in_array($name, $this->getExclude())) {
                 continue;
             }
             if (array_key_exists($name, $initFields)) {
@@ -603,11 +618,10 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
             $inline = Creator::createObject([
                 'class' => $className,
                 'link' => $link,
-                'prefix' => $this->classNameShort()
+                'prefix' => $this->classNameShort(),
+                'extraExclude' => [$link]
             ]);
-            if (!in_array($link, $inline->exclude)) {
-                $inline->addExclude($link);
-            }
+
             $this->_inlines[][$link] = $inline;
             $this->_inlineClasses[$className::classNameShort()] = $className;
         }
@@ -618,7 +632,7 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
      */
     public function addExclude($name)
     {
-        $this->_exclude[] = $name;
+        $this->exclude[] = $name;
     }
 
     /**

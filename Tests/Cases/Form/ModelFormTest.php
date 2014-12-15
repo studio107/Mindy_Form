@@ -108,6 +108,8 @@ class GameForm extends TestModelForm
 
 class PatchForm extends TestModelForm
 {
+    public $exclude = ['game'];
+
     public function getModel()
     {
         return new Patch;

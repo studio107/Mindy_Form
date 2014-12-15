@@ -262,6 +262,8 @@ class ModelForm extends BaseForm
         }
 
         $instance = $this->getInstance();
+        $instanceOrModel = $instance ? $instance : $this->getModel();
+
         $inlines = [];
         $excludeModels = [];
         if ($this->_saveInlineFailed) {
@@ -284,8 +286,8 @@ class ModelForm extends BaseForm
             $inline = $params[$link];
 
             $name = $inline->getName();
-            if ($instance->getIsNewRecord() === false) {
-                $qs = $inline->getLinkModels([$link => $instance]);
+            if ($instanceOrModel->getIsNewRecord() === false) {
+                $qs = $inline->getLinkModels([$link => $instanceOrModel]);
             } else {
                 $qs = null;
             }

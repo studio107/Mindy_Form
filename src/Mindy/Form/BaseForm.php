@@ -245,7 +245,7 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
         $prefix = $this->getPrefix();
         $fields = $this->getFields();
         foreach ($fields as $name => $config) {
-            if (in_array($name, $this->exclude)) {
+            if (in_array($name, $this->getExclude())) {
                 continue;
             }
 
@@ -369,7 +369,7 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
         $this->_renderFields = [];
         $initFields = $this->getFieldsInit();
         foreach ($fields as $name) {
-            if (in_array($name, $this->exclude)) {
+            if (in_array($name, $this->getExclude())) {
                 continue;
             }
             if (array_key_exists($name, $initFields)) {

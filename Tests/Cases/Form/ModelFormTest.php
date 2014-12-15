@@ -156,7 +156,7 @@ class ModelFormTest extends TestCase
         $gameForm = new GameForm();
         $this->assertEquals(1, count($gameForm->getFieldsInit()));
         $patchForm = new PatchForm();
-        $this->assertEquals(2, count($patchForm->getFieldsInit()));
+        $this->assertEquals(3, count($patchForm->getFieldsInit()));
     }
 
     public function testModelForm()

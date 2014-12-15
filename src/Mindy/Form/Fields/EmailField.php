@@ -21,6 +21,6 @@ class EmailField extends CharField
     public function init()
     {
         parent::init();
-        $this->validators[] = new EmailValidator();
+        $this->validators[] = new EmailValidator($this->required);
     }
 }

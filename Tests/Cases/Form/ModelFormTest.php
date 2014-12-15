@@ -225,6 +225,7 @@ class ModelFormTest extends TestCase
         $form->isValid();
         // $this->assertTrue($form->isValid());
         $this->assertEquals([], $form->getErrors());
+        var_dump($form->getErrors());
         $this->assertEquals([], $form->getErrors());
         $this->assertTrue($form->save());
 
@@ -258,6 +259,7 @@ class ModelFormTest extends TestCase
 
         $patchForm = $createInlines[0];
         $valid = $patchForm->isValid();
+        var_dump($patchForm->getErrors());
         $this->assertEquals([], $patchForm->getErrors());
         $this->assertTrue($valid);
 

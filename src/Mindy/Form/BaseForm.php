@@ -369,7 +369,7 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
         $this->_renderFields = [];
         $initFields = $this->getFieldsInit();
         foreach ($fields as $name) {
-            if (in_array($name, $this->getExclude())) {
+            if (in_array($name, $this->exclude)) {
                 continue;
             }
             if (array_key_exists($name, $initFields)) {
@@ -628,6 +628,7 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
     }
 
     /**
+     * @DEPRECATED
      * @param $name
      */
     public function addExclude($name)

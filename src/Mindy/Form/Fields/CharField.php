@@ -1,9 +1,9 @@
 <?php
 /**
- * 
+ *
  *
  * All rights reserved.
- * 
+ *
  * @author Falaleev Maxim
  * @email max@studio107.ru
  * @version 1.0
@@ -31,11 +31,12 @@ class CharField extends Field
 
     public function getValue()
     {
+        // TODO wtf?
         $value = parent::getValue();
-        if($value) {
+        if ($value) {
             return $value;
         }
-        if($this->value instanceof \Mindy\Orm\Manager) {
+        if ($this->value instanceof \Mindy\Orm\Manager) {
             throw new Exception("Value must be a string, not a manager");
         }
         return $this->value;

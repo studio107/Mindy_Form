@@ -38,11 +38,12 @@ class AceField extends CharField
             ' . ($this->aceMode ? 'editor.getSession().setMode("' . $this->aceMode . '");' : '') . '
             ' . ($this->aceTheme ? 'editor.setTheme("' . $this->aceTheme . '");' : '') . '
             editor.getSession().on("change", function(e) {
-                $("#{id}").val(editor.getValue());
+                console.log(editor.getSession().getValue());
+                $("#{id}").val(editor.getSession().getValue());
             });
         </script>', [
             '{id}' => $this->getHtmlId(),
-            '{value}' => $this->getValue()
+            '{value}' => htmlentities($this->getValue())
         ]);
         return parent::render() . $out;
     }

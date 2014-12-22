@@ -261,7 +261,6 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
                 'name' => $name,
                 'form' => $this,
                 'prefix' => $prefix,
-                'parentForm' => $this,
             ], $config));
         }
     }

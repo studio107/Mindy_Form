@@ -104,6 +104,10 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
      * @var array BaseForm[]
      */
     private $_inlinesDelete = [];
+    /**
+     * @var BaseForm|ModelForm
+     */
+    private $_parentForm;
 
     public function init()
     {
@@ -256,7 +260,8 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
             $this->_fields[$name] = Creator::createObject(array_merge([
                 'name' => $name,
                 'form' => $this,
-                'prefix' => $prefix
+                'prefix' => $prefix,
+                'parentForm' => $this,
             ], $config));
         }
     }
@@ -474,6 +479,34 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
     }
 
     /**
+     * @param BaseForm $form
+     * @return $this
+     */
+    public function setParentForm(BaseForm $form)
+    {
+        $this->_parentForm = $form;
+        return $this;
+    }
+
+    /**
+     * @return Fields\Field|void
+     */
+    public function getParentForm()
+    {
+        return $this->_parentForm;
+    }
+
+    /**
+     * @param \Mindy\Form\BaseForm|\Mindy\Form\ModelForm $owner
+     * @param array $attributes
+     * @return array
+     */
+    public function beforeSetAttributes($owner, array $attributes)
+    {
+        return $attributes;
+    }
+
+    /**
      * @param array $data
      * @return $this
      */
@@ -491,6 +524,8 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
                 }
             }
         }
+
+        $signal = $this->getEventManager();
 
         // TODO move to ModelForm
         $sourceInlines = $this->getInlinesInit();
@@ -515,6 +550,10 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
                         */
 
                         $inline = clone $sourceInline;
+
+                        $event = $signal->send($inline, 'beforeSetAttributes', $inline, $item);
+                        $item = $event->getLast()->value;
+
                         if (isset($item['_pk']) && !empty($item['_pk'])) {
                             /** @var $inline ModelForm */
                             $modelClass = $inline->getModel();
@@ -619,6 +658,7 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
                 'class' => $className,
                 'link' => $link,
                 'prefix' => $this->classNameShort(),
+                'parentForm' => $this,
                 'extraExclude' => [$link]
             ]);
 

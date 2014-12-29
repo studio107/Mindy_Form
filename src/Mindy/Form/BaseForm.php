@@ -350,6 +350,12 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
         return self::renderTemplate($template, $params);
     }
 
+    public function renderType($templateType)
+    {
+        $template = $this->getTemplateFromType($templateType);
+        return (string)$this->render($template);
+    }
+
     /**
      * Возвращает инициализированные inline формы
      * @return BaseForm[]|ModelForm[]

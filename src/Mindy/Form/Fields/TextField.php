@@ -14,7 +14,11 @@
 
 namespace Mindy\Form\Fields;
 
-
+/**
+ * @DEPRECATED
+ * Class TextField
+ * @package Mindy\Form\Fields
+ */
 class TextField extends CharField
 {
     public $template = "<textarea id='{id}' name='{name}'{html}>{value}</textarea>";

@@ -1,9 +1,9 @@
 <?php
 /**
- * 
+ *
  *
  * All rights reserved.
- * 
+ *
  * @author Falaleev Maxim
  * @email max@studio107.ru
  * @version 1.0
@@ -72,10 +72,26 @@ HTML;
 
         $js = <<<JS
 <script type="text/javascript">
-    var md = new Remarkable('full');
+    var md = new Remarkable({
+        breaks: false,
+        html: false,
+        typographer: false,
+        highlight: function (str, lang) {
+            if (lang && hljs.getLanguage(lang)) {
+                try {
+                    return hljs.highlight(lang, str).value;
+                } catch (err) {}
+            }
+
+            try {
+                return hljs.highlightAuto(str).value;
+            } catch (err) {}
+
+            return '';
+        }
+    });
     var preview = function() {
         var source = $('#{$this->getHtmlId()}').val();
-        console.log(source);
         $('#preview').html(md.render(source));
     };
 </script>

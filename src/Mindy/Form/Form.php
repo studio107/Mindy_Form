@@ -14,7 +14,6 @@
 
 namespace Mindy\Form;
 
-
 use Mindy\Utils\RenderTrait;
 
 class Form extends BaseForm

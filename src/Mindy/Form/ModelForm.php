@@ -213,7 +213,7 @@ class ModelForm extends BaseForm
     public function save()
     {
         $instance = $this->getInstance();
-        $saved = $instance->save();
+        $saved = $instance->isValid() && $instance->save();
 
         $inlineCreate = $this->getInlinesCreate();
         $inlineSaved = true;

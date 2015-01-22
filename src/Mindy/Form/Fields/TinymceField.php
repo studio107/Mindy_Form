@@ -34,7 +34,7 @@ class TinymceField extends TextAreaField
             pagebreak_separator : '<!--pagebreak-->',
             theme_advanced_path : false,
             theme_advanced_buttons1 : 'undo,redo,|,bold,italic,underline,strikethrough,|,sub,sup,|,bullist,numlist,|,justifyleft,justifycenter,justifyright,justifyfull,|,formatselect,fontselect,fontsizeselect,|,forecolor,backcolor,fullscreen',
-            theme_advanced_buttons2 : 'tablecontrols,|,hr,removeformat,|,youtube,images,image,|,pagebreak,outdent,indent,blockquote,|,link,unlink,cleanup,code,watermark,jaretypograph,loremipsum',
+            theme_advanced_buttons2 : 'paste,pastetext,pasteword,|,tablecontrols,|,hr,removeformat,|,youtube,images,image,|,pagebreak,outdent,indent,blockquote,|,link,unlink,cleanup,code,watermark,jaretypograph,loremipsum',
             theme_advanced_buttons3 : '',
             theme_advanced_toolbar_location : 'top',
             theme_advanced_toolbar_align : 'left',

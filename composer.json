@@ -4,18 +4,18 @@
     "version": "0.1",
     "license": "MIT",
     "autoload": {
-        "psr-0": {
-            "": "src/"
+        "psr-4": {
+            "Mindy\\Form\\": "src/Mindy/Form"
         }
     },
     "require": {
         "php": ">=5.4",
-        "mindy/exception": "dev-master",
-        "mindy/locale": "dev-master",
-        "mindy/validation": "dev-master",
-        "mindy/helper": "dev-master",
-        "mindy/utils": "dev-master",
-        "mindy/event": "dev-master"
+        "mindy/exception": "0.1",
+        "mindy/locale": "0.1",
+        "mindy/validation": "0.1",
+        "mindy/helper": "0.1",
+        "mindy/utils": "0.1",
+        "mindy/event": "0.1"
     },
     "require-dev": {
         "mindy/cache": "dev-master",

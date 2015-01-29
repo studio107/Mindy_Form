@@ -19,6 +19,7 @@ use ArrayIterator;
 use Countable;
 use Exception;
 use IteratorAggregate;
+use Mindy\Helper\Collection;
 use Mindy\Helper\Creator;
 use Mindy\Helper\Traits\Accessors;
 use Mindy\Helper\Traits\Configurator;
@@ -464,19 +465,31 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
         return $this->_fields[$attribute];
     }
 
-    public function prepare(array $data, array $files = [])
+    public function prepare(array $data, array $files = [], $fixFiles = true)
     {
-        return PrepareData::collect($data, $files);
+        return PrepareData::collect($data, $files, $fixFiles);
     }
 
     /**
-     * @param array $data
-     * @param array $files
+     * @param array|Collection $data
+     * @param array|Collection $files
      * @return $this
      */
-    public function populate(array $data, array $files = [])
+    public function populate($data, $files = [])
     {
-        $tmp = empty($files) ? $data : $this->prepare($data, $files);
+        if ($data instanceof Collection) {
+            $data = $data->all();
+        } else if (!is_array($data)) {
+            throw new Exception('$data must be a array');
+        }
+
+        $fixFiles = true;
+        if ($files instanceof Collection) {
+            $fixFiles = false;
+            $files = $files->all();
+        }
+
+        $tmp = empty($files) ? $data : $this->prepare($data, $files, $fixFiles);
         if (!isset($tmp[$this->classNameShort()])) {
             return $this;
         }

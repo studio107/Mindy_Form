@@ -61,8 +61,8 @@ class MarkdownField extends TextAreaField
 
         $html = <<<HTML
 <dl class="tabs" data-tab>
-    <dd class="active"><a href="#editor" onclick="$('#{$this->getHtmlId()}').focus()">{$label}</a></dd>
-    <dd><a href="#preview" onclick="preview()">{$t->t('form', 'Preview')}</a></dd>
+    <dd class="active"><a href="#editor" onclick="$('#{$this->getHtmlId()}').focus();">{$label}</a></dd>
+    <dd><a href="#preview" onclick="preview();">{$t->t('form', 'Preview')}</a></dd>
 </dl>
 <div class="tabs-content">
     <div class="content active" id="editor">{$out}</div>

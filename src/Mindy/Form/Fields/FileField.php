@@ -48,7 +48,7 @@ class FileField extends Field
      * List of allowed file types
      * @var array|null
      */
-    public $types = null;
+    public $types = [];
 
     public function __construct(array $options = [])
     {
@@ -57,6 +57,8 @@ class FileField extends Field
         $this->validators = array_merge([
             new FileValidator($this->required, $this->types)
         ], $this->validators);
+
+        $this->html['accept'] = implode('|', $this->types);
     }
 
     public function render()

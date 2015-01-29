@@ -16,9 +16,9 @@ namespace Mindy\Form;
 
 class PrepareData
 {
-    public static function collect(array $post, array $files)
+    public static function collect(array $post, array $files, $fixFiles = true)
     {
-        return static::merge(static::fixFiles($files), $post, true);
+        return static::merge($fixFiles ? static::fixFiles($files) : $files, $post, true);
     }
 
     /**

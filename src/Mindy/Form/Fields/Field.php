@@ -54,7 +54,7 @@ abstract class Field implements IValidateField
     /**
      * @var string
      */
-    public $template = "<input type='{type}' id='{id}' name='{name}'{html}/>";
+    public $template = "<input type='{type}' id='{id}' value='{value}' name='{name}'{html}/>";
     /**
      * @var string
      */

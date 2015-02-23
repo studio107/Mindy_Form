@@ -1,21 +1,14 @@
 <?php
-/**
- *
- *
- * All rights reserved.
- *
- * @author Falaleev Maxim
- * @email max@studio107.ru
- * @version 1.0
- * @company Studio107
- * @site http://studio107.ru
- * @date 08/05/14.05.2014 17:13
- */
 
 namespace Mindy\Form\Fields;
 
+use Mindy\Form\ModelForm;
 use Mindy\Locale\Translate;
 
+/**
+ * Class MarkdownField
+ * @package Mindy\Form
+ */
 class MarkdownField extends TextAreaField
 {
     public $html = [

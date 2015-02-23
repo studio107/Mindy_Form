@@ -1,20 +1,13 @@
 <?php
 
-/**
- * All rights reserved.
- *
- * @author Falaleev Maxim
- * @email max@studio107.ru
- * @version 1.0
- * @company Studio107
- * @site http://studio107.ru
- * @date 17/12/14 15:00
- */
-
 namespace Mindy\Form\Fields;
 
 use Mindy\Validation\RecaptchaValidator;
 
+/**
+ * Class RecaptchaField
+ * @package Mindy\Form
+ */
 class RecaptchaField extends CharField
 {
     /**

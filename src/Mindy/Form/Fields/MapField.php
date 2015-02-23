@@ -1,20 +1,13 @@
 <?php
 
-/**
- * All rights reserved.
- *
- * @author Falaleev Maxim
- * @email max@studio107.ru
- * @version 1.0
- * @company Studio107
- * @site http://studio107.ru
- * @date 01/12/14 18:07
- */
-
 namespace Mindy\Form\Fields;
 
 use Mindy\Helper\JavaScript;
 
+/**
+ * Class MapField
+ * @package Mindy\Form
+ */
 class MapField extends CharField
 {
     public $lat = 'lat';

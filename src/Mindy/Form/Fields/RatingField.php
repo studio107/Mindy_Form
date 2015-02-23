@@ -1,15 +1,5 @@
 <?php
 
-/**
- * All rights reserved.
- *
- * @author Falaleev Maxim
- * @email max@studio107.ru
- * @version 1.0
- * @company Studio107
- * @site http://studio107.ru
- * @date 16/01/15 13:25
- */
 
 namespace Mindy\Form\Fields;
 
@@ -17,6 +7,10 @@ use Mindy\Form\ModelForm;
 use Mindy\Helper\JavaScript;
 use Mindy\Helper\JavaScriptExpression;
 
+/**
+ * Class RatingField
+ * @package Mindy\Form
+ */
 class RatingField extends HiddenField
 {
     public function renderLabel()

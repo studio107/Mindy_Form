@@ -10,12 +10,12 @@
     },
     "require": {
         "php": ">=5.4",
-        "mindy/exception": "0.1",
-        "mindy/locale": "0.1",
-        "mindy/validation": "0.1",
-        "mindy/helper": "0.1",
-        "mindy/utils": "0.1",
-        "mindy/event": "0.1"
+        "mindy/exception": "0.*",
+        "mindy/locale": "0.*",
+        "mindy/validation": "0.*",
+        "mindy/helper": "0.*",
+        "mindy/utils": "0.*",
+        "mindy/event": "0.*"
     },
     "require-dev": {
         "mindy/cache": "dev-master",

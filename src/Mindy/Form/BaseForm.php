@@ -745,7 +745,10 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
     {
         $data = [];
         foreach ($this->getFieldsInit() as $field) {
-            $data[$field->getHtmlName()] = $field->getErrors();
+            $errors = $field->getErrors();
+            if (!empty($errors)) {
+                $data[$field->getHtmlName()] = $errors;
+            }
         }
         return $data;
     }

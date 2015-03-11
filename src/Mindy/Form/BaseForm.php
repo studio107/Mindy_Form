@@ -740,4 +740,13 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
     {
         return $this->_inlinesDelete;
     }
+
+    public function getJsonErrors()
+    {
+        $data = [];
+        foreach ($this->getFieldsInit() as $field) {
+            $data[$field->getHtmlName()] = $field->getErrors();
+        }
+        return $data;
+    }
 }

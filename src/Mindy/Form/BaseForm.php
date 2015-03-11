@@ -32,6 +32,7 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
         'ul' => 'core/form/ul.html',
     ];
 
+    public $max = PHP_INT_MAX;
     /**
      * @var string
      */
@@ -70,10 +71,6 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
      */
     private $_inlineClasses = [];
     /**
-     * @var \Mindy\Event\EventManager
-     */
-    private $_eventManager;
-    /**
      * @var \Mindy\Form\Fields\Field[]
      */
     protected $_fields = [];
@@ -107,14 +104,18 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
 
     protected function getEventManager()
     {
-        if ($this->_eventManager === null) {
+        /**
+         * @var \Mindy\Event\EventManager
+         */
+        static $_eventManager;
+        if ($_eventManager === null) {
             if (class_exists('\Mindy\Base\Mindy')) {
-                $this->_eventManager = \Mindy\Base\Mindy::app()->getComponent('signal');
+                $_eventManager = \Mindy\Base\Mindy::app()->getComponent('signal');
             } else {
-                $this->_eventManager = new \Mindy\Event\EventManager();
+                $_eventManager = new \Mindy\Event\EventManager();
             }
         }
-        return $this->_eventManager;
+        return $_eventManager;
     }
 
     /**
@@ -546,7 +547,12 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
                 /** @var $sourceInline BaseForm */
                 /** @var $inline BaseForm */
                 if (isset($data[$sourceInline->classNameShort()])) {
-                    foreach ($data[$sourceInline->classNameShort()] as $item) {
+                    $max = $sourceInline->max;
+                    foreach ($data[$sourceInline->classNameShort()] as $i => $item) {
+                        if ($i + 1 > $max) {
+                            break;
+                        }
+
                         /*
                         if (!isset($item['_changed']) or empty($item['_changed'])) {
                             continue;

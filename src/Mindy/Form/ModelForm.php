@@ -120,6 +120,7 @@ class ModelForm extends BaseForm
                 'label' => Translate::getInstance()->t('form', 'Delete'),
                 'value' => $instance ? $instance->pk : null,
                 'prefix' => $prefix,
+                'hint' => Translate::getInstance()->t('form', 'Inline model will be deleted after main model save'),
                 'html' => [
                     'class' => '_delete'
                 ]

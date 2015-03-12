@@ -516,6 +516,10 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
         return $attributes;
     }
 
+    public function afterOwnerSave($owner)
+    {
+    }
+
     /**
      * @param array $data
      * @return $this
@@ -552,17 +556,6 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
                         if ($i + 1 > $max) {
                             break;
                         }
-
-                        /*
-                        if (!isset($item['_changed']) or empty($item['_changed'])) {
-                            continue;
-                        }
-
-                        $tmp = Arr::cleanArrays($item);
-                        if (empty($tmp)) {
-                            continue;
-                        }
-                        */
 
                         $inline = clone $sourceInline;
 

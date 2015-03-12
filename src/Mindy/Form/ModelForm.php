@@ -163,13 +163,13 @@ class ModelForm extends BaseForm
      */
     public function setAttributes(array $data)
     {
-        parent::setAttributes($data);
         $instance = $this->getInstance();
         if ($instance === null) {
             $instance = $this->getModel();
             $this->_instance = $instance;
         }
         $instance->setAttributes($data);
+        parent::setAttributes($data);
         return $this;
     }
 
@@ -209,20 +209,23 @@ class ModelForm extends BaseForm
         $instance = $this->getInstance();
         $saved = $instance->save();
 
-        $inlineCreate = $this->getInlinesCreate();
         $inlineSaved = true;
-        foreach ($inlineCreate as $inline) {
-            $inline->setAttributes([
-                $inline->link => $instance
-            ]);
+        if (!$this->getParentForm()) {
+            $inlineCreate = $this->getInlinesCreate();
+            foreach ($inlineCreate as $inline) {
+                $inline->afterOwnerSave($instance);
+                $inline->setAttributes([
+                    $inline->link => $instance
+                ]);
 
-            if (($inline->isValid() && $inline->save()) === false) {
-                $inlineSaved = false;
+                if (($inline->isValid() && $inline->save()) === false) {
+                    $inlineSaved = false;
+                }
             }
-        }
 
-        foreach ($this->getInlinesDelete() as $inline) {
-            $inline->delete();
+            foreach ($this->getInlinesDelete() as $inline) {
+                $inline->delete();
+            }
         }
 
         return $saved && $inlineSaved;

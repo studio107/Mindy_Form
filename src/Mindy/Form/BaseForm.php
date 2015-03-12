@@ -557,28 +557,30 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
                             break;
                         }
 
-                        $inline = clone $sourceInline;
+                        if (isset($item['_changed']) && !empty($item['_changed'])) {
+                            $inline = clone $sourceInline;
 
-                        $event = $signal->send($inline, 'beforeSetAttributes', $inline, $item);
-                        $item = $event->getLast()->value;
+                            $event = $signal->send($inline, 'beforeSetAttributes', $inline, $item);
+                            $item = $event->getLast()->value;
 
-                        if (isset($item['_pk']) && !empty($item['_pk'])) {
-                            /** @var $inline ModelForm */
-                            $modelClass = $inline->getModel();
-                            $model = is_string($modelClass) ? new $modelClass : $modelClass;
-                            $instance = $model->objects()->filter(['pk' => $item['_pk']])->get();
-                            if ($instance !== null) {
-                                $inline->setInstance($instance);
+                            if (isset($item['_pk']) && !empty($item['_pk'])) {
+                                /** @var $inline ModelForm */
+                                $modelClass = $inline->getModel();
+                                $model = is_string($modelClass) ? new $modelClass : $modelClass;
+                                $instance = $model->objects()->filter(['pk' => $item['_pk']])->get();
+                                if ($instance !== null) {
+                                    $inline->setInstance($instance);
+                                    $inline->setAttributes($item);
+                                }
+                            } else {
                                 $inline->setAttributes($item);
                             }
-                        } else {
-                            $inline->setAttributes($item);
-                        }
 
-                        if (isset($item['_delete']) && !empty($item['_delete'])) {
-                            $this->_inlinesDelete[] = $inline;
-                        } else {
-                            $this->_inlinesCreate[] = $inline;
+                            if (isset($item['_delete']) && !empty($item['_delete'])) {
+                                $this->_inlinesDelete[] = $inline;
+                            } else {
+                                $this->_inlinesCreate[] = $inline;
+                            }
                         }
                     }
                 }

@@ -22,12 +22,26 @@ class RadioField extends CharField
                     '{for}' => $this->getHtmlId() . '_' . $i,
                     '{label}' => $labelStr
                 ]);
+
+                $checked = false;
+                if (is_array($this->value)) {
+                    foreach ($this->value as $v) {
+                        if ($v == $value) {
+                            $checked = true;
+                        }
+                    }
+                } else {
+                    if ($this->value == $value) {
+                        $checked = true;
+                    }
+                }
+
                 $input = strtr($this->template, [
                     '{type}' => $this->type,
                     '{id}' => $this->getHtmlId() . '_' . $i,
                     '{name}' => $this->getHtmlName(),
                     '{value}' => $value,
-                    '{html}' => $this->getHtmlAttributes()
+                    '{html}' => $this->getHtmlAttributes() . ($checked ? " checked='checked'" : '')
                 ]);
                 $i++;
                 $hint = $this->hint ? $this->renderHint() : '';
@@ -58,7 +72,21 @@ class RadioField extends CharField
                     '{for}' => $this->getHtmlId() . '_' . $i,
                     '{label}' => $labelStr
                 ]);
-                $input = $this->renderInputInternal($this->getHtmlId() . '_' . $i, $value);
+
+                $checked = false;
+                if (is_array($this->value)) {
+                    foreach ($this->value as $v) {
+                        if ($v == $value) {
+                            $checked = true;
+                        }
+                    }
+                } else {
+                    if ($this->value == $value) {
+                        $checked = true;
+                    }
+                }
+
+                $input = $this->renderInputInternal($this->getHtmlId() . '_' . $i, $value,  ($checked ? " checked='checked'" : ''));
                 $i++;
                 $hint = $this->hint ? $this->renderHint() : '';
                 $inputs[] = implode("\n", [
@@ -83,14 +111,14 @@ class RadioField extends CharField
         }
     }
 
-    protected function renderInputInternal($id, $value)
+    protected function renderInputInternal($id, $value, $html = '')
     {
         return strtr($this->template, [
             '{type}' => $this->type,
             '{id}' => $id,
             '{name}' => $this->getHtmlName(),
             '{value}' => $value,
-            '{html}' => $this->getHtmlAttributes()
+            '{html}' => $this->getHtmlAttributes() . $html
         ]);
     }
 }

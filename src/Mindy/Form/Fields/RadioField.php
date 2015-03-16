@@ -38,8 +38,42 @@ class RadioField extends CharField
             if ($this->value) {
                 $this->html['checked'] = 'checked';
             }
+            return implode("\n", [
+                "<input type='hidden' value='' name='" . $this->getHtmlName() . "' />",
+                $this->renderInput(),
+                $this->renderLabel(),
+                $this->hint ? $this->renderHint() : '',
+                $this->renderErrors()
+            ]);
+        }
+    }
+
+    public function renderInput()
+    {
+        if (!empty($this->choices)) {
+            $inputs = [];
+            $i = 0;
+            foreach ($this->choices as $value => $labelStr) {
+                $label = strtr("<label for='{for}'>{label}</label>", [
+                    '{for}' => $this->getHtmlId() . '_' . $i,
+                    '{label}' => $labelStr
+                ]);
+                $input = $this->renderInputInternal($this->getHtmlId() . '_' . $i, $value);
+                $i++;
+                $hint = $this->hint ? $this->renderHint() : '';
+                $inputs[] = implode("\n", [
+                    $input,
+                    $label,
+                    $hint
+                ]);
+            }
+            return implode("\n", $inputs) . $this->renderErrors();
+        } else {
+            if ($this->value) {
+                $this->html['checked'] = 'checked';
+            }
             $label = $this->renderLabel();
-            $input = $this->renderInput();
+            $input = $this->renderInputInternal($this->getHtmlId(), 1);
             $hint = $this->hint ? $this->renderHint() : '';
             $errors = $this->renderErrors();
             return implode("\n", [
@@ -49,13 +83,13 @@ class RadioField extends CharField
         }
     }
 
-    public function renderInput()
+    protected function renderInputInternal($id, $value)
     {
         return strtr($this->template, [
             '{type}' => $this->type,
-            '{id}' => $this->getHtmlId(),
+            '{id}' => $id,
             '{name}' => $this->getHtmlName(),
-            '{value}' => 1,
+            '{value}' => $value,
             '{html}' => $this->getHtmlAttributes()
         ]);
     }

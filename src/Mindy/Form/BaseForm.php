@@ -735,11 +735,8 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
     public function getJsonErrors()
     {
         $data = [];
-        foreach ($this->getFieldsInit() as $field) {
-            $errors = $field->getErrors();
-            if (!empty($errors)) {
-                $data[$field->getHtmlName()] = $errors;
-            }
+        foreach ($this->getErrors() as $name => $errors) {
+            $data[$this->getField($name)->getHtmlName()] = $errors;
         }
         return $data;
     }

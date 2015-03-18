@@ -13,6 +13,8 @@ use Mindy\Helper\JavaScriptExpression;
  */
 class RatingField extends HiddenField
 {
+    public $options = [];
+
     public function renderLabel()
     {
         if ($this->label === false) {
@@ -45,14 +47,14 @@ class RatingField extends HiddenField
 
     public function render()
     {
-        $jsOptions = JavaScript::encode([
+        $jsOptions = JavaScript::encode(array_merge([
             'starType' => 'i',
             'numberMax' => 5,
             'score' => $this->getValue(),
             'click' => new JavaScriptExpression('function(score, evt) {
                 $("#' . $this->getHtmlId() . '").val(score);
             }')
-        ]);
+        ], $this->options));
         $js = "<div id='{$this->getHtmlId()}_rating' class='rating-input'></div><script type='text/javascript'>$('#{$this->getHtmlId()}_rating').raty({$jsOptions});</script>";
         return parent::render() . $js;
     }

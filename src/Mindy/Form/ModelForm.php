@@ -134,27 +134,7 @@ class ModelForm extends BaseForm
      */
     public function isValid()
     {
-        $this->clearErrors();
-
-        /* @var $field \Mindy\Form\Fields\Field */
-        $fields = $this->getFieldsInit();
-
-        foreach ($fields as $name => $field) {
-            if (method_exists($this, 'clean' . ucfirst($name))) {
-                $value = call_user_func([$this, 'clean' . ucfirst($name)], $field->getValue());
-                $field->setValue($value);
-            }
-
-            if ($field->isValid() === false) {
-                foreach ($field->getErrors() as $error) {
-                    $this->addError($name, $error);
-                }
-            }
-
-            $this->cleanedData[$name] = $field->getValue();
-        }
-
-        return $this->hasErrors() === false && $this->isValidInlines();
+        return $this->isValidInternal() && $this->isValidInlines();
     }
 
     /**

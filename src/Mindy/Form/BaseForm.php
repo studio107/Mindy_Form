@@ -413,11 +413,7 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
      */
     public function isValid()
     {
-        $ignore = [];
-        if ($this->getPrefix()) {
-            $ignore[] = $this->link;
-        }
-        return $this->isValidInternal($ignore) && $this->isValidInlines();
+        return $this->isValidInternal() && $this->isValidInlines();
     }
 
     public function isValidInlines()

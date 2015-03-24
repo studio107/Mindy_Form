@@ -408,7 +408,6 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
     }
 
     /**
-     * @param array $ignore
      * @return bool
      */
     public function isValid()

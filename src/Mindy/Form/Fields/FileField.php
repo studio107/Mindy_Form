@@ -19,7 +19,7 @@ class FileField extends Field
     /**
      * @var bool
      */
-    public $cleanValue = true;
+    public $cleanValue = '1';
     /**
      * @var string
      */
@@ -95,12 +95,17 @@ class FileField extends Field
 
     public function setValue($value)
     {
-        if ($value instanceof ModelFileField) {
-            $value = $value->getUrl();
+        if ($value === $this->cleanValue) {
+            $this->value = null;
+            return $this;
+        } else {
+            if ($value instanceof ModelFileField) {
+                $value = $value->getUrl();
+            }
+            $this->setOldValue();
+            $this->value = $value;
+            return $this;
         }
-        $this->setOldValue();
-        $this->value = $value;
-        return $this;
     }
 
     public function getOldValue()

@@ -141,7 +141,7 @@ class ModelForm extends BaseForm
      * @param array $data
      * @return $this
      */
-    public function setAttributes(array $data)
+    public function setModelAttributes(array $data)
     {
         $instance = $this->getInstance();
         if ($instance === null) {
@@ -149,7 +149,6 @@ class ModelForm extends BaseForm
             $this->_instance = $instance;
         }
         $instance->setAttributes($data);
-        parent::setAttributes($data);
         return $this;
     }
 
@@ -186,6 +185,7 @@ class ModelForm extends BaseForm
 
     public function save()
     {
+        $this->setModelAttributes($this->cleanedData);
         $instance = $this->getInstance();
         $saved = $instance->save();
 

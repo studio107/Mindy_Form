@@ -157,7 +157,7 @@ class ModelForm extends BaseForm
      * @return $this
      * @throws \Exception
      */
-    protected function setInstance(\Mindy\Orm\Model $model)
+    public function setInstance(\Mindy\Orm\Model $model)
     {
         $this->_instance = $model;
     }
@@ -193,13 +193,14 @@ class ModelForm extends BaseForm
         if (!$this->getParentForm()) {
             $inlineCreate = $this->getInlinesCreate();
             foreach ($inlineCreate as $inline) {
-                $inline->afterOwnerSave($instance);
                 $inline->setAttributes([
                     $inline->link => $instance
                 ]);
 
                 if (($inline->isValid() && $inline->save()) === false) {
                     $inlineSaved = false;
+                } else {
+                    $inline->afterOwnerSave($instance);
                 }
             }
 

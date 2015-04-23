@@ -5,7 +5,6 @@ namespace Mindy\Form\Fields;
 use Closure;
 use Mindy\Form\Form;
 use Mindy\Form\ModelForm;
-use Mindy\Orm\Model;
 
 /**
  * Class DropDownField
@@ -89,8 +88,8 @@ class DropDownField extends Field
                 } else if (is_a($field, $model::$manyToManyField)) {
                     $this->multiple = true;
 
-                    $modelClass = $field->modelClass;
-                    $models = $modelClass::objects()->all();
+//                    $modelClass = $field->modelClass;
+//                    $models = $modelClass::objects()->all();
 
                     $selectedTmp = $field->getManager()->all();
                     foreach ($selectedTmp as $model) {
@@ -109,7 +108,7 @@ class DropDownField extends Field
                 };
             }
 
-            if($this->multiple) {
+            if ($this->multiple) {
                 $this->html['multiple'] = 'multiple';
             }
             return $this->valueToHtml($data, $selected);
@@ -119,7 +118,7 @@ class DropDownField extends Field
             $model = $this->form->getModel();
             $instance = $this->form->getInstance();
             $modelOrInstance = $instance ? $instance : $model;
-            $field = $model->getField($this->name);
+            $field = $modelOrInstance->getField($this->name);
 
             if (is_a($field, $model::$manyToManyField)) {
                 $this->multiple = true;

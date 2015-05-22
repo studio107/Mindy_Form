@@ -31,6 +31,10 @@ class DropDownField extends Field
      * @var string
      */
     public $empty = '';
+    /**
+     * @var array
+     */
+    public $disabled = [];
 
     public function render()
     {

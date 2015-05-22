@@ -5,6 +5,8 @@ namespace Mindy\Form\Fields;
 use Closure;
 use Mindy\Form\Form;
 use Mindy\Form\ModelForm;
+use Mindy\Orm\Manager;
+use Mindy\Orm\Model;
 
 /**
  * Class DropDownField
@@ -29,10 +31,6 @@ class DropDownField extends Field
      * @var string
      */
     public $empty = '';
-    /**
-     * @var array
-     */
-    public $disabled = [];
 
     public function render()
     {
@@ -92,8 +90,8 @@ class DropDownField extends Field
                 } else if (is_a($field, $model::$manyToManyField)) {
                     $this->multiple = true;
 
-//                    $modelClass = $field->modelClass;
-//                    $models = $modelClass::objects()->all();
+                    $modelClass = $field->modelClass;
+                    $models = $modelClass::objects()->all();
 
                     $selectedTmp = $field->getManager()->all();
                     foreach ($selectedTmp as $model) {
@@ -112,7 +110,7 @@ class DropDownField extends Field
                 };
             }
 
-            if ($this->multiple) {
+            if($this->multiple) {
                 $this->html['multiple'] = 'multiple';
             }
             return $this->valueToHtml($data, $selected);
@@ -120,9 +118,7 @@ class DropDownField extends Field
 
         if ($this->form instanceof ModelForm && $this->form->getModel()->hasField($this->name)) {
             $model = $this->form->getModel();
-            $instance = $this->form->getInstance();
-            $modelOrInstance = $instance ? $instance : $model;
-            $field = $modelOrInstance->getField($this->name);
+            $field = $model->getField($this->name);
 
             if (is_a($field, $model::$manyToManyField)) {
                 $this->multiple = true;
@@ -130,9 +126,15 @@ class DropDownField extends Field
                 $modelClass = $field->modelClass;
                 $models = $modelClass::objects()->all();
 
-                $selectedTmp = $field->getManager()->all();
-                foreach ($selectedTmp as $item) {
-                    $selected[] = $item->pk;
+                if ($value = $this->getValue()) {
+                    if ($value instanceof Manager) {
+                        $selectedTmp = $value->all();
+                        foreach ($selectedTmp as $item) {
+                            $selected[] = $item->pk;
+                        }
+                    } else {
+                        $selected = is_array($value) ? $value : [$value];
+                    }
                 }
 
                 $this->html['multiple'] = 'multiple';
@@ -161,9 +163,8 @@ class DropDownField extends Field
                 if (!$this->required) {
                     $data[''] = $this->empty;
                 }
-                $related = $modelOrInstance->{$this->name};
-                if ($related) {
-                    $selected[] = $related->pk;
+                if ($value = $this->getValue()) {
+                    $selected[] = $value instanceof Model ? $value->pk : $value;
                 }
                 foreach ($qs->all() as $item) {
                     $data[$item->pk] = (string)$item;
@@ -186,10 +187,9 @@ class DropDownField extends Field
     {
         $out = '';
         foreach ($data as $value => $name) {
-            $out .= strtr("<option value='{value}'{selected}{disabled}>{name}</option>", [
+            $out .= strtr("<option value='{value}'{selected}>{name}</option>", [
                 '{value}' => $value,
                 '{name}' => $name,
-                '{disabled}' => in_array($value, $this->disabled) ? " disabled" : "",
                 '{selected}' => in_array($value, $selected) ? " selected='selected'" : ""
             ]);
         };

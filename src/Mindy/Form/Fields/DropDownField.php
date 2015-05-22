@@ -191,9 +191,10 @@ class DropDownField extends Field
     {
         $out = '';
         foreach ($data as $value => $name) {
-            $out .= strtr("<option value='{value}'{selected}>{name}</option>", [
+            $out .= strtr("<option value='{value}'{selected}{disabled}>{name}</option>", [
                 '{value}' => $value,
                 '{name}' => $name,
+                '{disabled}' => in_array($value, $this->disabled) ? " disabled" : "",
                 '{selected}' => in_array($value, $selected) ? " selected='selected'" : ""
             ]);
         };

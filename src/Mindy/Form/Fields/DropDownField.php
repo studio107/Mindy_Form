@@ -114,7 +114,7 @@ class DropDownField extends Field
                 };
             }
 
-            if($this->multiple) {
+            if ($this->multiple) {
                 $this->html['multiple'] = 'multiple';
             }
             return $this->valueToHtml($data, $selected);

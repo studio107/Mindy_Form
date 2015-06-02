@@ -77,6 +77,12 @@ class DropDownField extends Field
             } else {
                 $data = $choices;
             }
+
+            $value = $this->getValue();
+            if ($value) {
+                $selected[] = $value;
+            }
+
             if ($this->form instanceof ModelForm) {
                 $model = $this->form->getInstance();
                 $model = $model ? $model : $this->form->getModel();
@@ -93,9 +99,6 @@ class DropDownField extends Field
                     }
                 } else if (is_a($field, $model::$manyToManyField)) {
                     $this->multiple = true;
-
-                    $modelClass = $field->modelClass;
-                    $models = $modelClass::objects()->all();
 
                     $selectedTmp = $field->getManager()->all();
                     foreach ($selectedTmp as $model) {

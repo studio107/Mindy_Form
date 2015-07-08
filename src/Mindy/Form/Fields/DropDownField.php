@@ -80,7 +80,7 @@ class DropDownField extends Field
 
             $value = $this->getValue();
             if ($value) {
-                $selected[] = $value;
+                $selected[] = $value instanceof Model ? $value->pk : $value;
             }
 
             if ($this->form instanceof ModelForm) {

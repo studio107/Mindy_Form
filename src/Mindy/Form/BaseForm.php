@@ -552,11 +552,14 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
                             break;
                         }
 
-                        if (isset($item['_changed']) && !empty($item['_changed'])) {
+                        // Form changed or form is new
+                        if (!empty($item['_changed']) || empty($item['_pk'])) {
                             $inline = clone $sourceInline;
 
                             $event = $signal->send($inline, 'beforeSetAttributes', $inline, $item);
-                            $item = $event->getLast()->value;
+                            if ($event->getLast()->value) {
+                                $item = $event->getLast()->value;
+                            }
 
                             if (isset($item['_pk']) && !empty($item['_pk'])) {
                                 /** @var $inline ModelForm */
@@ -571,7 +574,7 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
                                 $inline->setAttributes($item);
                             }
 
-                            if (isset($item['_delete']) && !empty($item['_delete'])) {
+                            if (!empty($item['_delete'])) {
                                 $this->_inlinesDelete[] = $inline;
                             } else {
                                 $this->_inlinesCreate[] = $inline;

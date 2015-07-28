@@ -197,10 +197,9 @@ class ModelForm extends BaseForm
                     $inline->link => $instance
                 ]);
 
+                $inline->afterOwnerSave($instance);
                 if (($inline->isValid() && $inline->save()) === false) {
                     $inlineSaved = false;
-                } else {
-                    $inline->afterOwnerSave($instance);
                 }
             }
 

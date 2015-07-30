@@ -10,7 +10,7 @@ class AceField extends CharField
 {
     public $template = "<textarea id='{id}' class='hide' name='{name}'{html}>{value}</textarea>";
 
-    public $aceMode = "ace/mode/html";
+    public $aceMode = "ace/mode/twig";
 
     public $aceTheme = "ace/theme/crimson_editor";
 

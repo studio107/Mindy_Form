@@ -41,14 +41,28 @@ class FileField extends Field
      * @var array|null
      */
     public $types = [];
+    /**
+     * @var null|int maximum file size or null for unlimited. Default value 2 mb.
+     */
+    public $maxSize = 2097152;
 
-    public function __construct(array $options = [])
+    public function init()
     {
-        parent::__construct($options);
+        parent::init();
 
-        $this->validators = array_merge([
-            new FileValidator($this->required, $this->types)
-        ], $this->validators);
+        $hasFileValidator = false;
+        foreach ($this->validators as $validator) {
+            if ($validator instanceof FileValidator) {
+                $hasFileValidator = true;
+                break;
+            }
+        }
+
+        if ($hasFileValidator === false) {
+            $this->validators = array_merge([
+                new FileValidator($this->required, $this->types, $this->maxSize)
+            ], $this->validators);
+        }
 
         $this->html['accept'] = implode('|', $this->types);
     }

@@ -8,7 +8,7 @@ use Mindy\Validation\RecaptchaValidator;
  * Class RecaptchaField
  * @package Mindy\Form
  */
-class RecaptchaField extends CharField
+class RecaptchaField extends HiddenField
 {
     /**
      * @var string
@@ -17,7 +17,7 @@ class RecaptchaField extends CharField
     /**
      * @var string
      */
-    public $template = "<div class='g-recaptcha' data-sitekey='{publicKey}'></div>";
+    public $recaptchaTemplate = "<div class='g-recaptcha' data-sitekey='{publicKey}'></div>";
     /**
      * @var string
      */
@@ -36,7 +36,8 @@ class RecaptchaField extends CharField
     {
         return implode("\n", [
             $this->apiUrl,
-            strtr($this->template, ["{publicKey}" => $this->publicKey]),
+            strtr($this->recaptchaTemplate, ["{publicKey}" => $this->publicKey]),
+            parent::renderInput(),
             $this->renderErrors()
         ]);
     }

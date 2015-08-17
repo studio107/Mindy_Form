@@ -14,51 +14,15 @@ class RadioField extends CharField
 
     public function render()
     {
-        if (!empty($this->choices)) {
-            $inputs = [];
-            $i = 0;
-            foreach ($this->choices as $value => $labelStr) {
-                $label = strtr("<label for='{for}'>{label}</label>", [
-                    '{for}' => $this->getHtmlId() . '_' . $i,
-                    '{label}' => $labelStr
-                ]);
+        $label = $this->renderLabel();
+        $input = $this->renderInput();
+        $hint = $this->hint ? $this->renderHint() : '';
+        $errors = $this->renderErrors();
 
-                $checked = false;
-                if (is_array($this->value)) {
-                    foreach ($this->value as $v) {
-                        if ($v == $value) {
-                            $checked = true;
-                        }
-                    }
-                } else {
-                    if ($this->value == $value) {
-                        $checked = true;
-                    }
-                }
-
-                $input = strtr($this->template, [
-                    '{type}' => $this->type,
-                    '{id}' => $this->getHtmlId() . '_' . $i,
-                    '{name}' => $this->getHtmlName(),
-                    '{value}' => $value,
-                    '{html}' => $this->getHtmlAttributes() . ($checked ? " checked='checked'" : '')
-                ]);
-                $i++;
-                $hint = $this->hint ? $this->renderHint() : '';
-                $inputs[] = implode("\n", [$input, $label, $hint]);
-            }
-            return implode("\n", $inputs) . $this->renderErrors();
+        if (empty($this->choices)) {
+            return implode("\n", [$input, $label, $hint, $errors]);
         } else {
-            if ($this->value) {
-                $this->html['checked'] = 'checked';
-            }
-            return implode("\n", [
-                "<input type='hidden' value='' name='" . $this->getHtmlName() . "' />",
-                $this->renderInput(),
-                $this->renderLabel(),
-                $this->hint ? $this->renderHint() : '',
-                $this->renderErrors()
-            ]);
+            return implode("\n", [$label, $input, $hint, $errors]);
         }
     }
 
@@ -95,18 +59,15 @@ class RadioField extends CharField
                     $hint
                 ]);
             }
-            return implode("\n", $inputs) . $this->renderErrors();
+            return implode("\n", $inputs);
         } else {
             if ($this->value) {
                 $this->html['checked'] = 'checked';
             }
-            $label = $this->renderLabel();
             $input = $this->renderInputInternal($this->getHtmlId(), 1);
-            $hint = $this->hint ? $this->renderHint() : '';
-            $errors = $this->renderErrors();
             return implode("\n", [
                 "<input type='hidden' value='' name='" . $this->getHtmlName() . "' />",
-                $input, $label, $hint, $errors
+                $input
             ]);
         }
     }

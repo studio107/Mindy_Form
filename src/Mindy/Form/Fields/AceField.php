@@ -1,6 +1,7 @@
 <?php
 
 namespace Mindy\Form\Fields;
+use Mindy\Helper\Json;
 
 /**
  * Class AceField
@@ -13,6 +14,8 @@ class AceField extends CharField
     public $aceMode = "ace/mode/twig";
 
     public $aceTheme = "ace/theme/crimson_editor";
+
+    public $readOnly = false;
 
     public function render()
     {
@@ -27,6 +30,7 @@ class AceField extends CharField
             editor.getSession().setTabSize(4);
             editor.setShowPrintMargin(false);
             editor.setAutoScrollEditorIntoView(true);
+            editor.setReadOnly({readonly});
             editor.setOption("enableEmmet", true);
             ' . ($this->aceMode ? 'editor.getSession().setMode("' . $this->aceMode . '");' : '') . '
             ' . ($this->aceTheme ? 'editor.setTheme("' . $this->aceTheme . '");' : '') . '
@@ -35,7 +39,8 @@ class AceField extends CharField
             });
         </script>', [
             '{id}' => $this->getHtmlId(),
-            '{value}' => htmlentities($this->getValue())
+            '{value}' => htmlentities($this->getValue()),
+            '{readonly}' => Json::encode($this->readOnly)
         ]);
         return parent::render() . $out;
     }

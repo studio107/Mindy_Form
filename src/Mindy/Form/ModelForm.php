@@ -129,15 +129,6 @@ class ModelForm extends BaseForm
     }
 
     /**
-     * @param array $ignore
-     * @return bool
-     */
-    public function isValid()
-    {
-        return $this->isValidInternal() && $this->isValidInlines();
-    }
-
-    /**
      * @param array $data
      * @return $this
      */
@@ -193,12 +184,16 @@ class ModelForm extends BaseForm
         if (!$this->getParentForm()) {
             $inlineCreate = $this->getInlinesCreate();
             foreach ($inlineCreate as $inline) {
-                $inline->setAttributes([
+                $inline->setModelAttributes([
                     $inline->link => $instance
                 ]);
 
                 $inline->afterOwnerSave($instance);
-                if (($inline->isValid() && $inline->save()) === false) {
+                if ($inline->isValid()) {
+                    if ($inline->save() === false) {
+                        $inlineSaved = false;
+                    }
+                } else {
                     $inlineSaved = false;
                 }
             }
@@ -292,7 +287,7 @@ class ModelForm extends BaseForm
                 }
             }
 
-            /** @var $inline BaseForm */
+            /** @var $inline BaseForm|ModelForm */
             for ($i = 0; $extra > $i; $i++) {
                 $newClean = clone $inline;
                 $newClean->addExclude($link);

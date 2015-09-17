@@ -412,7 +412,9 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
      */
     public function isValid()
     {
-        return $this->isValidInternal() && $this->isValidInlines();
+        $this->isValidInternal();
+        $this->isValidInlines();
+        return $this->hasErrors() === false;
     }
 
     public function isValidInlines()
@@ -658,7 +660,7 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
 
         foreach ($inlines as $params) {
             if (!is_array($params)) {
-                throw new Exception("Incorrect inline configuration");
+                throw new Exception("Incorrect inline configuration. Params must be instance of array.");
             }
             $link = key($params);
             $className = $params[$link];

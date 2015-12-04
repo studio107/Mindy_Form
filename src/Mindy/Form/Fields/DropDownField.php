@@ -44,19 +44,19 @@ class DropDownField extends Field
         $hint = $this->hint ? $this->renderHint() : '';
         $errors = $this->renderErrors();
 
-        $name = $this->getHtmlName();
-        return implode("\n", ["<input type='hidden' value='' name='{$name}' />", $label, $input, $hint, $errors]);
+        return implode("\n", [$label, $input, $hint, $errors]);
     }
 
     public function renderInput()
     {
-        return strtr($this->template, [
+        $name = $this->getHtmlName();
+        return implode("\n", ["<input type='hidden' value='' name='{$name}' />", strtr($this->template, [
             '{type}' => $this->type,
             '{id}' => $this->getHtmlId(),
             '{input}' => $this->getInputHtml(),
             '{name}' => $this->multiple ? $this->getHtmlName() . '[]' : $this->getHtmlName(),
             '{html}' => $this->getHtmlAttributes()
-        ]);
+        ])]);
     }
 
     protected function getInputHtml()
@@ -84,43 +84,11 @@ class DropDownField extends Field
                     $selected = $value->valuesList(['pk'], true);
                 } else if ($value instanceof Model) {
                     $selected[] = $value->pk;
+                } else if (is_array($value)){
+                    $selected = $value;
                 } else {
                     $selected[] = $value;
                 }
-            }
-
-            if ($this->form instanceof ModelForm) {
-                $model = $this->form->getInstance();
-                $model = $model ? $model : $this->form->getModel();
-
-                $field = $model->getField($this->name);
-                if ($field->null && !$this->multiple) {
-                    $data = ['' => ''] + $data;
-                }
-
-                if (is_a($field, $model::$foreignField)) {
-                    $related = $model->{$this->name};
-                    if ($related) {
-                        $selected[] = $related->pk;
-                    }
-                } else if (is_a($field, $model::$manyToManyField)) {
-                    $this->multiple = true;
-
-                    $selectedTmp = $field->getManager()->all();
-                    foreach ($selectedTmp as $model) {
-                        $selected[] = $model->pk;
-                    }
-                } else {
-                    $selected[] = $model->{$this->name};
-                }
-            } elseif ($this->form instanceof Form) {
-                if (!is_array($this->value)) {
-                    if ($this->value) {
-                        $selected = [$this->value];
-                    }
-                } else {
-                    $selected = $this->value;
-                };
             }
 
             if ($this->multiple) {

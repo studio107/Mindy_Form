@@ -22,6 +22,14 @@ class Select2Field extends DropDownField
     public $modelField = 'name';
 
     public $placeholder = 'Please select value';
+    /**
+     * @var bool
+     */
+    public $sorting = false;
+    /**
+     * @var \Closure
+     */
+    public $fetchData = null;
 
     public function render()
     {
@@ -69,19 +77,62 @@ class Select2Field extends DropDownField
             }')
         ];
 
-        $data = [];
-        if (($instance = $this->getForm()->getInstance()) !== null) {
-            $field = $instance->getField($this->name);
-            if ($field instanceof ForeignField) {
-                $item = $field->getManager()->get();
-                if ($item) {
-                    $data = ['id' => $item->pk, 'text' => (string)$item];
+        if ($this->fetchData instanceof \Closure) {
+            $fetchData = $this->fetchData;
+            $data = $fetchData($this->getForm()->getInstance());
+        } else {
+            $data = [];
+            if (($instance = $this->getForm()->getInstance()) !== null) {
+                $field = $instance->getField($this->name);
+                if ($field instanceof ForeignField) {
+                    $item = $field->getManager()->get();
+                    if ($item) {
+                        $data = [
+                            'id' => $item->pk,
+                            'text' => (string)$item,
+                            'pk' => $item->pk
+                        ];
+                    }
+                } else {
+                    foreach ($field->getManager()->all() as $item) {
+                        $data[] = [
+                            'id' => $item->pk,
+                            'text' => (string)$item,
+                            'pk' => $item->pk
+                        ];
+                    };
                 }
-            } else {
-                foreach ($field->getManager()->all() as $item) {
-                    $data[] = ['id' => $item->pk, 'text' => (string)$item];
-                };
             }
+        }
+
+        $select2 = '$("#' . $this->getHtmlId() . '").select2(' . JavaScript::encode($options) . ')';
+
+        if (!empty($data)) {
+            $select2 .= '.select2("data", ' . JavaScript::encode($data) . ');';
+        }
+
+        if ($this->sorting) {
+            $sortingOptions = JavaScript::encode([
+                'url' => '',
+                'method' => 'post',
+                'dataType' => 'json'
+            ]);
+            $select2options = [
+                'containment' => 'parent',
+                'start' => new JavaScriptExpression('function() {
+                    $("#' . $this->getHtmlId() . '").select2("onSortStart");
+                }'),
+                'update' => new JavaScriptExpression('function() {
+                    $("#' . $this->getHtmlId() . '").select2("onSortEnd");
+                    var objects = $("#' . $this->getHtmlId() . '").select2("data");
+                    var ids = [];
+                    for (var i in objects) {
+                        ids.push(objects[i].pk);
+                    }
+                    $.ajax(_.extend(' . $sortingOptions . ', {data: {sort: ids}}));
+                }'),
+            ];
+            $select2 .= '$("#' . $this->getHtmlId() . '").prev(".select2-container").find("ul.select2-choices").sortable(' . JavaScript::encode($select2options) . ');';
         }
 
         $out = implode("\n", [
@@ -89,10 +140,7 @@ class Select2Field extends DropDownField
             "<input type='hidden' id='{$this->getHtmlId()}' name='{$name}' value='' />",
             $hint,
             $errors,
-            '<script type="text/javascript">',
-            '$("#' . $this->getHtmlId() . '").select2(' . JavaScript::encode($options) . ');',
-            empty($data) ? '' : '$("#' . $this->getHtmlId() . '").select2("data", ' . JavaScript::encode($data) . ');',
-            '</script>'
+            '<script type="text/javascript">' . $select2 . '</script>'
         ]);
 
         return $out;

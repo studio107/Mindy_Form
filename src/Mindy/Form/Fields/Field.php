@@ -36,6 +36,10 @@ abstract class Field implements IValidateField
      */
     public $required = false;
     /**
+     * @var bool
+     */
+    public $escape = true;
+    /**
      * @var TODO
      */
     public $widget;
@@ -177,11 +181,12 @@ abstract class Field implements IValidateField
 
     public function renderInput()
     {
+        $value = $this->getValue();
         return strtr($this->template, [
             '{type}' => $this->type,
             '{id}' => $this->getHtmlId(),
             '{name}' => $this->getHtmlName(),
-            '{value}' => $this->getValue(),
+            '{value}' => $this->escape ? htmlspecialchars($value, ENT_QUOTES) : $value,
             '{html}' => $this->getHtmlAttributes()
         ]);
     }

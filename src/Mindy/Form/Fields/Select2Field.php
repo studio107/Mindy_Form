@@ -132,7 +132,7 @@ class Select2Field extends DropDownField
                     $.ajax(_.extend(' . $sortingOptions . ', {data: {sort: ids}}));
                 }'),
             ];
-            $select2 .= '$("#' . $this->getHtmlId() . '").prev(".select2-container").find("ul.select2-choices").sortable(' . JavaScript::encode($select2options) . ');';
+            $select2 .= ';$("#' . $this->getHtmlId() . '").prev(".select2-container").find("ul.select2-choices").sortable(' . JavaScript::encode($select2options) . ');';
         }
 
         $out = implode("\n", [

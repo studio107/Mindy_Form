@@ -9,13 +9,7 @@
         }
     },
     "require": {
-        "php": ">=5.4",
-        "mindy/exception": "*",
-        "mindy/locale": "*",
-        "mindy/validation": "*",
-        "mindy/helper": "*",
-        "mindy/utils": "*",
-        "mindy/event": "*"
+        "php": ">=5.4"
     },
     "require-dev": {
         "mindy/cache": "dev-master",

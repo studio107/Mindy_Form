@@ -1,8 +1,8 @@
 {
     "name": "mindy/form",
-    "homepage": "https://github.com/studio107/Mindy_Form",
-    "version": "0.1.5.2",
-    "license": "MIT",
+    "homepage": "https://github.com/MindyPHP/Mindy_Form",
+    "version": "1.0",
+    "license": "BSD",
     "autoload": {
         "psr-4": {
             "Mindy\\Form\\": "src/Mindy/Form"
@@ -10,12 +10,12 @@
     },
     "require": {
         "php": ">=5.4",
-        "mindy/exception": "0.*",
-        "mindy/locale": "0.*",
-        "mindy/validation": "0.*",
-        "mindy/helper": "0.*",
-        "mindy/utils": "0.*",
-        "mindy/event": "0.*"
+        "mindy/exception": "*",
+        "mindy/locale": "*",
+        "mindy/validation": "*",
+        "mindy/helper": "*",
+        "mindy/utils": "*",
+        "mindy/event": "*"
     },
     "require-dev": {
         "mindy/cache": "dev-master",
@@ -31,6 +31,6 @@
         "role": "Developer"
     }],
     "support": {
-        "issues": "https://github.com/studio107/Mindy_Form/issues?state=open"
+        "issues": "https://github.com/MindyPHP/Mindy_Form/issues?state=open"
     }
 }

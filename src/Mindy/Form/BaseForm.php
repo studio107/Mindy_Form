@@ -31,12 +31,6 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
         'table' => 'core/form/table.html',
         'ul' => 'core/form/ul.html',
     ];
-
-    public $max = PHP_INT_MAX;
-    /**
-     * @var string
-     */
-    public $link;
     /**
      * @var string
      */
@@ -61,15 +55,6 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
      * @var array
      */
     public static $ids = [];
-
-    /**
-     * @var array BaseForm[]
-     */
-    private $_inlines = [];
-    /**
-     * @var array
-     */
-    private $_inlineClasses = [];
     /**
      * @var \Mindy\Form\Fields\Field[]
      */
@@ -78,27 +63,10 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
      * @var array
      */
     protected $_renderFields = [];
-    /**
-     * @var bool
-     */
-    protected $_saveInlineFailed = false;
-    /**
-     * @var array BaseForm[]
-     */
-    private $_inlinesCreate = [];
-    /**
-     * @var array BaseForm[]
-     */
-    private $_inlinesDelete = [];
-    /**
-     * @var BaseForm|ModelForm
-     */
-    private $_parentForm;
 
     public function init()
     {
         $this->initFields();
-        $this->initInlines();
         $this->setRenderFields(array_keys($this->getFieldsInit()));
     }
 
@@ -301,33 +269,7 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
     {
         return $this->setRenderFields($fields)->renderInternal($template, [
             'form' => $this,
-            'inlines' => $this->renderInlines($extra)
         ]);
-    }
-
-    /**
-     * @param null|int $extra count of the extra inline forms for render
-     * @return array of inline forms
-     */
-    public function renderInlines($extra = 1)
-    {
-        $inlines = [];
-        foreach ($this->getInlinesInit() as $params) {
-            $link = key($params);
-            $inline = $params[$link];
-            /** @var $inline BaseForm */
-            if ($extra <= 0) {
-                $extra = 1;
-            }
-
-            $forms = [];
-            for ($i = 0; $extra > $i; $i++) {
-                $forms[] = clone $inline;
-            }
-
-            $inlines[$inline->getName()] = $forms;
-        }
-        return $inlines;
     }
 
     /**
@@ -345,17 +287,7 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
         $template = $this->getTemplateFromType($templateType);
         return $this->setRenderFields($fields)->renderInternal($template, [
             'form' => $this,
-            'inlines' => $this->renderInlines($extra)
         ]);
-    }
-
-    /**
-     * Возвращает инициализированные inline формы
-     * @return BaseForm[]|ModelForm[]
-     */
-    public function getInlinesInit()
-    {
-        return $this->_inlines;
     }
 
     /**
@@ -413,33 +345,7 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
     public function isValid()
     {
         $this->isValidInternal();
-        $this->isValidInlines();
         return $this->hasErrors() === false;
-    }
-
-    public function isValidInlines()
-    {
-        $inlinesCreate = $this->getInlinesCreate();
-        $isValid = true;
-        foreach ($inlinesCreate as $i => $inline) {
-            $ignore = $inline->getPrefix() ? [$inline->link] : [];
-            if ($inline->isValidInternal($ignore) === false) {
-                $this->addErrors([
-                    $inline->classNameShort() => [
-                        $i => $inline->getErrors()
-                    ]
-                ]);
-
-                if ($isValid === true) {
-                    $isValid = false;
-                }
-
-                if ($this->_saveInlineFailed === false) {
-                    $this->_saveInlineFailed = true;
-                }
-            }
-        }
-        return $isValid;
     }
 
     /**
@@ -486,24 +392,6 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
     }
 
     /**
-     * @param BaseForm $form
-     * @return $this
-     */
-    public function setParentForm(BaseForm $form)
-    {
-        $this->_parentForm = $form;
-        return $this;
-    }
-
-    /**
-     * @return Fields\Field|void
-     */
-    public function getParentForm()
-    {
-        return $this->_parentForm;
-    }
-
-    /**
      * @param \Mindy\Form\BaseForm|\Mindy\Form\ModelForm $owner
      * @param array $attributes
      * @return array
@@ -535,57 +423,6 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
                 }
             }
         }
-
-        $signal = $this->getEventManager();
-
-        // TODO move to ModelForm
-        $sourceInlines = $this->getInlinesInit();
-        if (count($sourceInlines) > 0) {
-            $this->cleanInlinesCreate();
-            foreach ($sourceInlines as $params) {
-                $link = key($params);
-                $sourceInline = $params[$link];
-                /** @var $sourceInline BaseForm */
-                /** @var $inline BaseForm */
-                if (isset($data[$sourceInline->classNameShort()])) {
-                    $max = $sourceInline->max;
-                    foreach ($data[$sourceInline->classNameShort()] as $i => $item) {
-                        if ($i + 1 > $max) {
-                            break;
-                        }
-
-                        // Form changed or form is new
-                        if (!empty($item['_changed']) || empty($item['_pk'])) {
-                            $inline = clone $sourceInline;
-
-                            $event = $signal->send($inline, 'beforeSetAttributes', $inline, $item);
-                            if ($event->getLast()->value) {
-                                $item = $event->getLast()->value;
-                            }
-
-                            if (isset($item['_pk']) && !empty($item['_pk'])) {
-                                /** @var $inline ModelForm */
-                                $modelClass = $inline->getModel();
-                                $model = is_string($modelClass) ? new $modelClass : $modelClass;
-                                $instance = $model->objects()->filter(['pk' => $item['_pk']])->get();
-                                if ($instance !== null) {
-                                    $inline->setInstance($instance);
-                                    $inline->setAttributes($item);
-                                }
-                            } else {
-                                $inline->setAttributes($item);
-                            }
-
-                            if (!empty($item['_delete'])) {
-                                $this->_inlinesDelete[] = $inline;
-                            } else {
-                                $this->_inlinesCreate[] = $inline;
-                            }
-                        }
-                    }
-                }
-            }
-        }
         return $this;
     }
 
@@ -596,17 +433,6 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
     public function clearErrors($attribute = null)
     {
         $this->clearErrorsInternal($attribute);
-        foreach ($this->getInlinesCreate() as $inline) {
-            $inline->clearErrors();
-        }
-    }
-
-    /**
-     * @return \Mindy\Form\BaseForm[]
-     */
-    public function getInlines()
-    {
-        return [];
     }
 
     /**
@@ -654,29 +480,6 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
         return isset($this->_renderFields[$offset]) ? $this->_renderFields[$offset] : null;
     }
 
-    private function initInlines()
-    {
-        $inlines = $this->getInlines();
-
-        foreach ($inlines as $params) {
-            if (!is_array($params)) {
-                throw new Exception("Incorrect inline configuration. Params must be instance of array.");
-            }
-            $link = key($params);
-            $className = $params[$link];
-            $inline = Creator::createObject([
-                'class' => $className,
-                'link' => $link,
-                'prefix' => $this->classNameShort(),
-                'parentForm' => $this,
-                'extraExclude' => [$link]
-            ]);
-
-            $this->_inlines[][$link] = $inline;
-            $this->_inlineClasses[$className::classNameShort()] = $className;
-        }
-    }
-
     /**
      * @DEPRECATED
      * @param $name
@@ -709,31 +512,6 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
             $attributes[$name] = $field->getValue();
         }
         return $attributes;
-    }
-
-    /**
-     * @return ModelForm[]|BaseForm[]
-     */
-    public function getInlinesCreate()
-    {
-        return $this->_inlinesCreate;
-    }
-
-    /**
-     * Clear inlines create variable
-     * @void
-     */
-    public function cleanInlinesCreate()
-    {
-        $this->_inlinesCreate = [];
-    }
-
-    /**
-     * @return ModelForm[]|BaseForm[]
-     */
-    public function getInlinesDelete()
-    {
-        return $this->_inlinesDelete;
     }
 
     public function getJsonErrors()

@@ -92,40 +92,6 @@ class ModelForm extends BaseForm
                 $this->_fields[$name]->setValue($value);
             }
         }
-
-        if ($prefix) {
-            $this->_fields['_pk'] = Creator::createObject(array_merge([
-                'class' => HiddenField::className(),
-                'name' => '_pk',
-                'form' => $this,
-                'value' => $instance ? $instance->pk : null,
-                'prefix' => $prefix,
-                'html' => [
-                    'class' => '_pk'
-                ]
-            ]));
-            $this->_fields['_changed'] = Creator::createObject(array_merge([
-                'class' => HiddenField::className(),
-                'name' => '_changed',
-                'form' => $this,
-                'prefix' => $prefix,
-                'html' => [
-                    'class' => '_changed'
-                ]
-            ]));
-            $this->_fields['_delete'] = Creator::createObject(array_merge([
-                'class' => DeleteInlineField::className(),
-                'name' => '_delete',
-                'form' => $this,
-                'label' => Translate::getInstance()->t('form', 'Delete'),
-                'value' => $instance ? $instance->pk : null,
-                'prefix' => $prefix,
-                'hint' => Translate::getInstance()->t('form', 'Inline model will be deleted after main model save'),
-                'html' => [
-                    'class' => '_delete'
-                ]
-            ]));
-        }
     }
 
     /**
@@ -177,33 +143,7 @@ class ModelForm extends BaseForm
     public function save()
     {
         $this->setModelAttributes($this->cleanedData);
-        $instance = $this->getInstance();
-        $saved = $instance->save();
-
-        $inlineSaved = true;
-        if (!$this->getParentForm()) {
-            $inlineCreate = $this->getInlinesCreate();
-            foreach ($inlineCreate as $inline) {
-                $inline->setModelAttributes([
-                    $inline->link => $instance
-                ]);
-
-                $inline->afterOwnerSave($instance);
-                if ($inline->isValid()) {
-                    if ($inline->save() === false) {
-                        $inlineSaved = false;
-                    }
-                } else {
-                    $inlineSaved = false;
-                }
-            }
-
-            foreach ($this->getInlinesDelete() as $inline) {
-                $inline->delete();
-            }
-        }
-
-        return $saved && $inlineSaved;
+        return $this->getInstance()->save();
     }
 
     /**
@@ -221,83 +161,6 @@ class ModelForm extends BaseForm
     public function setModel(Model $model)
     {
         $this->_model = $model;
-    }
-
-    /**
-     * @param null|int $extra count of the extra inline forms for render
-     * @return array of inline forms
-     */
-    public function renderInlines($extra = 1)
-    {
-        if ($extra <= 0) {
-            $extra = 1;
-        }
-
-        $instance = $this->getInstance();
-        $instanceOrModel = $instance ? $instance : $this->getModel();
-
-        $inlines = [];
-        $excludeModels = [];
-        if ($this->_saveInlineFailed) {
-            foreach ($this->getInlinesCreate() as $createInline) {
-                $name = $createInline->getName();
-                if (!isset($inlines[$name])) {
-                    $inlines[$name] = [];
-                }
-
-                $createInstance = $createInline->getInstance();
-                if ($createInstance->getIsNewRecord() === false) {
-                    $excludeModels[] = $createInstance->pk;
-                }
-                $inlines[$name][] = $createInline;
-            }
-        }
-
-        foreach ($this->getInlinesInit() as $params) {
-            $link = key($params);
-            $inline = $params[$link];
-
-            $name = $inline->getName();
-            if ($instanceOrModel->getIsNewRecord() === false) {
-                $qs = $inline->getLinkModels([$link => $instanceOrModel]);
-            } else {
-                $qs = null;
-            }
-
-            if ($qs instanceof QuerySet || $qs instanceof Manager) {
-                if (count($excludeModels) > 0) {
-                    $qs->exclude(['pk__in' => $excludeModels]);
-                }
-                $models = $qs->all();
-            } else {
-                $models = [];
-            }
-            if (count($models) > 0) {
-                if (!isset($inlines[$name])) {
-                    $inlines[$name] = [];
-                }
-
-                foreach ($models as $linkedModel) {
-                    $new = clone $inline;
-                    $new->addExclude($link);
-                    $new->cleanAttributes();
-                    $new->setInstance($linkedModel);
-                    $new->populateFromInstance($linkedModel);
-                    $inlines[$name][] = $new;
-                }
-            }
-
-            /** @var $inline BaseForm|ModelForm */
-            for ($i = 0; $extra > $i; $i++) {
-                $newClean = clone $inline;
-                $newClean->addExclude($link);
-                $newClean->cleanAttributes();
-                $newClean->clearInstance();
-                $inlines[$name][] = $newClean;
-            }
-        }
-
-        return $inlines;
     }
 
     protected function populateFromInstance(\Mindy\Orm\Model $model)

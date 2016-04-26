@@ -262,9 +262,10 @@ abstract class Field implements IValidateField
             }
         }
 
-        return strtr("<label for='{for}'>{label}</label>", [
+        return strtr("<label for='{for}'>{label}{star}</label>", [
             '{for}' => $this->getHtmlId(),
-            '{label}' => $label
+            '{label}' => $label,
+            '{star}' => $this->required ? ' <span class="required">*</span>' : ''
         ]);
     }
 

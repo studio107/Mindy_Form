@@ -18,23 +18,12 @@ use Mindy\Validation\Traits\ValidateObject;
 /**
  * Class BaseForm
  * @package Mindy\Form
- * @method string asBlock(array $renderFields = [])
- * @method string asUl(array $renderFields = [])
- * @method string asTable(array $renderFields = [])
  */
 abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IValidateObject
 {
     use Accessors, Configurator, ValidateObject, RenderTrait;
 
-    public $templates = [
-        'block' => 'core/form/block.html',
-        'table' => 'core/form/table.html',
-        'ul' => 'core/form/ul.html',
-    ];
-    /**
-     * @var string
-     */
-    public $defaultTemplateType = 'block';
+    public $template = 'core/form/block.html';
     /**
      * @var array
      */
@@ -67,7 +56,6 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
     public function init()
     {
         $this->initFields();
-        $this->setRenderFields(array_keys($this->getFieldsInit()));
     }
 
     protected function getEventManager()
@@ -223,17 +211,6 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
         }
     }
 
-    public function __call($name, $arguments)
-    {
-        $type = strtolower(ltrim($name, 'as'));
-        if (isset($this->templates[$type])) {
-            $template = $this->getTemplateFromType($type);
-            return call_user_func_array([$this, 'render'], array_merge([$template], $arguments));
-        } else {
-            return $this->__callInternal($name, $arguments);
-        }
-    }
-
     public function getFields()
     {
         return [];
@@ -241,53 +218,26 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
 
     public function __toString()
     {
-        $template = $this->getTemplateFromType($this->defaultTemplateType);
         try {
-            return (string)$this->render($template);
+            return (string)$this->render();
         } catch (Exception $e) {
             return (string)$e;
         }
     }
 
-    public function getTemplateFromType($type)
+    public function setTemplate($template)
     {
-        if (array_key_exists($type, $this->templates)) {
-            $template = $this->templates[$type];
-        } else {
-            throw new Exception("Template type {$type} not found");
-        }
-        return $template;
+        $this->template = $template;
+        return $this;
     }
 
     /**
-     * @param $template
      * @param array $fields
-     * @param null|int $extra count of the extra inline forms for render
      * @return string
      */
-    public function render($template, array $fields = [], $extra = null)
+    public function render(array $fields = [], $errors = true)
     {
-        return $this->setRenderFields($fields)->renderInternal($template, [
-            'form' => $this,
-        ]);
-    }
-
-    /**
-     * @param $template
-     * @param array $params
-     * @return string
-     */
-    public function renderInternal($template, array $params)
-    {
-        return self::renderTemplate($template, $params);
-    }
-
-    public function renderType($templateType, array $fields = [], $extra = null)
-    {
-        $template = $this->getTemplateFromType($templateType);
-        return $this->setRenderFields($fields)->renderInternal($template, [
-            'form' => $this,
-        ]);
+        return $this->setRenderFields($fields)->renderTemplate($this->template, ['form' => $this, 'errors' => $errors]);
     }
 
     /**
@@ -366,6 +316,7 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
      * @param array|Collection $data
      * @param array|Collection $files
      * @return $this
+     * @throws Exception
      */
     public function populate($data, $files = [])
     {

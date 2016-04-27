@@ -309,7 +309,11 @@ abstract class Field implements IValidateField
 
     public function getHtmlId()
     {
-        return $this->getHtmlPrefix() . $this->getName();
+        if (isset($this->html['id'])) {
+            return $this->html['id'];
+        } else {
+            return $this->getHtmlPrefix() . $this->getName();
+        }
     }
 
     public function getHtmlPrefix()

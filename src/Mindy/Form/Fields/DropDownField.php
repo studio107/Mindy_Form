@@ -67,7 +67,7 @@ class DropDownField extends Field
 
         if (!empty($this->choices)) {
             $choices = $this->choices;
-        } else {
+        } else if ($this->form instanceof ModelForm) {
             $choices = $this->form->getModel()->getField($this->name)->choices;
         }
 

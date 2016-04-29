@@ -233,7 +233,9 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
 
     /**
      * @param array $fields
+     * @param bool $errors
      * @return string
+     * @throws Exception
      */
     public function render(array $fields = [], $errors = true)
     {

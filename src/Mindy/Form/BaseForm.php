@@ -11,7 +11,7 @@ use Mindy\Helper\Collection;
 use Mindy\Helper\Creator;
 use Mindy\Helper\Traits\Accessors;
 use Mindy\Helper\Traits\Configurator;
-use Mindy\Utils\RenderTrait;
+use Mindy\Helper\Traits\RenderTrait;
 use Mindy\Validation\Interfaces\IValidateObject;
 use Mindy\Validation\Traits\ValidateObject;
 

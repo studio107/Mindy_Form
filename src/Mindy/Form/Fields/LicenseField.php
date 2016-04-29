@@ -2,7 +2,7 @@
 
 namespace Mindy\Form\Fields;
 
-use Mindy\Utils\RenderTrait;
+use Mindy\Helper\Traits\RenderTrait;
 
 /**
  * Class LicenseField

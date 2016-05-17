@@ -443,18 +443,6 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
     }
 
     /**
-     * @return $this
-     */
-    public function cleanAttributes()
-    {
-        $fields = $this->getFieldsInit();
-        foreach ($fields as $field) {
-            $field->setValue(null);
-        }
-        return $this;
-    }
-
-    /**
      * Return form attributes
      * @return array
      */

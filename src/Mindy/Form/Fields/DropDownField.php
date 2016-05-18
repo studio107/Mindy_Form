@@ -79,7 +79,8 @@ class DropDownField extends Field
             }
 
             if (!$this->required) {
-                $data = array_merge(['' => $this->empty], $data);
+                $data = ['' => $this->empty] + $data;
+
             }
 
             $value = $this->getValue();

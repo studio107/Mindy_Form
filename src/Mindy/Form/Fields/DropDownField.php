@@ -78,6 +78,10 @@ class DropDownField extends Field
                 $data = $choices;
             }
 
+            if (!$this->required) {
+                $data = array_merge(['' => $this->empty], $data);
+            }
+
             $value = $this->getValue();
             if ($value) {
                 if ($value instanceof Manager) {

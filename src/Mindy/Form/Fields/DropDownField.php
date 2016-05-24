@@ -3,8 +3,10 @@
 namespace Mindy\Form\Fields;
 
 use Closure;
+use Mindy\Base\Mindy;
 use Mindy\Form\Form;
 use Mindy\Form\ModelForm;
+use Mindy\Orm\Fields\ForeignField;
 use Mindy\Orm\Manager;
 use Mindy\Orm\Model;
 
@@ -22,7 +24,7 @@ class DropDownField extends Field
      * Span tag needed because: http://stackoverflow.com/questions/23920990/firefox-30-is-not-hiding-select-box-arrows-anymore
      * @var string
      */
-    public $template = "<span class='select-holder'><select id='{id}' name='{name}' {html}>{input}</select></span>";
+    public $template = "<span class='select-holder'><select id='{id}' name='{name}' {html}>{input}</select></span>{create}";
     /**
      * @var bool
      */
@@ -35,6 +37,10 @@ class DropDownField extends Field
      * @var array
      */
     public $disabled = [];
+    /**
+     * @var
+     */
+    public $createUrl;
 
     public function render()
     {
@@ -55,8 +61,45 @@ class DropDownField extends Field
             '{id}' => $this->getHtmlId(),
             '{input}' => $this->getInputHtml(),
             '{name}' => $this->multiple ? $this->getHtmlName() . '[]' : $this->getHtmlName(),
-            '{html}' => $this->getHtmlAttributes()
+            '{html}' => $this->getHtmlAttributes(),
+            '{create}' => $this->renderCreate()
         ])]);
+    }
+
+    public function renderCreate()
+    {
+        if ($this->getForm() instanceof ModelForm) {
+            $model = $this->getForm()->getModel();
+            $field = $model->getField($this->getName());
+            if ($field instanceof ForeignField) {
+                $modelClass = basename(str_replace('\\', '/', $field->modelClass));
+                $tmp = explode('\\', $field->modelClass);
+                $moduleId = $tmp[1];
+                $className = strtr('\Modules\{id}\Admin\{admin}', [
+                    '{id}' => $moduleId,
+                    '{admin}' => $modelClass . 'Admin'
+                ]);
+
+                if (class_exists($className)) {
+                    if (empty($this->createUrl)) {
+                        $this->createUrl = Mindy::app()->urlManager->reverse('admin:action', [
+                            'module' => $moduleId,
+                            'admin' => $modelClass . 'Admin',
+                            'action' => 'create'
+                        ]);
+                    }
+                }
+
+
+                if (empty($this->createUrl)) {
+                    return '';
+                }
+
+                return "<a href='#' class='button icon create-popup-form' data-id='{$this->getHtmlId()}' data-url='{$this->createUrl}'><i class=\"icon plus\"></i></a>";
+            }
+        }
+
+        return '';
     }
 
     protected function getInputHtml()
@@ -89,7 +132,7 @@ class DropDownField extends Field
                     $selected = $value->valuesList(['pk'], true);
                 } else if ($value instanceof Model) {
                     $selected[] = $value->pk;
-                } else if (is_array($value)){
+                } else if (is_array($value)) {
                     $selected = $value;
                 } else {
                     $selected[] = $value;

@@ -2,6 +2,7 @@
 
 namespace Mindy\Form\Fields;
 
+use Closure;
 use Exception;
 use Mindy\Form\BaseForm;
 use Mindy\Form\ModelForm;
@@ -319,5 +320,10 @@ abstract class Field implements IValidateField
     public function getHtmlPrefix()
     {
         return rtrim(str_replace(['][', '[]', '[', ']'], '_', $this->getPrefix()), '_') . '_';
+    }
+
+    public function getChoices()
+    {
+        return $this->choices instanceof Closure ? $this->choices->__invoke() : $this->choices;
     }
 }

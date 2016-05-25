@@ -45,6 +45,10 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
      */
     public static $ids = [];
     /**
+     * @var bool
+     */
+    public $enableCreateButton = false;
+    /**
      * @var \Mindy\Form\Fields\Field[]
      */
     protected $_fields = [];
@@ -207,6 +211,7 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
                 'name' => $name,
                 'form' => $this,
                 'prefix' => $prefix,
+                'enableCreateButton' => $this->enableCreateButton
             ], $config));
         }
     }
@@ -237,9 +242,9 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
      * @return string
      * @throws Exception
      */
-    public function render(array $fields = [], $errors = true)
+    public function render(array $fields = [], $errors = true, $template = null)
     {
-        return $this->setRenderFields($fields)->renderTemplate($this->template, ['form' => $this, 'errors' => $errors]);
+        return $this->setRenderFields($fields)->renderTemplate($template ? $template : $this->template, ['form' => $this, 'errors' => $errors]);
     }
 
     /**

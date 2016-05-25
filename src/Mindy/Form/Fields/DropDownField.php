@@ -68,7 +68,7 @@ class DropDownField extends Field
 
     public function renderCreate()
     {
-        if ($this->getForm() instanceof ModelForm) {
+        if ($this->enableCreateButton && $this->getForm() instanceof ModelForm) {
             $model = $this->getForm()->getModel();
             $field = $model->getField($this->getName());
             if ($field instanceof ForeignField) {

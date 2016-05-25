@@ -81,6 +81,10 @@ abstract class Field implements IValidateField
      */
     public $errorClass = 'error';
     /**
+     * @var bool
+     */
+    public $enableCreateButton = false;
+    /**
      * @var
      */
     private $_name;

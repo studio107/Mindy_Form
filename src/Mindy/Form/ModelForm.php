@@ -131,7 +131,9 @@ class ModelForm extends BaseForm
     public function setInstance($model)
     {
         $this->_instance = $model;
-        $this->setInstanceValues($model);
+        if ($model) {
+            $this->setInstanceValues($model);
+        }
     }
 
     /**

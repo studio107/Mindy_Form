@@ -23,6 +23,10 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
 {
     use Accessors, Configurator, ValidateObject, RenderTrait;
 
+    public $usePrefix = true;
+    /**
+     * @var string
+     */
     public $template = 'core/form/block.html';
     /**
      * @var array

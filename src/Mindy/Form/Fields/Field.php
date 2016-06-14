@@ -208,7 +208,12 @@ abstract class Field implements IValidateField
 
     public function getHtmlName()
     {
-        return $this->getPrefix() . '[' . $this->name . ']';
+        $form = $this->getForm();
+        if ($form->usePrefix) {
+            return $this->getPrefix() . '[' . $this->name . ']';
+        } else {
+            return $this->name;
+        }
     }
 
     public function getHtmlAttributes()

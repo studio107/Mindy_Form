@@ -344,12 +344,17 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
         }
 
         $tmp = empty($files) ? $data : $this->prepare($data, $files, $fixFiles);
-        if (!isset($tmp[$this->classNameShort()])) {
-            return $this;
-        }
 
-        $data = $tmp[$this->classNameShort()];
-        $this->setAttributes($data);
+        if ($this->usePrefix) {
+            if (!isset($tmp[$this->classNameShort()])) {
+                return $this;
+            }
+
+            $data = $tmp[$this->classNameShort()];
+            $this->setAttributes($data);
+        } else {
+            $this->setAttributes($tmp);
+        }
         return $this;
     }
 

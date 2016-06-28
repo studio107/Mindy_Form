@@ -114,7 +114,7 @@ class ModelForm extends BaseForm
      * @return $this
      * @throws \Exception
      */
-    public function setInstance(\Mindy\Orm\Model $model)
+    public function setInstance($model)
     {
         $this->_instance = $model;
     }

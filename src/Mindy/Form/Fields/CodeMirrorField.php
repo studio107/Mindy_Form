@@ -14,7 +14,7 @@ class CodeMirrorField extends Field
     /**
      * @var array
      */
-    public $options = [
+    public $defaultOptions = [
         'lineNumbers' => true,
         'mode' => ['name' => "jinja2", 'htmlMode' => true],
         'styleActiveLine' => true,
@@ -22,10 +22,12 @@ class CodeMirrorField extends Field
         'theme' => 'material'
     ];
 
+    public $options = [];
+
     public function render()
     {
         $out = parent::render();
-        $jsOptions = JavaScript::encode($this->options);
+        $jsOptions = JavaScript::encode(array_merge($this->defaultOptions, $this->options));
         $js = '<script type="text/javascript">
             var editor = CodeMirror.fromTextArea(document.getElementById("' . $this->getHtmlId() . '"), ' . $jsOptions . ');
         </script>';

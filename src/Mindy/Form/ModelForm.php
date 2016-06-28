@@ -94,6 +94,20 @@ class ModelForm extends BaseForm
         }
     }
 
+    protected function setInstanceValues(Model $model)
+    {
+        foreach ($model->getFields() as $name => $config) {
+            if (array_key_exists($name, $this->_fields)) {
+                $value = $model->{$name};
+                if ($value instanceof FileField) {
+                    $value = $value->getValue();
+                }
+                $this->_fields[$name]->setValue($value);
+            }
+        }
+        return $this;
+    }
+
     /**
      * @param array $data
      * @return $this
@@ -117,6 +131,9 @@ class ModelForm extends BaseForm
     public function setInstance($model)
     {
         $this->_instance = $model;
+        if ($model) {
+            $this->setInstanceValues($model);
+        }
     }
 
     /**

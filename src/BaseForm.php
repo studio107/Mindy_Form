@@ -29,14 +29,6 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
      */
     public $template = 'core/form/block.html';
     /**
-     * @var array
-     */
-    public $exclude = [];
-    /**
-     * @var array
-     */
-    private $_extraExclude = [];
-    /**
      * @var string
      */
     private $_prefix;
@@ -60,52 +52,26 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
      * @var array
      */
     protected $_renderFields = [];
+    /**
+     * @var array
+     */
+    private $_exclude = [];
+    /**
+     * @var bool
+     */
+    private $_renderErrors = false;
 
-    public function init()
+    public function __construct(array $config = [])
     {
-        $this->initFields();
-    }
-
-    protected function getEventManager()
-    {
-        /**
-         * @var \Mindy\Event\EventManager
-         */
-        static $_eventManager;
-        if ($_eventManager === null) {
-            if (class_exists('\Mindy\Base\Mindy')) {
-                $_eventManager = \Mindy\Base\Mindy::app()->getComponent('signal');
-            } else {
-                $_eventManager = new \Mindy\Event\EventManager();
-            }
+        if (array_key_exists('exclude', $config)) {
+            $this->_exclude = $config['exclude'];
+            unset($config['exclude']);
         }
-        return $_eventManager;
-    }
-
-    /**
-     * @param array $value
-     * @return array
-     */
-    public function setExclude(array $value)
-    {
-        $this->exclude = $value;
-    }
-
-    /**
-     * @param array $value
-     * @return array
-     */
-    public function setExtraExclude(array $value)
-    {
-        $this->_extraExclude = $value;
-    }
-
-    /**
-     * @return array
-     */
-    public function getExclude()
-    {
-        return array_merge($this->_extraExclude, $this->exclude);
+        $this->initFields();
+        $this->setRenderFields(array_keys($this->getFieldsInit()));
+        foreach ($config as $key => $value) {
+            $this->{$key} = $value;
+        }
     }
 
     /**
@@ -125,20 +91,6 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
         return $this->_prefix;
     }
 
-    /**
-     * @param $owner BaseForm
-     */
-    public function beforeValidate($owner)
-    {
-    }
-
-    /**
-     * @param $owner BaseForm
-     */
-    public function afterValidate($owner)
-    {
-    }
-
     public function getName()
     {
         return $this->classNameShort();
@@ -151,8 +103,8 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
 
     public function __get($name)
     {
-        if (array_key_exists($name, $this->_fields)) {
-            return $this->_fields[$name];
+        if ($this->hasField($name)) {
+            return $this->getField($name);
         } else {
             return $this->__getInternal($name);
         }
@@ -171,8 +123,8 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
 
     public function __set($name, $value)
     {
-        if (array_key_exists($name, $this->_fields)) {
-            $this->_fields[$name]->setValue($value);
+        if ($this->hasField($name)) {
+            $this->getField($name)->setValue($value);
         } else {
             $this->__setInternal($name, $value);
         }
@@ -181,14 +133,13 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
     public function getId()
     {
         if ($this->_id === null) {
-            $className = self::className();
-            if (array_key_exists($className, self::$ids)) {
-                self::$ids[$className]++;
+            if (array_key_exists(self::class, self::$ids)) {
+                self::$ids[self::class]++;
             } else {
-                self::$ids[$className] = 0;
+                self::$ids[self::class] = 0;
             }
 
-            $this->_id = self::$ids[$className];
+            $this->_id = self::$ids[self::class];
         }
 
         return $this->_id;
@@ -203,7 +154,7 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
         $prefix = $this->getPrefix();
         $fields = $this->getFields();
         foreach ($fields as $name => $config) {
-            if (in_array($name, $this->getExclude())) {
+            if (in_array($name, $this->_exclude)) {
                 continue;
             }
 
@@ -220,11 +171,18 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
         }
     }
 
+    /**
+     * @return array
+     */
     public function getFields()
     {
         return [];
     }
 
+    /**
+     * Please avoid this method for render form
+     * @return string
+     */
     public function __toString()
     {
         try {
@@ -241,14 +199,28 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
     }
 
     /**
-     * @param array $fields
-     * @param bool $errors
-     * @return string
-     * @throws Exception
+     * @param $value
+     * @return $this
      */
-    public function render(array $fields = [], $errors = true, $template = null)
+    public function setRenderErrors($value)
     {
-        return $this->setRenderFields($fields)->renderTemplate($template ? $template : $this->template, ['form' => $this, 'errors' => $errors]);
+        $this->_renderErrors = $value;
+        return $this;
+    }
+
+    /**
+     * @param null $template
+     * @return string
+     */
+    public function render($template = null)
+    {
+        if (empty($template)) {
+            $template = $this->template;
+        }
+        return $this->renderTemplate($template, [
+            'form' => $this,
+            'errors' => $this->getErrors()
+        ]);
     }
 
     /**
@@ -263,12 +235,8 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
             $fields = array_keys($this->getFieldsInit());
         }
         $this->_renderFields = [];
-        $initFields = $this->getFieldsInit();
         foreach ($fields as $name) {
-            if (in_array($name, $this->exclude)) {
-                continue;
-            }
-            if (array_key_exists($name, $initFields)) {
+            if ($this->hasField($name)) {
                 $this->_renderFields[] = $name;
             } else {
                 throw new Exception("Field $name not found");
@@ -277,9 +245,26 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
         return $this;
     }
 
+    /**
+     * @return array|mixed
+     */
+    protected function getExclude()
+    {
+        return $this->_exclude;
+    }
+
+    /**
+     * @return array
+     */
     public function getRenderFields()
     {
-        return $this->_renderFields;
+        $fields = [];
+        foreach ($this->getFieldsInit() as $name => $field) {
+            if (in_array($name, $this->_renderFields)) {
+                $fields[$name] = $field;
+            }
+        }
+        return $fields;
     }
 
     /**
@@ -320,7 +305,51 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
 
     public function prepare(array $data, array $files = [], $fixFiles = true)
     {
-        return PrepareData::collect($data, $files, $fixFiles);
+        return $this->merge($fixFiles ? $this->reformatFilesArray($files) : $files, $data, true);
+    }
+
+    public function merge(array $a, array $b, $preserveNumericKeys = false)
+    {
+        foreach ($b as $key => $value) {
+            if (array_key_exists($key, $a)) {
+                if (is_int($key) && !$preserveNumericKeys) {
+                    $a[] = $value;
+                } elseif (is_array($value) && is_array($a[$key])) {
+                    $a[$key] = static::merge($a[$key], $value, $preserveNumericKeys);
+                } else {
+                    $a[$key] = $value;
+                }
+            } else {
+                $a[$key] = $value;
+            }
+        }
+
+        return $a;
+    }
+
+    /**
+     * Fix broken $_FILES array
+     * @param $data
+     * @return array
+     */
+    public function reformatFilesArray($data)
+    {
+        $n = [];
+        foreach ($data as $baseName => $params) {
+            foreach ($params as $innerKey => $value) {
+                foreach ($value as $inlineName => $item) {
+                    if (is_array($item)) {
+                        foreach($item as $index => $t) {
+                            $key = key($t);
+                            $n[$baseName][$inlineName][$index][$key][$innerKey] = $t[$key];
+                        }
+                    } else {
+                        $n[$baseName][$inlineName][$innerKey] = $item;
+                    }
+                }
+            }
+        }
+        return $n;
     }
 
     /**
@@ -411,49 +440,45 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
      */
     public function getIterator()
     {
-        $fields = [];
-        foreach ($this->_renderFields as $key) {
-            $fields[$key] = $this->_fields[$key];
-        }
-        return new ArrayIterator($fields);
+        return new ArrayIterator($this->getFieldsInit());
     }
 
     public function count()
     {
-        return count($this->_renderFields);
+        return count($this->getFieldsInit());
     }
 
     public function offsetSet($offset, $value)
     {
-        if (is_null($offset)) {
-            $this->_renderFields[] = $value;
+        if ($this->hasField($offset)) {
+            $this->getField($offset)->setValue($value);
         } else {
-            $this->_renderFields[$offset] = $value;
+            throw new Exception('Field isnt exists');
         }
     }
 
     public function offsetExists($offset)
     {
-        return isset($this->_renderFields[$offset]);
+        return $this->hasField($offset);
     }
 
     public function offsetUnset($offset)
     {
-        unset($this->_renderFields[$offset]);
-    }
-
-    public function offsetGet($offset)
-    {
-        return isset($this->_renderFields[$offset]) ? $this->_renderFields[$offset] : null;
+        throw new Exception('Method not supported');
     }
 
     /**
-     * @DEPRECATED
-     * @param $name
+     * @param mixed $offset
+     * @return Fields\Field
+     * @throws Exception
      */
-    public function addExclude($name)
+    public function offsetGet($offset)
     {
-        $this->exclude[] = $name;
+        if ($this->hasField($offset)) {
+            return $this->getField($offset);
+        }
+
+        throw new Exception('Field isnt exists');
     }
 
     /**

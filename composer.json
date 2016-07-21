@@ -1,29 +1,36 @@
 {
-    "name": "mindy/form",
-    "homepage": "https://github.com/MindyPHP/Mindy_Form",
-    "license": "BSD",
-    "autoload": {
-        "psr-4": {
-            "Mindy\\Form\\": "src/Mindy/Form"
-        }
-    },
-    "require": {
-        "php": ">=5.4"
-    },
-    "require-dev": {
-        "mindy/cache": "dev-master",
-        "mindy/query": "dev-master",
-        "mindy/logger": "dev-master",
-        "mindy/orm": "dev-master",
-        "satooshi/php-coveralls": "dev-master"
-    },
-    "authors": [{
-        "name": "Maxim Falaleev",
-        "email": "max@studio107.ru",
-        "homepage": "http://studio107.ru",
-        "role": "Developer"
-    }],
-    "support": {
-        "issues": "https://github.com/MindyPHP/Mindy_Form/issues?state=open"
+  "name": "mindy/form",
+  "homepage": "https://github.com/MindyPHP/Mindy_Form",
+  "license": "BSD",
+  "autoload": {
+    "psr-4": {
+      "Mindy\\Form\\": "src/"
     }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Mindy\\Form\\": "test/"
+    }
+  },
+  "require": {
+    "php": ">=5.6"
+  },
+  "require-dev": {
+    "mindy/cache": "dev-master",
+    "mindy/query": "dev-master",
+    "mindy/logger": "dev-master",
+    "mindy/orm": "dev-master",
+    "phpunit/php-code-coverage": "^4"
+  },
+  "authors": [
+    {
+      "name": "Maxim Falaleev",
+      "email": "max@studio107.ru",
+      "homepage": "http://studio107.ru",
+      "role": "Developer"
+    }
+  ],
+  "support": {
+    "issues": "https://github.com/MindyPHP/Mindy_Form/issues?state=open"
+  }
 }

@@ -2,6 +2,7 @@
 
 namespace Mindy\Form\Fields;
 
+use Mindy\Form\Widget\DateTimeWidget;
 use Mindy\Helper\JavaScript;
 use Mindy\Helper\JavaScriptExpression;
 
@@ -11,14 +12,18 @@ use Mindy\Helper\JavaScriptExpression;
  */
 class DateField extends CharField
 {
-    public $options = [
-        'showTime' => false,
-        'showSeconds' => false,
-        'use24hour' => true,
-        'incrementHourBy' => 1,
-        'incrementMinuteBy' => 1,
-        'incrementSecondBy' => 1
-    ];
+    public $options = [];
+
+    public function init()
+    {
+        parent::init();
+        if (empty($this->widget)) {
+            $this->widget = array_merge([
+                'class' => DateTimeWidget::class,
+                'showTime' => false,
+            ], $this->options);
+        }
+    }
 
     public function render()
     {

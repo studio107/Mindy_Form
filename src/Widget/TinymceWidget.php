@@ -1,20 +1,27 @@
 <?php
-
-namespace Mindy\Form\Fields;
-
 /**
- * Class TinymceField
- * @package Mindy\Form
+ * Created by PhpStorm.
+ * User: max
+ * Date: 21/07/16
+ * Time: 12:20
  */
-class TinymceField extends TextAreaField
+
+namespace Mindy\Form\Widget;
+
+use Mindy\Form\Widget;
+
+class TinymceWidget extends Widget
 {
+    /**
+     * @return string
+     */
     public function render()
     {
-        $id = $this->getHtmlId();
+        $field = $this->getField();
         $js = "<script type='text/javascript'>
         tinyMCE.init({
             mode: 'exact',
-            elements: '{$id}',
+            elements: '{$field->getHtmlId()}',
             theme: 'advanced',
             language : 'ru',
             width: '100%',
@@ -40,6 +47,6 @@ class TinymceField extends TextAreaField
             skin_variant : 'silver'
         });
         </script>";
-        return parent::render() . $js;
+        return $field->renderInput() . $js;
     }
 }

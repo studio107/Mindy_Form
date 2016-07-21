@@ -1,29 +1,43 @@
 <?php
+/**
+ * Created by PhpStorm.
+ * User: max
+ * Date: 21/07/16
+ * Time: 12:09
+ */
 
-namespace Mindy\Form\Fields;
+namespace Mindy\Form\Widget;
+
+use Mindy\Form\Widget;
 use Mindy\Helper\Json;
 
-/**
- * Class AceField
- * @package Mindy\Form
- */
-class AceField extends CharField
+class AceWidget extends Widget
 {
-    public $template = "<textarea id='{id}' class='hide' name='{name}'{html}>{value}</textarea>";
-
+    /**
+     * @var string
+     */
     public $aceMode = "ace/mode/twig";
-
+    /**
+     * @var string
+     */
     public $aceTheme = "ace/theme/crimson_editor";
-
+    /**
+     * @var bool
+     */
     public $readOnly = false;
 
+    /**
+     * @return string
+     */
     public function render()
     {
+        $field = $this->getField();
+
         $out = strtr('<div id="{id}-ace-editor" class="ace-editor">{value}</div>
         <script type="text/javascript">
             var editor = ace.edit("{id}-ace-editor");
 
-            // Hide deprecate warning
+            // Hide deprecation warning
             editor.$blockScrolling = Infinity;
 
             editor.setFontSize(".9rem");
@@ -38,10 +52,11 @@ class AceField extends CharField
                 $("#{id}").val(editor.getSession().getValue());
             });
         </script>', [
-            '{id}' => $this->getHtmlId(),
-            '{value}' => htmlentities($this->getValue()),
+            '{id}' => $field->getHtmlId(),
+            '{value}' => htmlentities($field->getValue()),
             '{readonly}' => Json::encode($this->readOnly)
         ]);
-        return parent::render() . $out;
+
+        return $field->renderInput() . $out;
     }
 }

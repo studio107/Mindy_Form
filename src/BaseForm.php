@@ -67,11 +67,11 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
             $this->_exclude = $config['exclude'];
             unset($config['exclude']);
         }
-        $this->initFields();
-        $this->setRenderFields(array_keys($this->getFieldsInit()));
         foreach ($config as $key => $value) {
             $this->{$key} = $value;
         }
+        $this->initFields();
+        $this->setRenderFields(array_keys($this->getFieldsInit()));
     }
 
     /**
@@ -219,7 +219,7 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
         }
         return $this->renderTemplate($template, [
             'form' => $this,
-            'errors' => $this->getErrors()
+            'errors' => $this->_renderErrors ? $this->getErrors() : []
         ]);
     }
 

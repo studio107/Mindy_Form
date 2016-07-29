@@ -35,7 +35,7 @@ class ModelForm extends BaseForm
         $fields = $this->getFields();
 
         foreach ($model->getFieldsInit() as $name => $field) {
-            if ($field->editable === false || is_a($field, Model::$autoField) || in_array($name, $this->getExclude())) {
+            if ($field->editable === false || $field->primary || in_array($name, $this->getExclude())) {
                 continue;
             }
 

@@ -207,7 +207,13 @@ abstract class Field implements IValidateField
     public function renderInput()
     {
         if (empty($this->widget) === false && $this->_renderWidget) {
-            $widget = is_array($this->widget) ? Creator::createObject($this->widget) : $this->widget;
+            if (is_string($this->widget)) {
+                $widget = Creator::createObject(['class' => $this->widget]);
+            } else if (is_array($this->widget)) {
+                $widget = Creator::createObject($this->widget);
+            } else {
+                $widget = $this->widget;
+            }
             $this->setRenderWidget(false);
             $input = $widget->setField($this)->render();
             $this->setRenderWidget(true);

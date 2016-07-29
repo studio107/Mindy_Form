@@ -7,6 +7,8 @@ use Mindy\Base\Mindy;
 use Mindy\Form\Form;
 use Mindy\Form\ModelForm;
 use Mindy\Orm\Fields\ForeignField;
+use Mindy\Orm\Fields\HasManyField;
+use Mindy\Orm\Fields\ManyToManyField;
 use Mindy\Orm\Manager;
 use Mindy\Orm\Model;
 
@@ -149,7 +151,7 @@ class DropDownField extends Field
             $model = $this->form->getModel();
             $field = $model->getField($this->name);
 
-            if (is_a($field, $model::$manyToManyField)) {
+            if ($field instanceof ManyToManyField) {
                 $this->multiple = true;
 
                 $modelClass = $field->modelClass;
@@ -171,7 +173,7 @@ class DropDownField extends Field
                 foreach ($models as $item) {
                     $data[$item->pk] = (string)$item;
                 }
-            } elseif (is_a($field, $model::$hasManyField)) {
+            } elseif ($field instanceof HasManyField) {
                 $this->multiple = true;
 
                 $modelClass = $field->modelClass;
@@ -182,7 +184,7 @@ class DropDownField extends Field
                 foreach ($models as $item) {
                     $data[$item->pk] = (string)$item;
                 }
-            } elseif (is_a($field, $model::$foreignField)) {
+            } elseif ($field instanceof ForeignField) {
                 $modelClass = $field->modelClass;
                 $qs = $modelClass::objects();
                 if (get_class($model) == $modelClass && $model->getIsNewRecord() === false) {

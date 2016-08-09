@@ -59,7 +59,7 @@ abstract class BaseForm implements IteratorAggregate, Countable, ArrayAccess, IV
     /**
      * @var bool
      */
-    private $_renderErrors = false;
+    private $_renderErrors = true;
 
     public function __construct(array $config = [])
     {

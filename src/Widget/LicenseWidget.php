@@ -8,18 +8,24 @@
 
 namespace Mindy\Form\Widget;
 
+use Mindy\Form\FieldInterface;
+use Mindy\Form\FormInterface;
 use Mindy\Form\Widget;
 
 class LicenseWidget extends Widget
 {
+    /**
+     * @var string
+     */
     public $content = '';
 
-    public function render()
+    /**
+     * @param FormInterface $form
+     * @param FieldInterface $field
+     * @return string
+     */
+    public function render(FormInterface $form, FieldInterface $field) : string
     {
-        $field = $this->getField();
-        if ($field) {
-            return $this->content . ' ' . $field->renderInput();
-        }
-        return $this->content;
+        return $this->content . ' ' . $field->render($form);
     }
 }

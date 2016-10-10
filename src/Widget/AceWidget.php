@@ -8,6 +8,8 @@
 
 namespace Mindy\Form\Widget;
 
+use Mindy\Form\FieldInterface;
+use Mindy\Form\FormInterface;
 use Mindy\Form\Widget;
 use Mindy\Helper\Json;
 
@@ -27,12 +29,12 @@ class AceWidget extends Widget
     public $readOnly = false;
 
     /**
+     * @param FormInterface $form
+     * @param FieldInterface $field
      * @return string
      */
-    public function render()
+    public function render(FormInterface $form, FieldInterface $field) : string
     {
-        $field = $this->getField();
-
         $out = strtr('<div id="{id}-ace-editor" class="ace-editor">{value}</div>
         <script type="text/javascript">
             var editor = ace.edit("{id}-ace-editor");
@@ -57,6 +59,6 @@ class AceWidget extends Widget
             '{readonly}' => Json::encode($this->readOnly)
         ]);
 
-        return $field->renderInput() . $out;
+        return $field->renderInput($form) . $out;
     }
 }

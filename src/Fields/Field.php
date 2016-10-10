@@ -1,197 +1,203 @@
 <?php
+/**
+ * Created by PhpStorm.
+ * User: max
+ * Date: 13/09/16
+ * Time: 16:54
+ */
 
 namespace Mindy\Form\Fields;
 
 use Closure;
-use Exception;
-use Mindy\Form\BaseForm;
-use Mindy\Form\ModelForm;
-use Mindy\Helper\Creator;
-use Mindy\Helper\Traits\Accessors;
-use Mindy\Helper\Traits\Configurator;
-use Mindy\Validation\Interfaces\IValidateField;
-use Mindy\Validation\RequiredValidator;
-use Mindy\Validation\Traits\ValidateField;
+use Mindy\Form\FieldInterface;
+use Mindy\Form\FormInterface;
+use Mindy\Form\WidgetInterface;
+use Mindy\Creator\Creator;
+use Mindy\Validation\ValidationAwareInterface;
+use Mindy\Validation\ValidationAwareTrait;
+use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * Class Field
- * @package Mindy\Form
- */
-abstract class Field implements IValidateField
+abstract class Field implements FieldInterface, ValidationAwareInterface
 {
-    use Accessors, Configurator, ValidateField;
+    use ValidationAwareTrait;
 
-    /**
-     * @var bool Технические аттрибуты для inline моделей
-     */
-    public $hidden = false;
-    /**
-     * @var bool Технические аттрибуты для inline моделей
-     */
-    public $delete = false;
-    /**
-     * @var mixed
-     */
-    public $value;
-    /**
-     * @var bool
-     */
-    public $required = false;
-    /**
-     * @var bool
-     */
-    public $escape = true;
-    /**
-     * @var string
-     */
-    public $inputType;
-    /**
-     * @var string
-     */
-    public $template = "<input type='{type}' id='{id}' value='{value}' name='{name}'{html}/>";
-    /**
-     * @var string
-     */
-    public $hint;
-    /**
-     * @var string
-     */
-    public $type = 'text';
-    /**
-     * @var string
-     */
-    public $html = '';
-    /**
-     * @var array
-     */
-    public $choices = [];
-    /**
-     * @var array
-     */
-    public $widget = [];
     /**
      * @var string html class for render hint
      */
-    public $hintClass = 'form-hint-text';
-    /**
-     * @var
-     */
-    public $label;
+    public $hintClass = 'form-input-text';
     /**
      * @var string
      */
-    public $errorClass = 'error';
+    public $errorClass = 'form-error-list-input';
+    /**
+     * @var string
+     */
+    public $containerTemplate = '{label}{input}{hint}{errors}';
+    /**
+     * @var string
+     */
+    public $template = '';
+    /**
+     * @var string
+     */
+    protected $name;
+    /**
+     * @var mixed
+     */
+    protected $value;
     /**
      * @var bool
      */
-    public $enableCreateButton = false;
+    protected $required = true;
     /**
-     * @var
+     * @var array
      */
-    private $_name;
+    protected $validators = [];
     /**
-     * @var BaseForm
+     * @var string|object|array|null
      */
-    private $_form;
+    protected $widget;
+    /**
+     * @var array
+     */
+    protected $html = [];
     /**
      * @var string
      */
-    private $_validatorClass = '\Mindy\Form\Validator\Validator';
+    public $label = '';
     /**
      * @var string
      */
-    private $_prefix;
+    protected $hint;
+    /**
+     * @var bool
+     */
+    protected $escape = true;
+    /**
+     * @var array
+     */
+    protected $choices = [];
+    /**
+     * @var string
+     */
+    protected $htmlId;
+    /**
+     * @var string
+     */
+    protected $htmlName;
     /**
      * Variable for avoid recursion
      * @var bool
      */
     private $_renderWidget = true;
 
-    public function init()
+    /**
+     * NewField constructor.
+     * @param array $config
+     */
+    public function __construct(array $config = [])
     {
-        if ($this->required) {
-            $this->validators[] = new RequiredValidator();
-        }
-        foreach ($this->validators as $validator) {
-            /** @var $validator \Mindy\Validation\Validator */
-            if (is_subclass_of($validator, $this->_validatorClass)) {
-                $validator->setName($this->label ? $this->label : $this->name);
+        $this->configure($config);
+    }
+
+    /**
+     * @param array $config
+     */
+    public function configure(array $config)
+    {
+        foreach ($config as $key => $value) {
+            if (method_exists($this, 'set' . ucfirst($key))) {
+                $this->{'set' . ucfirst($key)}($value);
+            } else if (property_exists($this, $key)) {
+                $this->{$key} = $value;
             }
         }
     }
 
-    public function __toString()
-    {
-        try {
-            return (string)$this->render();
-        } catch (Exception $e) {
-            echo (string)$e;
-            die();
-        }
-    }
-
     /**
-     * @param BaseForm $form
+     * @param $value
      * @return $this
      */
-    public function setForm(BaseForm $form)
+    public function setValue($value)
     {
-        $this->_form = $form;
+        $this->value = $value;
         return $this;
-    }
-
-    /**
-     * @return BaseForm
-     */
-    public function getForm()
-    {
-        return $this->_form;
-    }
-
-    public function setPrefix($value)
-    {
-        $this->_prefix = $value;
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getPrefix()
-    {
-        $form = $this->getForm();
-        if ($form === null) {
-            return '';
-        }
-        $prefix = $this->_prefix ? $this->_prefix : $form->getPrefix();
-        if ($prefix) {
-            return $prefix . '[' . $form->classNameShort() . '][' . $this->getId() . ']';
-        } else {
-            return $form->classNameShort();
-        }
-    }
-
-    public function getId()
-    {
-        return $this->form->getId();
     }
 
     /**
      * @return mixed
      */
-    public function getName()
+    public function getValue()
     {
-        return $this->_name;
+        return $this->value;
     }
 
     /**
-     * @param $name
-     * @return $this
+     * @return array
      */
-    public function setName($name)
+    public function getValidationConstraints() : array
     {
-        $this->_name = $name;
-        return $this;
+        return $this->validators;
+    }
+
+    /**
+     * @return mixed|string
+     */
+    public function getHtmlId() : string
+    {
+        if (isset($this->html['id'])) {
+            return $this->html['id'];
+        } else {
+            return $this->htmlId;
+        }
+    }
+
+    /**
+     * @param FormInterface $form
+     */
+    protected function setHtmlId(FormInterface $form)
+    {
+        $this->htmlId = implode('_', [$form->classNameShort(), $form->getId(), $this->name]);
+    }
+
+    /**
+     * @param FormInterface $form
+     */
+    protected function setHtmlName(FormInterface $form)
+    {
+        $this->htmlName = $form->classNameShort();
+    }
+
+    /**
+     * @return string
+     */
+    public function getHtmlAttributes() : string
+    {
+        $html = '';
+        foreach ($this->html as $key => $value) {
+            if (is_bool($value)) {
+                $value = $value ? 'true' : 'false';
+            }
+            $html .= $key . '="' . $value . '" ';
+        }
+        return trim($html);
+    }
+
+    /**
+     * @return string
+     */
+    public function renderLabel() : string
+    {
+        if ($this->getLabel() === false) {
+            return '';
+        }
+
+        $star = " <span class='required'>*</span>";
+
+        return strtr("<label for='{for}'>{label}</label>", [
+            '{for}' => $this->getHtmlId(),
+            '{label}' => $this->required ? $this->getLabel() . $star : $this->getLabel(),
+        ]);
     }
 
     /**
@@ -204,137 +210,69 @@ abstract class Field implements IValidateField
         return $this;
     }
 
-    public function renderInput()
+    /**
+     * @return WidgetInterface
+     */
+    protected function createWidget() : WidgetInterface
+    {
+        if ($this->widget instanceof WidgetInterface) {
+            return $this->widget;
+        }
+
+        if (is_string($this->widget)) {
+            $widget = ['class' => $this->widget];
+        } else {
+            $widget = $this->widget;
+        }
+
+        return Creator::createObject($widget);
+    }
+
+    /**
+     * @return string
+     */
+    public function getHtmlName() : string
+    {
+        return $this->htmlName . '[' . $this->name . ']';
+    }
+
+    /**
+     * @param $name
+     * @return $this
+     */
+    public function setName(string $name)
+    {
+        $this->name = $name;
+        return $this;
+    }
+
+    /**
+     * @param FormInterface $form
+     * @return string
+     */
+    public function renderInput(FormInterface $form) : string
     {
         if (empty($this->widget) === false && $this->_renderWidget) {
-            if (is_string($this->widget)) {
-                $widget = Creator::createObject(['class' => $this->widget]);
-            } else if (is_array($this->widget)) {
-                $widget = Creator::createObject($this->widget);
-            } else {
-                $widget = $this->widget;
-            }
             $this->setRenderWidget(false);
-            $input = $widget->setField($this)->render();
+            $input = $this->createWidget()->render($form, $this);
             $this->setRenderWidget(true);
             return $input;
         } else {
-            $value = $this->getValue();
-            $attributes = $this->getHtmlAttributes();
             $input = strtr($this->template, [
-                '{type}' => $this->type,
                 '{id}' => $this->getHtmlId(),
                 '{name}' => $this->getHtmlName(),
-                '{value}' => $this->escape ? htmlspecialchars($value, ENT_QUOTES) : $value,
-                '{html}' => empty($attributes) ? '' : ' ' . $attributes
+                '{value}' => $this->renderValue(),
+                '{html}' => $this->getHtmlAttributes(),
             ]);
 
             return $input;
         }
     }
 
-    public function render()
-    {
-        $label = $this->renderLabel();
-        $input = $this->renderInput();
-
-        $hint = $this->hint ? $this->renderHint() : '';
-        $errors = $this->renderErrors();
-        return implode("\n", [$label, $input, $hint, $errors]);
-    }
-
-    public function getHtmlName()
-    {
-        $form = $this->getForm();
-        if ($form === null) {
-            return '';
-        }
-
-        if ($form->usePrefix) {
-            return $this->getPrefix() . '[' . $this->name . ']';
-        } else {
-            return $this->name;
-        }
-    }
-
-    public function getHtmlAttributes()
-    {
-        if (is_array($this->html)) {
-            $html = [];
-            foreach ($this->html as $name => $value) {
-                if ($name === 'id') {
-                    continue;
-                }
-
-                if ($value === true) {
-                    $value = 'true';
-                } else if ($value === false) {
-                    $value = 'false';
-                }
-
-                if (is_numeric($name)) {
-                    $html[] = $value;
-                } else {
-                    $html[] = $name . "='" . $value . "'";
-                }
-            }
-            return trim(implode(' ', $html));
-        } else {
-            return trim($this->html);
-        }
-    }
-
-    public function setValue($value)
-    {
-        $this->value = $value;
-        return $this;
-    }
-
-    public function getValue()
-    {
-//        if ($this->value === null) {
-//            if ($this->form instanceof ModelForm) {
-//                $instance = $this->form->getInstance();
-//                if ($instance->hasField($this->name)) {
-//                    return $instance->getField($this->name)->getValue();
-//                }
-//            }
-//        }
-        return $this->value;
-    }
-
-    public function renderLabel()
-    {
-        if ($this->label === false) {
-            return '';
-        }
-
-        if ($this->label) {
-            $label = $this->label;
-        } else {
-            if ($this->form instanceof ModelForm) {
-                $instance = $this->form->getModel();
-                if ($instance->hasField($this->name)) {
-                    $verboseName = $instance->getField($this->name)->verboseName;
-                    if ($verboseName) {
-                        $label = $verboseName;
-                    }
-                }
-            }
-
-            if (!isset($label)) {
-                $label = ucfirst($this->name);
-            }
-        }
-
-        return strtr("<label for='{for}'>{label}{star}</label>", [
-            '{for}' => $this->getHtmlId(),
-            '{label}' => $label,
-            '{star}' => $this->required ? " <span class='required'>*</span>" : ''
-        ]);
-    }
-
-    public function renderErrors()
+    /**
+     * @return string
+     */
+    public function renderErrors() : string
     {
         $errors = "";
         foreach ($this->getErrors() as $error) {
@@ -349,7 +287,10 @@ abstract class Field implements IValidateField
         ]);
     }
 
-    public function renderHint()
+    /**
+     * @return string
+     */
+    public function renderHint() : string
     {
         return strtr('<p class="{class}">{hint}</p>', [
             '{class}' => $this->hintClass,
@@ -358,41 +299,61 @@ abstract class Field implements IValidateField
     }
 
     /**
-     * Format:
-     * [
-     *     "Main" => [
-     *         "Name", "Url", "Content"
-     *     ],
-     *     "Extra" => [ ... ]
-     * ]
-     * @return array
+     * @param FormInterface $form
+     * @return string
      */
-    public function getFieldSets()
+    public function render(FormInterface $form) : string
     {
-        return [];
+        $this->setHtmlId($form);
+        $this->setHtmlName($form);
+
+        return strtr($this->containerTemplate, [
+            '{label}' => $this->renderLabel(),
+            '{input}' => $this->renderInput($form),
+            '{errors}' => $this->renderErrors(),
+            '{hint}' => $this->renderHint()
+        ]);
     }
 
-    public function getHtmlId()
+    public function renderValue() : string
     {
-        if (isset($this->html['id'])) {
-            return $this->html['id'];
-        } else {
-            return $this->getHtmlPrefix() . $this->getName();
+        if ($this->escape) {
+            if (is_array($this->value)) {
+                return array_map(function ($value) {
+                    return htmlspecialchars($value, ENT_QUOTES);
+                }, $this->value);
+            } else if (is_string($this->value)) {
+                return htmlspecialchars($this->value, ENT_QUOTES);
+            }
         }
+
+        return (string)$this->value;
     }
 
-    public function getHtmlPrefix()
+    /**
+     * @return bool
+     */
+    public function isRequired() : bool
     {
-        $prefix = $this->getPrefix();
-        if (empty($prefix)) {
-            return '';
+        return $this->required;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLabel() : string
+    {
+        if (empty($this->label)) {
+            $this->label = ucfirst($this->name);
         }
-
-        return rtrim(str_replace(['][', '[]', '[', ']'], '_', $prefix), '_') . '_';
+        return $this->label;
     }
 
-    public function getChoices()
+    /**
+     * @return string
+     */
+    public function getName()
     {
-        return $this->choices instanceof Closure ? $this->choices->__invoke() : $this->choices;
+        return $this->name;
     }
 }

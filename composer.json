@@ -1,7 +1,7 @@
 {
   "name": "mindy/form",
   "homepage": "https://github.com/MindyPHP/Mindy_Form",
-  "license": "BSD",
+  "license": "MIT",
   "autoload": {
     "psr-4": {
       "Mindy\\Form\\": "src/"
@@ -13,14 +13,12 @@
     }
   },
   "require": {
-    "php": ">=5.6"
+    "php": ">=7.0",
+    "mindy/validation": "^2.0",
+    "mindy/helper": "^3.0"
   },
   "require-dev": {
-    "mindy/cache": "dev-master",
-    "mindy/query": "dev-master",
-    "mindy/logger": "dev-master",
-    "mindy/orm": "dev-master",
-    "phpunit/php-code-coverage": "^4"
+
   },
   "authors": [
     {

@@ -2,17 +2,21 @@
 
 namespace Mindy\Form\Fields;
 
-use Mindy\Validation\EmailValidator;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Class EmailField
  * @package Mindy\Form
  */
-class EmailField extends CharField
+class EmailField extends TextField
 {
-    public function init()
+    public $template = "<input type='email' value='{value}' id='{id}' name='{name}'{html}/>";
+
+    public function getValidationConstraints() : array
     {
-        parent::init();
-        $this->validators[] = new EmailValidator($this->required);
+        return array_merge(parent::getValidationConstraints(), [
+            new Assert\Email([
+            ])
+        ]);
     }
 }

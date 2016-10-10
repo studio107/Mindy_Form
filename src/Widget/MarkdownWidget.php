@@ -8,17 +8,19 @@
 
 namespace Mindy\Form\Widget;
 
+use Mindy\Form\FieldInterface;
+use Mindy\Form\FormInterface;
 use Mindy\Form\Widget;
 
 class MarkdownWidget extends Widget
 {
     /**
+     * @param FormInterface $form
+     * @param FieldInterface $field
      * @return string
      */
-    public function render()
+    public function render(FormInterface $form, FieldInterface $field) : string
     {
-        $field = $this->getField();
-
         $html = '<div id="editor">{$field->renderInput()}</div><div class="content" id="preview"></div>';
 
         $js = <<<JS
@@ -47,6 +49,6 @@ class MarkdownWidget extends Widget
     };
 </script>
 JS;
-        return $field->renderInput() . $html . $js;
+        return $field->renderInput($form) . $html . $js;
     }
 }

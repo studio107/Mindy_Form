@@ -8,6 +8,8 @@
 
 namespace Mindy\Form\Widget;
 
+use Mindy\Form\FieldInterface;
+use Mindy\Form\FormInterface;
 use Mindy\Form\Widget;
 use Mindy\Helper\JavaScript;
 use Mindy\Helper\JavaScriptExpression;
@@ -29,18 +31,19 @@ class DateTimeWidget extends Widget
         'incrementMinuteBy' => 1,
         'incrementSecondBy' => 1
     ];
-    
+
     /**
+     * @param FormInterface $form
+     * @param FieldInterface $field
      * @return string
      */
-    public function render()
+    public function render(FormInterface $form, FieldInterface $field) : string
     {
-        $field = $this->getField();
         $options = array_merge($this->_defaultOptions, $this->options);
         $jsOptions = JavaScript::encode(array_merge($options, [
             'field' => new JavaScriptExpression('document.getElementById("' . $field->getHtmlId() . '")')
         ]));
         $js = "<script type='text/javascript'>new Pikaday($jsOptions);</script>";
-        return $field->renderInput() . $js;
+        return $field->renderInput($form) . $js;
     }
 }

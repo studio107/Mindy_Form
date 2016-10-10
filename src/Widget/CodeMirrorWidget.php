@@ -8,8 +8,10 @@
 
 namespace Mindy\Form\Widget;
 
+use Mindy\Form\FieldInterface;
+use Mindy\Form\FormInterface;
 use Mindy\Form\Widget;
-use Mindy\Helper\JavaScript;
+use Mindy\Helper\Json;
 
 class CodeMirrorWidget extends Widget
 {
@@ -23,19 +25,22 @@ class CodeMirrorWidget extends Widget
         'matchBrackets' => true,
         'theme' => 'material'
     ];
-
+    /**
+     * @var array
+     */
     public $options = [];
 
     /**
+     * @param FormInterface $form
+     * @param FieldInterface $field
      * @return string
      */
-    public function render()
+    public function render(FormInterface $form, FieldInterface $field) : string
     {
-        $field = $this->getField();
-        $jsOptions = JavaScript::encode(array_merge($this->_defaultOptions, $this->options));
+        $jsOptions = Json::encode(array_merge($this->_defaultOptions, $this->options));
         $js = '<script type="text/javascript">
             var editor = CodeMirror.fromTextArea(document.getElementById("' . $field->getHtmlId() . '"), ' . $jsOptions . ');
         </script>';
-        return $field->renderInput() . $js;
+        return $field->renderInput($form) . $js;
     }
 }

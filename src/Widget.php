@@ -8,16 +8,8 @@
 
 namespace Mindy\Form;
 
-use Exception;
-use Mindy\Form\Fields\Field;
-
-abstract class Widget
+abstract class Widget implements WidgetInterface
 {
-    /**
-     * @var Field
-     */
-    private $_field;
-
     /**
      * Widget constructor.
      * @param array $config
@@ -25,30 +17,11 @@ abstract class Widget
     public function __construct(array $config = [])
     {
         foreach ($config as $key => $value) {
-            $this->{$key} = $value;
+            if (method_exists($this, 'set' . ucfirst($key))) {
+                $this->{'set' . ucfirst($key)}($value);
+            } else if (property_exists($this, $key)) {
+                $this->{$key} = $value;
+            }
         }
     }
-
-    /**
-     * @return Field
-     */
-    protected function getField()
-    {
-        return $this->_field;
-    }
-
-    /**
-     * @param Field $field
-     * @return $this
-     */
-    public function setField(Field $field)
-    {
-        $this->_field = $field;
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    abstract public function render();
 }

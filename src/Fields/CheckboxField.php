@@ -1,14 +1,22 @@
 <?php
 
 namespace Mindy\Form\Fields;
+use Mindy\Form\FormInterface;
 
 /**
  * Class CheckboxField
  * @package Mindy\Form
  */
-class CheckboxField extends CharField
+class CheckboxField extends Field
 {
-    public $template = "<input type='{type}' id='{id}' value='{value}' name='{name}'{html}/>";
+    /**
+     * @var string
+     */
+    public $containerTemplate = '{input}{label}{hint}{errors}';
+    /**
+     * @var string
+     */
+    public $template = "<input type='checkbox' id='{id}' value='{value}' name='{name}'{html}/>";
 
     /**
      * Template for container choices
@@ -17,34 +25,11 @@ class CheckboxField extends CharField
      */
     public $container = '{input}';
 
-    public $type = "checkbox";
-
-    public function render()
-    {
-        $label = $this->renderLabel();
-        $input = $this->renderInput();
-        $hint = $this->hint ? $this->renderHint() : '';
-        $errors = $this->renderErrors();
-
-        if (empty($this->choices)) {
-            return implode("\n", [
-                "<input type='hidden' value='' name='" . $this->getHtmlName() . "' />",
-                $input, $label, $hint, $errors
-            ]);
-        } else {
-            return implode("\n", [
-                "<input type='hidden' value='' name='" . parent::getHtmlName() . "' />",
-                $label, $input, $hint, $errors
-            ]);
-        }
-    }
-
-    public function getHtmlName()
-    {
-        return $this->getPrefix() . '[' . $this->name . ']' . ($this->choices ? '[]' : '');
-    }
-
-    public function renderInput()
+    /**
+     * @param FormInterface $form
+     * @return string
+     */
+    public function renderInput(FormInterface $form) : string
     {
         if (!empty($this->choices)) {
             $inputs = [];
@@ -74,7 +59,6 @@ class CheckboxField extends CharField
                 }
 
                 $input = strtr($this->template, [
-                    '{type}' => $this->type,
                     '{id}' => $this->getHtmlId() . '_' . $i,
                     '{name}' => $this->getHtmlName(),
                     '{value}' => $value,
@@ -92,7 +76,6 @@ class CheckboxField extends CharField
                 $this->html['checked'] = 'checked';
             }
             $input = strtr($this->template, [
-                '{type}' => $this->type,
                 '{id}' => $this->getHtmlId(),
                 '{name}' => $this->getHtmlName(),
                 '{value}' => 1,

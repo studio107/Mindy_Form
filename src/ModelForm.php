@@ -1,200 +1,139 @@
 <?php
+/**
+ * Created by PhpStorm.
+ * User: max
+ * Date: 13/09/16
+ * Time: 21:50
+ */
 
 namespace Mindy\Form;
 
-use Exception;
-use Mindy\Helper\Creator;
-use Mindy\Orm\Fields\FileField;
-use Mindy\Orm\Model;
+use Mindy\Creator\Creator;
+use Mindy\Orm\Fields\HasManyField;
+use Mindy\Orm\Fields\ManyToManyField;
 
 /**
  * Class ModelForm
  * @package Mindy\Form
  */
-class ModelForm extends BaseForm
+class ModelForm extends Form
 {
     /**
-     * @var \Mindy\Orm\Model
+     * @var \Mindy\Orm\ModelInterface|FormModelInterface
      */
-    protected $_instance;
+    protected $model;
     /**
-     * @var \Mindy\Orm\Model
+     * @var bool
      */
-    private $_model;
+    protected $initialized = false;
 
-    /**
-     * Initialize fields
-     * @void
-     */
-    public function initFields()
+    public function __construct(array $config = [])
     {
-        $instance = $this->getInstance();
-        $model = $this->getModel();
-        // if prefix available - inline form
-        $prefix = $this->getPrefix();
-        $fields = $this->getFields();
+        parent::__construct($config);
+        if ($this->getModel() && $this->initialized === false) {
+            $this->setModel($this->getModel());
+        }
+    }
 
-        foreach ($model->getFieldsInit() as $name => $field) {
-            if ($field->editable === false || $field->primary || in_array($name, $this->getExclude())) {
-                continue;
-            }
+    /**
+     * @param FormModelInterface $model
+     */
+    public function setModel(FormModelInterface $model)
+    {
+        $this->model = $model;
+        $this->initializeForm($model);
+    }
 
-            if (array_key_exists($name, $fields)) {
-                $this->_fields[$name] = Creator::createObject(array_merge([
-                    'name' => $name,
-                    'form' => $this,
-                    'prefix' => $prefix,
-                    'choices' => $field->choices
-                ], is_array($fields[$name]) ? $fields[$name] : ['class' => $fields[$name]]));
-            } else {
-                $modelField = $field->setModel($instance ? $instance : $model)->getFormField($this);
-                if ($modelField) {
-                    $this->_fields[$name] = $modelField;
+    /**
+     * @return mixed
+     */
+    public function getModel()
+    {
+        return $this->model;
+    }
+
+    /**
+     * @param FormModelInterface|\Mindy\Orm\ModelInterface $model
+     */
+    private function initializeForm(FormModelInterface $model)
+    {
+        if ($this->initialized === false) {
+            $fields = $this->getFields();
+            $attributes = $model->getAttributes();
+            foreach ($model->getMeta()->getFields() as $name => $field) {
+                $modelField = $model->getField($name);
+                $field = $modelField->getFormField();
+
+                if ($field === null || $field === false) {
+                    continue;
                 }
-            }
 
-            if ($instance) {
-                $value = $instance->{$name};
-                if ($value instanceof FileField) {
-                    $value = $value->getUrl();
+                if (($field instanceof FieldInterface) === false) {
+                    $field = Creator::createObject(isset($fields[$name]) ? array_merge($field, $fields[$name]) : $field);
+                } else {
+                    $field->configure(['name' => $name]);
                 }
-                $this->_fields[$name]->setValue($value);
-            }
-        }
 
-
-        foreach ($fields as $name => $config) {
-            if (isset($this->_fields[$name]) || in_array($name, $this->getExclude())) {
-                continue;
-            }
-
-            if (!is_array($config)) {
-                $config = ['class' => $config];
-            }
-
-            $this->_fields[$name] = Creator::createObject(array_merge([
-                'name' => $name,
-                'form' => $this,
-                'prefix' => $prefix
-            ], is_array($config) ? $config : ['class' => $config]));
-
-            if ($instance && $instance->hasField($name)) {
-                $value = $instance->{$name};
-                if ($value instanceof FileField) {
-                    $value = $value->getUrl();
+                if (isset($fields[$name]) && is_array($fields[$name])) {
+                    $field->configure($fields[$name]);
                 }
-                $this->_fields[$name]->setValue($value);
-            }
-        }
-    }
 
-    /**
-     * @param Model $model
-     * @return $this
-     */
-    protected function setInstanceValues(Model $model)
-    {
-        foreach ($model->getFields() as $name => $config) {
-            if (array_key_exists($name, $this->_fields)) {
-                $value = $model->{$name};
-                if ($value instanceof FileField) {
-                    $value = $value->getValue();
+                if (array_key_exists($name, $attributes)) {
+                    $field->setValue($attributes[$name]);
+                } else if ($modelField instanceof HasManyField || $modelField instanceof ManyToManyField) {
+                    $field->setValue($modelField->getValue()->valuesList(['pk'], true));
                 }
-                $this->_fields[$name]->setValue($value);
+                $this->fields[$name] = $field;
             }
-        }
-        return $this;
-    }
 
-    /**
-     * @param array $data
-     * @return $this
-     */
-    public function setModelAttributes(array $data)
-    {
-        $instance = $this->getInstance();
-        if ($instance === null) {
-            $instance = $this->getModel();
-            $this->_instance = $instance;
-        }
-        $instance->setAttributes($data);
-        return $this;
-    }
-
-    /**
-     * @param $model \Mindy\Orm\Model
-     * @return $this
-     * @throws \Exception
-     */
-    public function setInstance($model)
-    {
-        $this->_instance = $model;
-        if ($model) {
-            $this->setInstanceValues($model);
+            $this->initialized = true;
         }
     }
 
     /**
-     * Clear instance variable
+     * @param $name
+     * @return bool
      */
-    public function clearInstance()
+    public function hasField($name) : bool
     {
-        $this->_instance = null;
+        // Foreign fields with auto generated form
+        if (array_key_exists($name . '_id', $this->fields)) {
+            return true;
+        }
+        return parent::hasField($name);
     }
 
     /**
-     * @return \Mindy\Orm\Model|\Mindy\Orm\TreeModel|null
+     * @param string $name
+     * @return FieldInterface
      */
-    public function getInstance()
+    public function getField(string $name) : FieldInterface
     {
-        return $this->_instance;
+        // Foreign fields with auto generated form
+        if (array_key_exists($name . '_id', $this->fields)) {
+            $name .= '_id';
+        }
+        return parent::getField($name);
     }
 
     /**
      * @return bool
      */
-    public function save()
+    public function save() : bool
     {
-        $this->setModelAttributes($this->cleanedData);
-        return $this->getInstance()->save();
+        $this->setModelAttributes($this->getAttributes());
+        $state = $this->model->save();
+        $this->setAttributes($this->model->getAttributes());
+        return $state;
     }
 
     /**
-     * @throws \Exception
-     * @return \Mindy\Orm\Model
-     */
-    public function getModel()
-    {
-        if ($this->_model === null) {
-            throw new Exception("Not implemented");
-        }
-        return $this->_model;
-    }
-
-    /**
-     * @param Model $model
+     * @param array $attributes
      * @return $this
      */
-    public function setModel(Model $model)
+    public function setModelAttributes(array $attributes)
     {
-        $this->_model = $model;
+        $this->model->setAttributes($attributes);
         return $this;
-    }
-
-    protected function populateFromInstance(\Mindy\Orm\Model $model)
-    {
-        foreach ($this->getFieldsInit() as $name => $field) {
-            if ($model->hasField($name)) {
-                $value = $model->{$name};
-                if ($value instanceof FileField) {
-                    $value = $value->getUrl();
-                }
-                $this->_fields[$name]->setValue($value);
-            }
-        }
-
-        if ($this->getPrefix()) {
-            $this->getField('_pk')->setValue($model->pk);
-        }
     }
 }

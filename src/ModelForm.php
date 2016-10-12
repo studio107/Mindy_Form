@@ -27,9 +27,14 @@ class ModelForm extends Form
      */
     protected $initialized = false;
 
+    /**
+     * ModelForm constructor.
+     * @param array $config
+     */
     public function __construct(array $config = [])
     {
         parent::__construct($config);
+
         if ($this->getModel() && $this->initialized === false) {
             $this->setModel($this->getModel());
         }
@@ -38,7 +43,7 @@ class ModelForm extends Form
     /**
      * @param FormModelInterface $model
      */
-    public function setModel(FormModelInterface $model)
+    public function setModel($model)
     {
         $this->model = $model;
         $this->initializeForm($model);
@@ -55,7 +60,7 @@ class ModelForm extends Form
     /**
      * @param FormModelInterface|\Mindy\Orm\ModelInterface $model
      */
-    private function initializeForm(FormModelInterface $model)
+    private function initializeForm($model)
     {
         if ($this->initialized === false) {
             $fields = $this->getFields();

@@ -19,6 +19,10 @@ use Mindy\Orm\Fields\ManyToManyField;
 class ModelForm extends Form
 {
     /**
+     * @var array
+     */
+    public $exclude = [];
+    /**
      * @var \Mindy\Orm\ModelInterface|FormModelInterface
      */
     protected $model;
@@ -66,6 +70,11 @@ class ModelForm extends Form
             $fields = $this->getFields();
             $attributes = $model->getAttributes();
             foreach ($model->getMeta()->getFields() as $name => $field) {
+
+                if (in_array($name, $this->exclude)) {
+                    continue;
+                }
+
                 $modelField = $model->getField($name);
                 $field = $modelField->getFormField();
 
@@ -86,7 +95,7 @@ class ModelForm extends Form
                 if (array_key_exists($name, $attributes)) {
                     $field->setValue($attributes[$name]);
                 } else if ($modelField instanceof HasManyField || $modelField instanceof ManyToManyField) {
-                    $field->setValue($modelField->getValue()->valuesList(['pk'], true));
+                    $field->setValue($modelField->getRelatedModel()->objects()->valuesList(['pk'], true));
                 }
                 $this->fields[$name] = $field;
             }
@@ -119,6 +128,15 @@ class ModelForm extends Form
             $name .= '_id';
         }
         return parent::getField($name);
+    }
+
+    public function getAttributes()
+    {
+        $attributes = parent::getAttributes();
+        foreach ($this->exclude as $name) {
+            unset($attributes[$name]);
+        }
+        return $attributes;
     }
 
     /**

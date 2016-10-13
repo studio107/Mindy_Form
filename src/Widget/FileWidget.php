@@ -42,8 +42,7 @@ class FileWidget extends Widget
 
             if (app()->storage->getFilesystem()->has($field->getValue())) {
                 $currentLink = app()->template->render('core/field/image_field.html', [
-                    'value' => $value,
-                    'url' => $this->getUrl($value)
+                    'value' => $value
                 ]);
 //                $currentLink = strtr($this->currentTemplate, [
 //                    '{current}' => $this->getUrl($value)
@@ -66,10 +65,5 @@ class FileWidget extends Widget
             return $currentLink . $clean . $html;
         }
         return $html;
-    }
-
-    public function getUrl($value)
-    {
-        return app()->storage->getFilesystem()->url($value);
     }
 }

@@ -20,7 +20,7 @@ class FileWidget extends Widget
     /**
      * @var bool
      */
-    public $cleanValue = '1';
+    public $cleanValue = '__clean';
     /**
      * @var string
      */

@@ -3,9 +3,8 @@
 namespace Mindy\Form\Fields;
 
 use Mindy\Form\Widget\FileWidget;
-use Mindy\Orm\Files\UploadedFile;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Validator\Constraints as Assert;
-use Mindy\Orm\Validation;
 
 /**
  * Class FileField
@@ -43,15 +42,22 @@ class FileField extends Field
         $this->html['accept'] = implode('|', $this->mimeTypes);
     }
 
+    /**
+     * @param $value
+     * @return $this
+     */
     public function setValue($value)
     {
-        if ($value === '1') {
+        if ($value === '__clean') {
             // Clean file field hack
             $value = null;
         }
         return parent::setValue($value);
     }
 
+    /**
+     * @return string
+     */
     public function renderValue() : string
     {
         if (is_object($this->value)) {

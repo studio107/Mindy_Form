@@ -1,6 +1,7 @@
 <?php
 
 namespace Mindy\Form\Fields;
+
 use Mindy\Form\Widget\ImageWidget;
 
 /**

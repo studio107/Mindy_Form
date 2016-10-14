@@ -15,10 +15,7 @@
   "require": {
     "php": ">=7.0",
     "mindy/validation": "^2.0",
-    "mindy/helper": "^3.0"
-  },
-  "require-dev": {
-
+    "mindy/helper": "^4.0"
   },
   "authors": [
     {

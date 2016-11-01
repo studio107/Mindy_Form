@@ -82,6 +82,7 @@ class ModelForm extends Form
                     continue;
                 }
 
+                $attributeName = $modelField->getAttributeName();
                 if (($field instanceof FieldInterface) === false) {
                     $field = Creator::createObject(isset($fields[$name]) ? array_merge($field, $fields[$name]) : $field);
                 } else {
@@ -97,11 +98,16 @@ class ModelForm extends Form
                 } else if ($modelField instanceof HasManyField || $modelField instanceof ManyToManyField) {
                     $field->setValue($modelField->getRelatedModel()->objects()->valuesList(['pk'], true));
                 }
-                $this->fields[$name] = $field;
+                $this->fields[$attributeName] = $field;
             }
 
             $this->initialized = true;
         }
+    }
+
+    public function getFieldsInit()
+    {
+        return $this->fields;
     }
 
     /**
